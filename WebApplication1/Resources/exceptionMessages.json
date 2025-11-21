@@ -1,0 +1,188 @@
+﻿[
+    {
+        "Key": "NotFoundException",
+        "SubKey": "default",
+        "Message": {
+            "sr-Latn": "Traženi resurs nije pronađen.",
+            "en-US": "Requested resource was not found."
+        }
+    },
+    {
+        "Key": "ConflictException",
+        "SubKey": "default",
+        "Message": {
+            "sr-Latn": "Došlo je do konflikta u podacima.",
+            "en-US": "A data conflict occurred."
+        }
+    },
+    {
+        "Key": "NotFoundException",
+        "SubKey": "Tura",
+        "Message": {
+            "sr-Latn": "Tura sa zadatim ID-jem nije pronađena.",
+            "en-US": "Tour with given ID was not found."
+        }
+    },
+    {
+        "Key": "NotFoundException",
+        "SubKey": "Vozilo",
+        "Message": {
+            "sr-Latn": "Vozilo sa zadatim ID-jem * nije pronađeno.",
+            "en-US": "Vehicle with given ID * was not found."
+        }
+    },
+    {
+        "Key": "ValidationException",
+        "SubKey": "DatumIstovara",
+        "Message": {
+            "sr-Latn": "Datum istovara ne može biti pre datuma utovara.",
+            "en-US": "Unloading date cannot be before loading date."
+        }
+    },
+    {
+        "Key": "ValidationException",
+        "SubKey": "InvalidPasswordRegister",
+        "Message": {
+            "sr-Latn": "Lozinka nije validna, mora imati najmanje 6 karaktera.",
+            "en-US": "Password is invalid."
+        }
+    },
+    {
+        "Key": "ValidationException",
+        "SubKey": "EmptyFullName",
+        "Message": {
+            "sr-Latn": "Ime i prezime su obavezni.",
+            "en-US": "Full name is required."
+        }
+    },
+    {
+        "Key": "ValidationException",
+        "SubKey": "EmptyUsername",
+        "Message": {
+            "sr-Latn": "Korisničko ime je obavezno.",
+            "en-US": "Username is required."
+        }
+    },
+    {
+        "Key": "ValidationException",
+        "SubKey": "EmptyEmail",
+        "Message": {
+            "sr-Latn": "Email adresa je obavezna.",
+            "en-US": "Email address is required."
+        }
+    },
+    {
+        "Key": "ValidationException",
+        "SubKey": "InvalidPassword",
+        "Message": {
+            "sr-Latn": "Pogresna lozinka, pokusajte ponovo.",
+            "en-US": "Password is invalid."
+        }
+    },
+    {
+        "Key": "ValidationException",
+        "SubKey": "InvalidEmail",
+        "Message": {
+            "sr-Latn": "Email adresa nije validna.",
+            "en-US": "Email address is not valid."
+        }
+    },
+    {
+        "Key": "ConflictException",
+        "SubKey": "UsernameExists",
+        "Message": {
+            "sr-Latn": "Korisničko ime već postoji.",
+            "en-US": "Username already exists."
+        }
+    },
+    },
+    {
+        "Key": "ConflictException",
+        "SubKey": "VoziloZauzeto",
+        "Message": {
+            "sr-Latn": "Vozilo je trenutno zauzeto i ne može biti dodeljeno novoj turi.",
+            "en-US": "Vehicle is currently busy and cannot be assigned to a new trip."
+        }
+    },
+    {
+        "Key": "ConflictException",
+        "SubKey": "SaveFailed",
+        "Message": {
+            "sr-Latn": "Došlo je do greške prilikom čuvanja podataka.",
+            "en-US": "An error occurred while saving data."
+        }
+    },
+    {
+        "Key": "ConflictException",
+        "SubKey": "DeleteFailed",
+        "Message": {
+            "sr-Latn": "Došlo je do greške prilikom brisanja podataka.",
+            "en-US": "An error occurred while deleting data."
+        }
+    },
+
+    {
+        "Key": "ValidationException",
+        "SubKey": "EmptyAccessToken",
+        "Message": {
+            "sr-Latn": "Access token je obavezan.",
+            "en-US": "Access token is required."
+        }
+    },
+    {
+        "Key": "ValidationException",
+        "SubKey": "EmptyRefreshToken",
+        "Message": {
+            "sr-Latn": "Refresh token je obavezan.",
+            "en-US": "Refresh token is required."
+        }
+    },
+    {
+        "Key": "ValidationException",
+        "SubKey": "InvalidAccessToken",
+        "Message": {
+            "sr-Latn": "Access token nije validan.",
+            "en-US": "Access token is invalid."
+        }
+    },
+    {
+        "Key": "ValidationException",
+        "SubKey": "InvalidUserId",
+        "Message": {
+            "sr-Latn": "Token ne sadrži validan identifikator korisnika.",
+            "en-US": "Token does not contain a valid user identifier."
+        }
+    },
+    {
+        "Key": "NotFoundException",
+        "SubKey": "RefreshTokenInvalid",
+        "Message": {
+            "sr-Latn": "Neispravan ili istekao refresh token.",
+            "en-US": "Invalid or expired refresh token."
+        }
+    },
+    {
+        "Key": "ConflictException",
+        "SubKey": "TokenGenerationFailed",
+        "Message": {
+            "sr-Latn": "Došlo je do greške prilikom generisanja novih tokena.",
+            "en-US": "An error occurred while generating new tokens."
+        }
+    },
+    {
+        "Key": "ConflictException",
+        "SubKey": "VoziloExists",
+        "Message": {
+            "sr-Latn": "Vozilo sa zadatim ID-jem * već postoji.",
+            "en-US": "Vehicle with given ID * already exists."
+        }
+    },
+    {
+        "Key": "ConflictException",
+        "SubKey": "VoziloZauzeto",
+        "Message": {
+            "sr-Latn": "Vozilo je trenutno zauzeto i ne može biti dodeljeno novoj turi.",
+            "en-US": "Vehicle is currently busy and cannot be assigned to a new tour."
+        }
+    }
+]
