@@ -18,7 +18,7 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins(
                 "http://localhost:5173",
-                "https://proud-stone-0fa87e403.1.azurestaticapps.net"
+                "https://gray-mushroom-0a8684603.3.azurestaticapps.net"
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
