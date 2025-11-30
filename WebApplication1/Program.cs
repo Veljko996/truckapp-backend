@@ -6,6 +6,7 @@ using WebApplication1.Utils.Mapping;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
 builder.Services.AddDbContext<TruckContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString(nameof(TruckContext)))
 );
@@ -36,8 +37,10 @@ builder.Services.AddSwaggerConfiguration();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
 
+
 builder.Services.AddAuthentication("ManualJwtScheme")
     .AddScheme<AuthenticationSchemeOptions, ManualJwtHandler>("ManualJwtScheme", null);
+
 
 builder.Services.AddAuthorization();
 
