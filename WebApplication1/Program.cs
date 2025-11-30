@@ -16,7 +16,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowFrontend", policy =>
     {
         policy
-            .SetIsOriginAllowed(_ => true)   
+            .WithOrigins(
+                "http://localhost:5173",
+                "https://proud-stone-0fa87e403.1.azurestaticapps.net"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod()
             .AllowCredentials();
