@@ -1,5 +1,5 @@
 ﻿using MapsterMapper;
-using Microsoft.EntityFrameworkCore;
+using System.Linq;
 using WebApplication1.Configuration;
 using WebApplication1.Middleware;
 using WebApplication1.Utils.Mapping;
@@ -14,15 +14,28 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
+        // Dodaj sve frontend origin-e (development i production)
+        var allowedOrigins = new[]
+        {
+            "http://localhost:5173",
+            "https://gray-mushroom-0a8684603.3.azurestaticapps.net"
+        };
+
+        // Ako imaš custom domen za frontend, dodaj ga ovde
+        // Možeš koristiti environment variable za dinamičko dodavanje
+        var additionalOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
+        if (additionalOrigins != null && additionalOrigins.Length > 0)
+        {
+            allowedOrigins = allowedOrigins.Concat(additionalOrigins).ToArray();
+        }
+
         policy
-            .WithOrigins(
-                "http://localhost:5173",
-                "https://gray-mushroom-0a8684603.3.azurestaticapps.net"
-            )
+            .WithOrigins(allowedOrigins)
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials()
-            .WithExposedHeaders("Set-Cookie");
+            .AllowCredentials() // Obavezno za cookies
+            .WithExposedHeaders("Set-Cookie", "Access-Control-Allow-Credentials")
+            .SetPreflightMaxAge(TimeSpan.FromHours(24)); // Cache preflight za 24h
     });
 });
 
@@ -64,15 +77,14 @@ else
     });
 }
 
-app.UseCors("AllowFrontend");
-
+// CORS mora biti pre middleware-a koji koriste credentials
+// UseHttpsRedirection() može biti pre ili posle CORS-a
 app.UseHttpsRedirection();
+app.UseCors("AllowFrontend");
 
 app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseMiddleware<JsonWebTokenMiddleware>();
 
-// UseAuthentication() je uklonjen jer JsonWebTokenMiddleware već postavlja context.User
-// UseAuthorization() je zadržan za role-based authorization (npr. [Authorize(Roles = "Admin")])
 app.UseAuthorization();
 
 app.UseMiddleware<RequestLoggingMiddleware>();

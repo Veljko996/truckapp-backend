@@ -7,13 +7,15 @@ public static class CookieHelper
 
     public static void SetTokenCookies(HttpResponse response, string accessToken, string refreshToken, bool isDevelopment = false)
     {
+        // U productionu (Azure) MORA biti Secure=true za SameSite=None
+        // SameSite=None zahteva Secure=true zbog browser security policy
         var baseOptions = new CookieOptions
         {
-            HttpOnly = true,
-            Secure = !isDevelopment, 
-            SameSite = SameSiteMode.None, 
+            HttpOnly = true, // Zaštita od XSS - JavaScript ne može pristupiti
+            Secure = !isDevelopment, // U productionu (Azure) mora biti true
+            SameSite = SameSiteMode.None, // Dozvoljava cross-site cookies (potrebno za Azure Static Web Apps)
             Path = "/",
-            IsEssential = true
+            IsEssential = true // Dozvoljava cookie čak i ako korisnik blokira treće strane
         };
 
         var accessOptions = new CookieOptions
@@ -43,13 +45,14 @@ public static class CookieHelper
 
     public static void DeleteTokenCookies(HttpResponse response, bool isDevelopment = false)
     {
+        // Ista konfiguracija kao pri postavljanju - mora biti identična da bi browser obrisao cookie
         var deleteOptions = new CookieOptions
         {
             HttpOnly = true,
-            Secure = !isDevelopment,
-            SameSite = SameSiteMode.None,
+            Secure = !isDevelopment, // Mora biti isti kao pri postavljanju
+            SameSite = SameSiteMode.None, // Mora biti isti kao pri postavljanju
             Path = "/",
-            Expires = DateTimeOffset.UtcNow.AddDays(-1)
+            Expires = DateTimeOffset.UtcNow.AddDays(-1) // Postavi u prošlost da bi browser obrisao
         };
 
         response.Cookies.Delete(AccessTokenCookieName, deleteOptions);
