@@ -3,12 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Services.AuthenticationServices;
 using WebApplication1.Utils;
 
-
 namespace WebApplication1.Controllers;
+
 [ApiController]
 [Route("api/[controller]")]
-
-public class AuthController: ControllerBase
+public class AuthController : ControllerBase
 {
     private readonly IAuthService _service;
     private readonly ILogger<AuthController> _logger;
@@ -53,7 +52,7 @@ public class AuthController: ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Greška u registraciji korisnika: {Username}", request.Username);
-            throw; 
+            throw;
         }
     }
 
@@ -61,15 +60,16 @@ public class AuthController: ControllerBase
     public async Task<ActionResult> Login(LoginUserDto request)
     {
         var result = await _service.LoginAsync(request);
+
         if (result is null)
             return BadRequest("Invalid username or password.");
 
-        // Set HTTP-only cookies instead of returning tokens in response body
-        var isDevelopment = _env.IsDevelopment();
-        CookieHelper.SetTokenCookies(Response, result.AccessToken, result.RefreshToken, isDevelopment);
+        var isDev = _env.IsDevelopment();
+        CookieHelper.SetTokenCookies(Response, result.AccessToken, result.RefreshToken, isDev);
 
         return Ok(new { message = "Login successful" });
     }
+
     [HttpPost("refresh-token")]
     public async Task<ActionResult> RefreshToken()
     {
@@ -77,7 +77,7 @@ public class AuthController: ControllerBase
         var refreshToken = Request.Cookies["refreshToken"];
 
         if (string.IsNullOrWhiteSpace(refreshToken))
-            return BadRequest(new { status = 400, message = "Refresh token je obavezan." });
+            return BadRequest(new { message = "Refresh token je obavezan." });
 
         var result = await _service.RefreshTokensAsync(new RefreshTokenRequestDto
         {
@@ -86,53 +86,44 @@ public class AuthController: ControllerBase
         });
 
         if (result is null)
-            return Unauthorized("Invalid refresh token.");
+            return Unauthorized(new { message = "Invalid refresh token." });
 
-        var isDevelopment = _env.IsDevelopment();
-        CookieHelper.SetTokenCookies(Response, result.AccessToken, result.RefreshToken, isDevelopment);
+        CookieHelper.SetTokenCookies(Response, result.AccessToken, result.RefreshToken, _env.IsDevelopment());
 
         return Ok(new { message = "Token refreshed successfully" });
     }
 
     [HttpPost("logout")]
     [Authorize]
-    public async Task<ActionResult> Logout()
+    public IActionResult Logout()
     {
         try
         {
-            await _service.LogoutAsync();
-            
-            // Delete cookies
-            var isDevelopment = _env.IsDevelopment();
-            CookieHelper.DeleteTokenCookies(Response, isDevelopment);
+            _service.LogoutAsync();
+
+            CookieHelper.DeleteTokenCookies(Response, _env.IsDevelopment());
 
             return Ok(new { message = "Logged out successfully" });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Greška pri logout-u korisnika");
-            // Still delete cookies even if logout fails
-            var isDevelopment = _env.IsDevelopment();
-            CookieHelper.DeleteTokenCookies(Response, isDevelopment);
+
+            CookieHelper.DeleteTokenCookies(Response, _env.IsDevelopment());
+
             return Ok(new { message = "Logged out successfully" });
         }
     }
 
     [HttpGet("me")]
-    [Authorize] 
+    [Authorize]
     public IActionResult Me()
     {
-        // Izdvaja podatke direktno iz tokena
-        var username = User.Identity?.Name ?? "unknown";
-        var id = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
-        var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
-
         return Ok(new
         {
-            UserId = id,
-            Username = username,
-            Role = role
+            UserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
+            Username = User.Identity?.Name,
+            Role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
         });
     }
-
 }
