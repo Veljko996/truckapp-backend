@@ -7,39 +7,34 @@ public static class CookieHelper
     private const string AccessTokenCookieName = "accessToken";
     private const string RefreshTokenCookieName = "refreshToken";
 
-    /// <summary>
-    /// Sets HTTP-only cookies for access and refresh tokens
-    /// </summary>
+   
     public static void SetTokenCookies(HttpResponse response, string accessToken, string refreshToken, bool isDevelopment = false)
     {
-        // Access token - short-lived (30 minutes)
         var accessTokenOptions = new CookieOptions
         {
-            HttpOnly = true, // JavaScript cannot access (XSS protection)
-            Secure = !isDevelopment, // HTTPS only in production
-            SameSite = SameSiteMode.Strict, // CSRF protection
-            Path = "/", // Available for all paths
-            IsEssential = true, // Required for GDPR compliance
+            HttpOnly = true,
+            Secure = !isDevelopment,   // MUST be true on Azure
+            SameSite = SameSiteMode.None, // REQUIRED for cross-site cookies
+            Path = "/",
+            IsEssential = true,
             MaxAge = TimeSpan.FromMinutes(30)
         };
-        response.Cookies.Append(AccessTokenCookieName, accessToken, accessTokenOptions);
+        response.Cookies.Append("accessToken", accessToken, accessTokenOptions);
 
-        // Refresh token - longer-lived (7 days)
         var refreshTokenOptions = new CookieOptions
         {
-            HttpOnly = true, // JavaScript cannot access (XSS protection)
-            Secure = !isDevelopment, // HTTPS only in production
-            SameSite = SameSiteMode.Strict, // CSRF protection
-            Path = "/", // Available for all paths
-            IsEssential = true, // Required for GDPR compliance
+            HttpOnly = true,
+            Secure = !isDevelopment,
+            SameSite = SameSiteMode.None, // REQUIRED
+            Path = "/",
+            IsEssential = true,
             MaxAge = TimeSpan.FromDays(7)
         };
-        response.Cookies.Append(RefreshTokenCookieName, refreshToken, refreshTokenOptions);
+        response.Cookies.Append("refreshToken", refreshToken, refreshTokenOptions);
     }
 
-    /// <summary>
     /// Reads access token from cookie or Authorization header (fallback)
-    /// </summary>
+    
     public static string? GetAccessToken(HttpRequest request)
     {
         // Try cookie first (primary method)
@@ -60,17 +55,13 @@ public static class CookieHelper
         return null;
     }
 
-    /// <summary>
     /// Reads refresh token from cookie
-    /// </summary>
     public static string? GetRefreshToken(HttpRequest request)
     {
         return request.Cookies[RefreshTokenCookieName];
     }
 
-    /// <summary>
     /// Deletes both access and refresh token cookies
-    /// </summary>
     public static void DeleteTokenCookies(HttpResponse response, bool isDevelopment = false)
     {
         var cookieOptions = new CookieOptions

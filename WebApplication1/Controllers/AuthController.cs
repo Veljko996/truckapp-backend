@@ -70,15 +70,24 @@ public class AuthController: ControllerBase
 
         return Ok(new { message = "Login successful" });
     }
-
     [HttpPost("refresh-token")]
-    public async Task<ActionResult> RefreshToken(RefreshTokenRequestDto? request = null)
+    public async Task<ActionResult> RefreshToken()
     {
-        var result = await _service.RefreshTokensAsync(request);
-        if (result is null || result.AccessToken is null || result.RefreshToken is null)
+        var accessToken = Request.Cookies["accessToken"];
+        var refreshToken = Request.Cookies["refreshToken"];
+
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            return BadRequest(new { status = 400, message = "Refresh token je obavezan." });
+
+        var result = await _service.RefreshTokensAsync(new RefreshTokenRequestDto
+        {
+            AccessToken = accessToken,
+            RefreshToken = refreshToken
+        });
+
+        if (result is null)
             return Unauthorized("Invalid refresh token.");
 
-        // Set new HTTP-only cookies
         var isDevelopment = _env.IsDevelopment();
         CookieHelper.SetTokenCookies(Response, result.AccessToken, result.RefreshToken, isDevelopment);
 
