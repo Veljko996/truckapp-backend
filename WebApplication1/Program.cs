@@ -22,7 +22,8 @@ builder.Services.AddCors(options =>
             )
             .AllowAnyHeader()
             .AllowAnyMethod()
-            .AllowCredentials();
+            .AllowCredentials()
+            .WithExposedHeaders("Set-Cookie");
     });
 });
 
@@ -66,6 +67,7 @@ else
 }
 
 app.UseCors("AllowFrontend");
+
 app.UseHttpsRedirection();
 
 app.UseMiddleware<ErrorHandlerMiddleware>();
