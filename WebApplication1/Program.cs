@@ -1,5 +1,4 @@
 ﻿using MapsterMapper;
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.Configuration;
 using WebApplication1.Middleware;
@@ -42,9 +41,8 @@ builder.Services.AddSwaggerConfiguration();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddAuthentication("ManualJwtScheme")
-    .AddScheme<AuthenticationSchemeOptions, ManualJwtHandler>("ManualJwtScheme", null);
-
+// Authentication je obradjeno u JsonWebTokenMiddleware
+// UseAuthorization() je zadržan za role-based authorization ako bude potrebno
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -73,7 +71,8 @@ app.UseHttpsRedirection();
 app.UseMiddleware<ErrorHandlerMiddleware>();
 app.UseMiddleware<JsonWebTokenMiddleware>();
 
-app.UseAuthentication();
+// UseAuthentication() je uklonjen jer JsonWebTokenMiddleware već postavlja context.User
+// UseAuthorization() je zadržan za role-based authorization (npr. [Authorize(Roles = "Admin")])
 app.UseAuthorization();
 
 app.UseMiddleware<RequestLoggingMiddleware>();
