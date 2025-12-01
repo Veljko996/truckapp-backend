@@ -3,11 +3,12 @@ using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Services.AuthenticationServices;
 using WebApplication1.Utils;
 
-namespace WebApplication1.Controllers;
 
+namespace WebApplication1.Controllers;
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController : ControllerBase
+
+public class AuthController: ControllerBase
 {
     private readonly IAuthService _service;
     private readonly ILogger<AuthController> _logger;
@@ -52,7 +53,7 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Greška u registraciji korisnika: {Username}", request.Username);
-            throw;
+            throw; 
         }
     }
 
@@ -60,70 +61,78 @@ public class AuthController : ControllerBase
     public async Task<ActionResult> Login(LoginUserDto request)
     {
         var result = await _service.LoginAsync(request);
-
         if (result is null)
             return BadRequest("Invalid username or password.");
 
-        var isDev = _env.IsDevelopment();
-        CookieHelper.SetTokenCookies(Response, result.AccessToken, result.RefreshToken, isDev);
+        // Set HTTP-only cookies instead of returning tokens in response body
+        var isDevelopment = _env.IsDevelopment();
+        CookieHelper.SetTokenCookies(Response, result.AccessToken, result.RefreshToken, isDevelopment);
 
         return Ok(new { message = "Login successful" });
     }
+[HttpPost("refresh-token")]
+public async Task<ActionResult> RefreshToken()
+{
+    var accessToken = Request.Cookies["accessToken"];
+    var refreshToken = Request.Cookies["refreshToken"];
 
-    [HttpPost("refresh-token")]
-    public async Task<ActionResult> RefreshToken()
+    if (string.IsNullOrWhiteSpace(refreshToken))
+        return BadRequest(new { status = 400, message = "Refresh token je obavezan." });
+
+    var result = await _service.RefreshTokensAsync(new RefreshTokenRequestDto
     {
-        var accessToken = Request.Cookies["accessToken"];
-        var refreshToken = Request.Cookies["refreshToken"];
+        AccessToken = accessToken,
+        RefreshToken = refreshToken
+    });
 
-        if (string.IsNullOrWhiteSpace(refreshToken))
-            return BadRequest(new { message = "Refresh token je obavezan." });
+    if (result is null)
+        return Unauthorized("Invalid refresh token.");
 
-        var result = await _service.RefreshTokensAsync(new RefreshTokenRequestDto
-        {
-            AccessToken = accessToken,
-            RefreshToken = refreshToken
-        });
+    var isDevelopment = _env.IsDevelopment();
+    CookieHelper.SetTokenCookies(Response, result.AccessToken, result.RefreshToken, isDevelopment);
 
-        if (result is null)
-            return Unauthorized(new { message = "Invalid refresh token." });
-
-        CookieHelper.SetTokenCookies(Response, result.AccessToken, result.RefreshToken, _env.IsDevelopment());
-
-        return Ok(new { message = "Token refreshed successfully" });
-    }
+    return Ok(new { message = "Token refreshed successfully" });
+}
 
     [HttpPost("logout")]
     [Authorize]
-    public IActionResult Logout()
+    public async Task<ActionResult> Logout()
     {
         try
         {
-            _service.LogoutAsync();
-
-            CookieHelper.DeleteTokenCookies(Response, _env.IsDevelopment());
+            await _service.LogoutAsync();
+            
+            // Delete cookies
+            var isDevelopment = _env.IsDevelopment();
+            CookieHelper.DeleteTokenCookies(Response, isDevelopment);
 
             return Ok(new { message = "Logged out successfully" });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Greška pri logout-u korisnika");
-
-            CookieHelper.DeleteTokenCookies(Response, _env.IsDevelopment());
-
+            // Still delete cookies even if logout fails
+            var isDevelopment = _env.IsDevelopment();
+            CookieHelper.DeleteTokenCookies(Response, isDevelopment);
             return Ok(new { message = "Logged out successfully" });
         }
     }
 
     [HttpGet("me")]
-    [Authorize]
+    [Authorize] 
     public IActionResult Me()
     {
+        // Izdvaja podatke direktno iz tokena
+        var username = User.Identity?.Name ?? "unknown";
+        var id = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+        var role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+
         return Ok(new
         {
-            UserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
-            Username = User.Identity?.Name,
-            Role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
+            UserId = id,
+            Username = username,
+            Role = role
         });
     }
+
 }

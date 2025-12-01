@@ -55,4 +55,14 @@ public static class CookieHelper
         response.Cookies.Delete(AccessTokenCookieName, deleteOptions);
         response.Cookies.Delete(RefreshTokenCookieName, deleteOptions);
     }
+
+    public static string? GetAccessToken(HttpRequest request)
+    {
+        return request.Cookies[AccessTokenCookieName];
+    }
+
+    public static string? GetRefreshToken(HttpRequest request)
+    {
+        return request.Cookies[RefreshTokenCookieName];
+    }
 }

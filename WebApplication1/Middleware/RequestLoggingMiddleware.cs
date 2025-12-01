@@ -1,6 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Security.Claims;
-using WebApplication1.Services.LogServices;
 
 namespace WebApplication1.Middleware;
 
@@ -30,20 +28,18 @@ public class RequestLoggingMiddleware
         }
         catch (Exception ex)
         {
-            // Don't re-throw - let ErrorHandlerMiddleware handle it
-            // Only log if response hasn't been handled yet
             if (!context.Response.HasStarted)
             {
                 _logger.LogError(ex, "Neobrađena greška u pipeline-u: {Message}", ex.Message);
-                throw; // Re-throw only if response hasn't started
+                throw; 
             }
-            // If response has started, ErrorHandlerMiddleware already handled it
+            
         }
         finally
         {
             sw.Stop();
 
-            // Ignoriši interne rute — ali BEZ return, samo preskoči logovanje
+            
             bool skip =
                 context.Request.Path.StartsWithSegments("/swagger") ||
                 context.Request.Path.StartsWithSegments("/favicon") ||
