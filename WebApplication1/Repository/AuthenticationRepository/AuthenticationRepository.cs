@@ -1,8 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using WebApplication1.DataAccess;
-using WebApplication1.DataAccess.Models;
-
-namespace WebApplication1.Repository.AuthenticationRepository;
+﻿namespace WebApplication1.Repository.AuthenticationRepository;
 
 public class AuthenticationRepository : IAuthenticationRepository
 {
@@ -40,7 +36,7 @@ public class AuthenticationRepository : IAuthenticationRepository
 
     public async Task UpdateAsync(User user)
     {
-        _context.Users.Update(user);
+       _context.Users.Update(user);
     }
 
     public async Task<bool> SaveChangesAsync()

@@ -61,5 +61,21 @@ public static class MappingConfig
             .IgnoreNullValues(true);
 
         #endregion Vinjete
+
+        #region Prevoznici
+
+        TypeAdapterConfig<Prevoznik, PrevoznikDto>
+            .NewConfig();
+
+        TypeAdapterConfig<CreatePrevoznikDto, Prevoznik>
+            .NewConfig()
+            .Ignore(dest => dest.PrevoznikId);
+
+        TypeAdapterConfig<UpdatePrevoznikDto, Prevoznik>
+            .NewConfig()
+            .IgnoreNullValues(true)
+            .Ignore(dest => dest.PrevoznikId);
+
+        #endregion Prevoznici
     }
 }

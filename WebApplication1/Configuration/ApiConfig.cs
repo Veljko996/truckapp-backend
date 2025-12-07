@@ -2,11 +2,13 @@
 using WebApplication1.Services.DashboardServices;
 using WebApplication1.Services.NasaVozilaServices;
 using WebApplication1.Services.PoslovnicaServices;
+using WebApplication1.Services.PrevozniciServices;
 using WebApplication1.Services.TuraServices;
 using WebApplication1.Services.UserServices;
 using WebApplication1.Services.VinjeteServices;
 using WebApplication1.Repository.DashboardRepository;
 using WebApplication1.Repository.PoslovnicaRepository;
+using WebApplication1.Repository.PrevozniciRepository;
 using WebApplication1.Repository.UserRepository;
 
 namespace WebApplication1.Configuration;
@@ -33,6 +35,10 @@ public static class ApiConfig
         // Poslovnica services
         builder.Services.AddScoped<IPoslovnicaRepository, PoslovnicaRepository>();
         builder.Services.AddScoped<IPoslovnicaService, PoslovnicaService>();
+        
+        // Prevoznici services
+        builder.Services.AddScoped<IPrevozniciRepository, PrevozniciRepository>();
+        builder.Services.AddScoped<IPrevozniciService, PrevozniciService>();
         
         // Dashboard services
         builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();

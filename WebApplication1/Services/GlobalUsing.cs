@@ -9,6 +9,8 @@ global using WebApplication1.Repository.TureRepository;
 global using WebApplication1.Utils.DTOs.TuraDTO;
 global using WebApplication1.Repository.NasaVozilaRepository;
 global using WebApplication1.Utils.DTOs.NasaVozilaDTO;
+global using WebApplication1.Repository.PrevozniciRepository;
+global using WebApplication1.Utils.DTOs.PrevoznikDTO;
 global using WebApplication1.Repository.LoggingRepository;
 global using System.IdentityModel.Tokens.Jwt;
 global using System.Security.Claims;
