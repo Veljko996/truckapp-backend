@@ -23,22 +23,22 @@ public class JsonWebTokenMiddleware
     {
         var endpoint = context.GetEndpoint();
 
-        // 1) [AllowAnonymous] -> pusti
+        // [AllowAnonymous] pusti
         if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
         {
             await _next(context);
             return;
         }
 
-        // 2) Ako je [Authorize], validiraj JWT
+        // Ako je [Authorize], validiraj JWT
         if (endpoint?.Metadata?.GetMetadata<IAuthorizeData>() != null)
         {
-            // Read token from cookie (primary) or Authorization header (fallback)
+            
             var token = CookieHelper.GetAccessToken(context.Request);
             
             if (string.IsNullOrWhiteSpace(token))
             {
-                // Nema tokena – ovde možemo direktno da vratimo 401 (early exit)
+            
                 await WriteJsonError(context, StatusCodes.Status401Unauthorized,
                     "Nedostaje autentifikacioni token. Molimo prijavite se ponovo.");
                 return;

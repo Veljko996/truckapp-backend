@@ -22,7 +22,6 @@ builder.Services.AddCors(options =>
         };
 
         // Ako imaš custom domen za frontend, dodaj ga ovde
-        // Možeš koristiti environment variable za dinamičko dodavanje
         var additionalOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>();
         if (additionalOrigins != null && additionalOrigins.Length > 0)
         {
@@ -54,8 +53,7 @@ builder.Services.AddSwaggerConfiguration();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
 
-// Authentication je obradjeno u JsonWebTokenMiddleware
-// UseAuthorization() je zadržan za role-based authorization ako bude potrebno
+
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -68,7 +66,6 @@ if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 }
 else
 {
-    // Production mode – Swagger exposed but no UI
     app.UseSwagger();
     app.UseSwaggerUI(c =>
     {
@@ -77,8 +74,6 @@ else
     });
 }
 
-// CORS mora biti pre middleware-a koji koriste credentials
-// UseHttpsRedirection() može biti pre ili posle CORS-a
 app.UseHttpsRedirection();
 app.UseCors("AllowFrontend");
 
