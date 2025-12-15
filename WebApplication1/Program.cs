@@ -63,10 +63,36 @@ builder.Services
         {
             OnMessageReceived = context =>
             {
+                // Za refresh endpoint, ne čitaj token - dozvoli da prođe bez autentifikacije
+                if (context.Request.Path.StartsWithSegments("/api/auth/refresh-token"))
+                {
+                    return Task.CompletedTask;
+                }
+
                 var token = context.Request.Cookies["accessToken"];
                 if (!string.IsNullOrEmpty(token))
                 {
                     context.Token = token;
+                }
+                return Task.CompletedTask;
+            },
+            OnAuthenticationFailed = context =>
+            {
+                // Za refresh endpoint, ne vraćaj grešku - dozvoli da se pozove
+                if (context.Request.Path.StartsWithSegments("/api/auth/refresh-token"))
+                {
+                    context.NoResult();
+                    return Task.CompletedTask;
+                }
+                return Task.CompletedTask;
+            },
+            OnChallenge = context =>
+            {
+                // Za refresh endpoint, ne vraćaj 401 challenge
+                if (context.Request.Path.StartsWithSegments("/api/auth/refresh-token"))
+                {
+                    context.HandleResponse();
+                    return Task.CompletedTask;
                 }
                 return Task.CompletedTask;
             }

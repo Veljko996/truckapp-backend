@@ -38,6 +38,15 @@ public class AuthenticationRepository : IAuthenticationRepository
     {
        _context.Users.Update(user);
     }
+    public async Task<User?> GetUserByRefreshTokenAsync(string refreshToken)
+    {
+        return await _context.Users
+            .Include(u => u.Roles)
+            .FirstOrDefaultAsync(u =>
+                u.RefreshToken == refreshToken &&
+                u.RefreshTokenExpiryTime > DateTime.UtcNow);
+    }
+
 
     public async Task<bool> SaveChangesAsync()
     {

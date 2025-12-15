@@ -4,6 +4,9 @@ public static class JwtHelperPrincipal
 {
     public static ClaimsPrincipal GetPrincipalFromExpiredToken(string token, IConfiguration configuration)
     {
+        if (string.IsNullOrWhiteSpace(token))
+            throw new ArgumentException("Token ne može biti null ili prazan.", nameof(token));
+
         var key = Encoding.UTF8.GetBytes(configuration["AppSettings:Token"]!);
 
         var tokenValidationParameters = new TokenValidationParameters
@@ -16,12 +19,21 @@ public static class JwtHelperPrincipal
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();
-        var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
-
-        if (securityToken is not JwtSecurityToken jwtToken ||
-            !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512, StringComparison.InvariantCultureIgnoreCase))
+        ClaimsPrincipal principal;
+        
+        try
         {
-            throw new SecurityTokenException("Invalid token");
+            principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out var securityToken);
+
+            if (securityToken is not JwtSecurityToken jwtToken ||
+                !jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha512, StringComparison.InvariantCultureIgnoreCase))
+            {
+                throw new SecurityTokenException("Invalid token algorithm");
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new SecurityTokenException($"Token validacija neuspešna: {ex.Message}", ex);
         }
 
         return principal;

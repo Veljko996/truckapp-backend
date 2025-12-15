@@ -8,6 +8,7 @@ namespace WebApplication1.Repository.AuthenticationRepository;
         Task<bool> UsernameExistsAsync(string username);
         Task AddAsync(User user);
         Task UpdateAsync(User user);
-        Task<bool> SaveChangesAsync();
+    Task<User?> GetUserByRefreshTokenAsync(string refreshToken);
+    Task<bool> SaveChangesAsync();
     }
 

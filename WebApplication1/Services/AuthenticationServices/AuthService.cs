@@ -106,27 +106,40 @@ public class AuthService : IAuthService
         var refreshToken = CookieHelper.GetRefreshToken(httpContext.Request) 
             ?? request?.RefreshToken;
 
-        if (string.IsNullOrWhiteSpace(accessToken))
-            throw new ValidationException("EmptyAccessToken", "Access token je obavezan.");
-
         if (string.IsNullOrWhiteSpace(refreshToken))
             throw new ValidationException("EmptyRefreshToken", "Refresh token je obavezan.");
 
-        //2. Ekstrakcija korisnika iz *isteklog* Access Tokena
-        var principal = JwtHelperPrincipal.GetPrincipalFromExpiredToken(accessToken, _configuration);
-        if (principal is null)
-            throw new ValidationException("InvalidAccessToken", "Access token nije validan.");
+        User? user = null;
 
-        var userIdClaim = principal.FindFirstValue(ClaimTypes.NameIdentifier);
-        if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
-            throw new ValidationException("InvalidUserId", "Token ne sadrži validan identifikator korisnika.");
+        // Pokušaj 1: Ako postoji access token, pokušaj da izvučeš userId iz njega (čak i ako je istekao)
+        if (!string.IsNullOrWhiteSpace(accessToken))
+        {
+            try
+            {
+                var principal = JwtHelperPrincipal.GetPrincipalFromExpiredToken(accessToken, _configuration);
+                var userIdClaim = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+                
+                if (!string.IsNullOrWhiteSpace(userIdClaim) && int.TryParse(userIdClaim, out var userId))
+                {
+                    // Proveri refresh token za ovog korisnika
+                    user = await ValidateRefreshTokenAsync(userId, refreshToken);
+                }
+            }
+            catch
+            {
+                // Access token je nevalidan ili istekao - nastavi sa refresh tokenom
+            }
+        }
 
-        //3. Proveri refresh token u bazi
-        var user = await ValidateRefreshTokenAsync(userId, refreshToken);
+        // Pokušaj 2: Ako nije pronađen korisnik preko access tokena, koristi samo refresh token
         if (user is null)
-            throw new NotFoundException("RefreshTokenInvalid", "Neispravan ili istekao refresh token.");
+        {
+            user = await _authenticationRepository.GetUserByRefreshTokenAsync(refreshToken);
+            if (user is null)
+                throw new NotFoundException("RefreshTokenInvalid", "Neispravan ili istekao refresh token.");
+        }
 
-        // 4. Generiši novi par tokena
+        // Generiši novi par tokena
         var newTokens = await CreateTokenResponse(user);
         if (newTokens is null)
             throw new ConflictException("TokenGenerationFailed", "Došlo je do greške prilikom generisanja novih tokena.");
@@ -172,7 +185,10 @@ public class AuthService : IAuthService
     private async Task<User?> ValidateRefreshTokenAsync(int userId, string refreshToken)
     {
         var user = await _authenticationRepository.GetByIdAsync(userId);
-        if (user is null || user.RefreshToken != refreshToken
+        if (user is null 
+            || string.IsNullOrWhiteSpace(user.RefreshToken) 
+            || user.RefreshToken != refreshToken
+            || user.RefreshTokenExpiryTime == null
             || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
         {
             return null;

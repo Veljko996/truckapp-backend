@@ -37,7 +37,7 @@ public static class CookieHelper
             SameSite = baseOptions.SameSite,
             Path = baseOptions.Path,
             IsEssential = baseOptions.IsEssential,
-            Expires = DateTime.UtcNow.AddHours(11)
+            Expires = DateTime.UtcNow.AddDays(7) // Sinhronizovano sa RefreshTokenExpiryTime u bazi
         };
 
         response.Cookies.Append(RefreshTokenCookieName, refreshToken, refreshOptions);
