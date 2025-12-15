@@ -7,6 +7,7 @@ using WebApplication1.Utils;
 namespace WebApplication1.Controllers;
 [ApiController]
 [Route("api/[controller]")]
+[AllowAnonymous]
 
 public class AuthController: ControllerBase
 {
@@ -21,22 +22,22 @@ public class AuthController: ControllerBase
         _env = env;
     }
 
-    [HttpPost("create-admin")]
-    public async Task<IActionResult> CreateAdmin()
-    {
-        var dto = new RegisterUserDto
-        {
-            Username = "Stefan",
-            FullName = "Administrator",
-            Email = "stefan@example.com",
-            Phone = "000000000",
-            RoleId = 1,
-            Password = "Admin1!"
-        };
+    //[HttpPost("create-admin")]
+    //public async Task<IActionResult> CreateAdmin()
+    //{
+    //    var dto = new RegisterUserDto
+    //    {
+    //        Username = "Stefan",
+    //        FullName = "Administrator",
+    //        Email = "stefan@example.com",
+    //        Phone = "000000000",
+    //        RoleId = 1,
+    //        Password = "Admin1!"
+    //    };
 
-        var user = await _service.RegisterAsync(dto);
-        return Ok(user);
-    }
+    //    var user = await _service.RegisterAsync(dto);
+    //    return Ok(user);
+    //}
 
     [HttpPost("register")]
     public async Task<ActionResult<User>> Register(RegisterUserDto request)
@@ -70,6 +71,7 @@ public class AuthController: ControllerBase
 
         return Ok(new { message = "Login successful" });
     }
+
 [HttpPost("refresh-token")]
 public async Task<ActionResult> RefreshToken()
 {
