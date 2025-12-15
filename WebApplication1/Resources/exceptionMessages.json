@@ -95,7 +95,6 @@
             "en-US": "Username already exists."
         }
     },
-    },
     {
         "Key": "ConflictException",
         "SubKey": "VoziloZauzeto",

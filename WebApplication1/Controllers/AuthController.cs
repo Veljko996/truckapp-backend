@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using WebApplication1.Services.AuthenticationServices;
+﻿using WebApplication1.Services.AuthenticationServices;
 using WebApplication1.Utils;
 
 
@@ -75,25 +73,34 @@ public class AuthController: ControllerBase
 [HttpPost("refresh-token")]
 public async Task<ActionResult> RefreshToken()
 {
-    var accessToken = Request.Cookies["accessToken"];
-    var refreshToken = Request.Cookies["refreshToken"];
-
-    if (string.IsNullOrWhiteSpace(refreshToken))
-        return BadRequest(new { status = 400, message = "Refresh token je obavezan." });
-
-    var result = await _service.RefreshTokensAsync(new RefreshTokenRequestDto
+    try
     {
-        AccessToken = accessToken,
-        RefreshToken = refreshToken
-    });
+        var accessToken = Request.Cookies["accessToken"];
+        var refreshToken = Request.Cookies["refreshToken"];
 
-    if (result is null)
-        return Unauthorized("Invalid refresh token.");
+        if (string.IsNullOrWhiteSpace(refreshToken))
+            return BadRequest(new { status = 400, message = "Refresh token je obavezan." });
 
-    var isDevelopment = _env.IsDevelopment();
-    CookieHelper.SetTokenCookies(Response, result.AccessToken, result.RefreshToken, isDevelopment);
+        var result = await _service.RefreshTokensAsync(new RefreshTokenRequestDto
+        {
+            AccessToken = accessToken,
+            RefreshToken = refreshToken
+        });
 
-    return Ok(new { message = "Token refreshed successfully" });
+        if (result is null)
+            return Unauthorized(new { status = 401, message = "Invalid refresh token." });
+
+        var isDevelopment = _env.IsDevelopment();
+        CookieHelper.SetTokenCookies(Response, result.AccessToken, result.RefreshToken, isDevelopment);
+
+        return Ok(new { message = "Token refreshed successfully" });
+    }
+    catch (Exception ex)
+    {
+        _logger.LogError(ex, "Greška pri refresh token operaciji");
+        // Exception će biti obrađen od strane ErrorHandlerMiddleware
+        throw;
+    }
 }
 
     [HttpPost("logout")]

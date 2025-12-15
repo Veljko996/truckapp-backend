@@ -117,7 +117,7 @@ public class AuthService : IAuthService
             try
             {
                 var principal = JwtHelperPrincipal.GetPrincipalFromExpiredToken(accessToken, _configuration);
-                var userIdClaim = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+                var userIdClaim = principal?.FindFirstValue(ClaimTypes.NameIdentifier);
                 
                 if (!string.IsNullOrWhiteSpace(userIdClaim) && int.TryParse(userIdClaim, out var userId))
                 {
@@ -125,9 +125,14 @@ public class AuthService : IAuthService
                     user = await ValidateRefreshTokenAsync(userId, refreshToken);
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 // Access token je nevalidan ili istekao - nastavi sa refresh tokenom
+                // Logujemo samo ako nije SecurityTokenException (što je očekivano za istekle tokene)
+                if (ex is not SecurityTokenException)
+                {
+                    // Loguj neobične greške, ali nastavi sa refresh tokenom
+                }
             }
         }
 
@@ -185,14 +190,20 @@ public class AuthService : IAuthService
     private async Task<User?> ValidateRefreshTokenAsync(int userId, string refreshToken)
     {
         var user = await _authenticationRepository.GetByIdAsync(userId);
-        if (user is null 
-            || string.IsNullOrWhiteSpace(user.RefreshToken) 
-            || user.RefreshToken != refreshToken
-            || user.RefreshTokenExpiryTime == null
-            || user.RefreshTokenExpiryTime <= DateTime.UtcNow)
-        {
+        if (user is null)
             return null;
-        }
+            
+        if (string.IsNullOrWhiteSpace(user.RefreshToken))
+            return null;
+            
+        if (user.RefreshToken != refreshToken)
+            return null;
+            
+        if (user.RefreshTokenExpiryTime == null)
+            return null;
+            
+        if (user.RefreshTokenExpiryTime <= DateTime.UtcNow)
+            return null;
 
         return user;
     }
