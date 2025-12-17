@@ -15,9 +15,7 @@ public class NasaVozilaService : INasaVozilaService
         var vozila = await _repository.GetAll()
             .ToListAsync();
         
-        // Don't throw exception if empty - return empty list instead
-        // Frontend can handle empty lists better than exceptions
-        return vozila.Adapt<IEnumerable<NasaVozilaReadDto>>();`
+        return vozila.Adapt<IEnumerable<NasaVozilaReadDto>>();
     }
 
     public async Task<NasaVozilaReadDto> GetById(int voziloId)
