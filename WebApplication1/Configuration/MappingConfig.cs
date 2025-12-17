@@ -7,26 +7,24 @@ public static class MappingConfig
         #region Ture
         TypeAdapterConfig<Tura, TuraReadDto>
             .NewConfig()
-            .Map(dest => dest.PrevoznikNaziv, src => src.Prevoznik != null ? src.Prevoznik.Naziv : string.Empty)
-            .Map(dest => dest.VoziloNaziv, src => src.Vozilo != null ? src.Vozilo.Naziv : null)
-            .Map(dest => dest.StatusTrenutniVreme, src => src.StatusTrenutniVreme ?? DateTime.UtcNow);
+            .Map(dest => dest.PrevoznikNaziv,
+                src => src.Prevoznik != null ? src.Prevoznik.Naziv : string.Empty)
+            .Map(dest => dest.VoziloNaziv,
+                src => src.Vozilo != null ? src.Vozilo.Naziv : null);
 
         TypeAdapterConfig<CreateTuraDto, Tura>
             .NewConfig()
             .Ignore(dest => dest.TuraId)
-            .Ignore(dest => dest.StatusTrenutni)
-            .Ignore(dest => dest.StatusTrenutniVreme)
-            .Ignore(dest => dest.StatusKonacni)
             .Ignore(dest => dest.Prevoznik)
-            .Ignore(dest => dest.Vozilo)
-            .Ignore(dest => dest.StatusLogovi);
+            .Ignore(dest => dest.Vozilo);
+
 
         TypeAdapterConfig<UpdateTuraDto, Tura>
-            .NewConfig()
-            .IgnoreNullValues(true)
-            .Ignore(dest => dest.Prevoznik)
-            .Ignore(dest => dest.Vozilo)
-            .Ignore(dest => dest.StatusLogovi);
+             .NewConfig()
+             .IgnoreNullValues(true)
+             .Ignore(dest => dest.Prevoznik)
+             .Ignore(dest => dest.Vozilo);
+
         #endregion Ture
 
         #region NasaVozila
