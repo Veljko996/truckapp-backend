@@ -1,8 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using WebApplication1.DataAccess;
-using WebApplication1.DataAccess.Models;
-using WebApplication1.Utils.Enums;
-
 namespace WebApplication1.Repository.DashboardRepository;
 
 public class DashboardRepository : IDashboardRepository
@@ -14,82 +9,26 @@ public class DashboardRepository : IDashboardRepository
         _context = context;
     }
 
-    public async Task<int> GetAktivneTureCountAsync()
+    public async Task<int> GetAllTureCountAsync()
     {
-        return await _context.Ture
-            .CountAsync(t => t.StatusTrenutni == TuraStatus.UPripremi || 
-                           t.StatusTrenutni == TuraStatus.NaPutu ||
-                           t.StatusTrenutni == TuraStatus.UtovarUToku ||
-                           t.StatusTrenutni == TuraStatus.IstovarUToku ||
-                           t.StatusTrenutni == TuraStatus.Carina);
-    }
-
-    public async Task<decimal> GetDanasnjiPrihodAsync()
-    {
-        var danas = DateTime.UtcNow.Date;
-        var rezultat = await _context.Ture
-            .Where(t => t.UtovarDatum.Date == danas && t.UlaznaCena.HasValue)
-            .SumAsync(t => t.UlaznaCena ?? 0);
-        
-        return rezultat;
-    }
-
-    public async Task<int> GetAktivnaVozilaCountAsync()
-    {
-        // Vozila koja su vezana za ture koje nisu Zavrsene
-        return await _context.NasaVozila
-            .CountAsync(v => v.Ture.Any(t => 
-                t.StatusTrenutni != TuraStatus.Zavrseno && 
-                t.StatusTrenutni != TuraStatus.Otkazano));
-    }
-
-    public async Task<int> GetProblematickeTureCountAsync()
-    {
-        // StatusKonacni = 'Problem' - proveri da li postoji ovaj status u bazi
-        // Ako ne postoji, možda je to neki drugi status
-        return await _context.Ture
-            .CountAsync(t => t.StatusKonacni == "Problem" || 
-                           t.StatusTrenutni == TuraStatus.Zakasnjenje);
-    }
-
-    public async Task<int> GetVozilaSaIsticucimDokumentimaCountAsync(int daysThreshold = 7)
-    {
-        var thresholdDate = DateTime.UtcNow.AddDays(daysThreshold);
-        var today = DateTime.UtcNow;
-
-        return await _context.NasaVozila
-            .CountAsync(v => 
-                (v.RegistracijaDatumIsteka.HasValue && 
-                 v.RegistracijaDatumIsteka.Value >= today && 
-                 v.RegistracijaDatumIsteka.Value <= thresholdDate) ||
-                (v.TehnickiPregledDatumIsteka.HasValue && 
-                 v.TehnickiPregledDatumIsteka.Value >= today && 
-                 v.TehnickiPregledDatumIsteka.Value <= thresholdDate) ||
-                (v.PPAparatDatumIsteka.HasValue && 
-                 v.PPAparatDatumIsteka.Value >= today && 
-                 v.PPAparatDatumIsteka.Value <= thresholdDate) ||
-                v.Vinjete.Any(vin => 
-                    vin.DatumIsteka >= today && 
-                    vin.DatumIsteka <= thresholdDate));
+        return await _context.Ture.CountAsync();
     }
 
     public async Task<List<(string Status, int Count)>> GetStatusDistribucijaAsync()
     {
         var distribucija = await _context.Ture
-            .GroupBy(t => t.StatusTrenutni)
+            .GroupBy(t => t.StatusTure)
             .Select(g => new { Status = g.Key, Count = g.Count() })
             .ToListAsync();
 
         return distribucija.Select(d => (d.Status, d.Count)).ToList();
     }
 
-    public async Task<List<(DateTime Datum, decimal Suma)>> GetPrihod30DanaAsync()
+    public async Task<List<(DateTime Datum, decimal Suma)>> GetPrihodByDateAsync()
     {
-        var startDate = DateTime.UtcNow.AddDays(-30).Date;
-        
         var prihod = await _context.Ture
-            .Where(t => t.UtovarDatum >= startDate && t.UlaznaCena.HasValue)
-            .GroupBy(t => t.UtovarDatum.Date)
+            .Where(t => t.DatumUtovaraOd.HasValue && t.UlaznaCena.HasValue)
+            .GroupBy(t => t.DatumUtovaraOd!.Value.Date)
             .Select(g => new { Datum = g.Key, Suma = g.Sum(t => t.UlaznaCena ?? 0) })
             .OrderBy(x => x.Datum)
             .ToListAsync();
@@ -97,37 +36,21 @@ public class DashboardRepository : IDashboardRepository
         return prihod.Select(p => (p.Datum, p.Suma)).ToList();
     }
 
-    public async Task<List<Tura>> GetTopTureAsync(int topCount = 5)
+    public async Task<List<Tura>> GetAllTureWithIncludesAsync()
     {
         return await _context.Ture
             .Include(t => t.Prevoznik)
             .Include(t => t.Vozilo)
-            .Where(t => t.UlaznaCena.HasValue && t.UlaznaCena > 0)
-            .OrderByDescending(t => t.UlaznaCena)
-            .Take(topCount)
+            .Include(t => t.Klijent)
+            .Include(t => t.VrstaNadogradnje)
             .ToListAsync();
     }
 
-    public async Task<List<NasaVozila>> GetKriticnaVozilaAsync(int daysThreshold = 7)
+    public async Task<List<NasaVozila>> GetAllVozilaWithIncludesAsync()
     {
-        var thresholdDate = DateTime.UtcNow.AddDays(daysThreshold);
-        var today = DateTime.UtcNow;
-
         return await _context.NasaVozila
             .Include(v => v.Vinjete)
-            .Where(v => 
-                (v.RegistracijaDatumIsteka.HasValue && 
-                 v.RegistracijaDatumIsteka.Value >= today && 
-                 v.RegistracijaDatumIsteka.Value <= thresholdDate) ||
-                (v.TehnickiPregledDatumIsteka.HasValue && 
-                 v.TehnickiPregledDatumIsteka.Value >= today && 
-                 v.TehnickiPregledDatumIsteka.Value <= thresholdDate) ||
-                (v.PPAparatDatumIsteka.HasValue && 
-                 v.PPAparatDatumIsteka.Value >= today && 
-                 v.PPAparatDatumIsteka.Value <= thresholdDate) ||
-                v.Vinjete.Any(vin => 
-                    vin.DatumIsteka >= today && 
-                    vin.DatumIsteka <= thresholdDate))
+            .Include(v => v.Ture)
             .ToListAsync();
     }
 

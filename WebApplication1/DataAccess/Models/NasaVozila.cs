@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using WebApplication1.Utils.Enums;
 
 namespace WebApplication1.DataAccess.Models;
 
@@ -26,10 +25,10 @@ public class NasaVozila
     public DateTime? PPAparatDatumIsteka { get; set; }
 
     [MaxLength(100)]
-    public string? Raspolozivost { get; set; } = "Slobodno"; // Slobodno, Na turi, Servis itd.
+    public string? Raspolozivost { get; set; } = "Slobodno"; 
 
     [MaxLength(100)]
-    public string? Relacija { get; set; } // može stajati kao default “planirana relacija”
+    public string? Relacija { get; set; } 
 
     // Navigacije
     public ICollection<Vinjeta> Vinjete { get; set; } = new List<Vinjeta>();
@@ -48,30 +47,10 @@ public class NasaVozila
 
         RegistrovanoVozilo = RegistracijaDatumIsteka.Value >= DateTime.UtcNow;
     }
-
-    /// <summary>
-    /// Checks if the vehicle has any active tours.
-    /// </summary>
-    public bool HasActiveTours()
-    {
-        return Ture.Any(t => t.StatusTrenutni != TuraStatus.Zavrseno && 
-                            t.StatusTrenutni != TuraStatus.Otkazano);
-    }
-
-    /// <summary>
-    /// Checks if the vehicle has any active vignettes.
-    /// </summary>
     public bool HasActiveVignettes(DateTime? referenceDate = null)
     {
         var now = referenceDate ?? DateTime.UtcNow;
         return Vinjete.Any(v => v.IsActive(now));
     }
 
-    /// <summary>
-    /// Checks if the vehicle is available for assignment (no active tours).
-    /// </summary>
-    public bool IsAvailable()
-    {
-        return !HasActiveTours();
-    }
 }

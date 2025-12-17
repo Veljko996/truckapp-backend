@@ -1,4 +1,3 @@
-using WebApplication1.DataAccess.Models;
 
 namespace WebApplication1.Repository.UserRepository;
 

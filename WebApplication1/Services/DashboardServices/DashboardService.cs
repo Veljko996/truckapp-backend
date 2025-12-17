@@ -19,7 +19,6 @@ public class DashboardService : IDashboardService
     {
         try
         {
-            // Sekvencijalno učitavanje (DbContext nije thread-safe za paralelno korišćenje)
             var kpi = await GetKPIDataAsync();
             var statusDistribucija = await GetStatusDistribucijaAsync();
             var prihod30Dana = await GetPrihod30DanaAsync();
@@ -46,12 +45,53 @@ public class DashboardService : IDashboardService
 
     private async Task<KPIDto> GetKPIDataAsync()
     {
-        // Sekvencijalno izvršavanje (DbContext nije thread-safe)
-        var aktivneTure = await _dashboardRepository.GetAktivneTureCountAsync();
-        var danasnjiPrihod = await _dashboardRepository.GetDanasnjiPrihodAsync();
-        var aktivnaVozila = await _dashboardRepository.GetAktivnaVozilaCountAsync();
-        var problematickeTure = await _dashboardRepository.GetProblematickeTureCountAsync();
-        var vozilaSaIsticucim = await _dashboardRepository.GetVozilaSaIsticucimDokumentimaCountAsync(7);
+        var allTure = await _dashboardRepository.GetAllTureWithIncludesAsync();
+        var allVozila = await _dashboardRepository.GetAllVozilaWithIncludesAsync();
+        var prihodByDate = await _dashboardRepository.GetPrihodByDateAsync();
+        
+        var danas = DateTime.UtcNow.Date;
+
+        // Business logic: Define what "active" tours means
+        var aktivniStatusi = new[]
+        {
+            TuraStatus.UPripremi,
+            TuraStatus.NaPutu,
+            TuraStatus.UtovarUToku,
+            TuraStatus.IstovarUToku,
+            TuraStatus.Carina
+        };
+        var aktivneTure = allTure.Count(t => aktivniStatusi.Contains(t.StatusTure));
+
+        // Business logic: Today's revenue (using DatumUtovaraOd for date comparison)
+        var danasnjiPrihod = prihodByDate
+            .Where(p => p.Datum.Date == danas)
+            .Sum(p => p.Suma);
+
+        // Business logic: Active vehicles = vehicles with tours that are not finished/cancelled
+        var zavrseniStatusi = new[] { TuraStatus.Zavrseno, TuraStatus.Otkazano };
+        var aktivnaVozila = allVozila
+            .Count(v => v.Ture.Any(t => !zavrseniStatusi.Contains(t.StatusTure)));
+
+        // Business logic: Problematic tours = delayed or with problem status
+        var problematickeTure = allTure.Count(t => 
+            t.StatusTure == TuraStatus.Zakasnjenje);
+
+        // Business logic: Vehicles with expiring documents (within 7 days)
+        var thresholdDate = DateTime.UtcNow.AddDays(7);
+        var today = DateTime.UtcNow;
+        var vozilaSaIsticucim = allVozila.Count(v =>
+            (v.RegistracijaDatumIsteka.HasValue &&
+             v.RegistracijaDatumIsteka.Value >= today &&
+             v.RegistracijaDatumIsteka.Value <= thresholdDate) ||
+            (v.TehnickiPregledDatumIsteka.HasValue &&
+             v.TehnickiPregledDatumIsteka.Value >= today &&
+             v.TehnickiPregledDatumIsteka.Value <= thresholdDate) ||
+            (v.PPAparatDatumIsteka.HasValue &&
+             v.PPAparatDatumIsteka.Value >= today &&
+             v.PPAparatDatumIsteka.Value <= thresholdDate) ||
+            v.Vinjete.Any(vin =>
+                vin.DatumIsteka >= today &&
+                vin.DatumIsteka <= thresholdDate));
 
         return new KPIDto
         {
@@ -89,16 +129,21 @@ public class DashboardService : IDashboardService
 
     private async Task<List<Prihod30DanaDto>> GetPrihod30DanaAsync()
     {
-        var prihod = await _dashboardRepository.GetPrihod30DanaAsync();
+        var prihodByDate = await _dashboardRepository.GetPrihodByDateAsync();
         
-        // Popuniti prazne dane sa 0
+        // Business logic: Filter for last 30 days
         var startDate = DateTime.UtcNow.AddDays(-30).Date;
         var endDate = DateTime.UtcNow.Date;
-        var sviDani = new List<Prihod30DanaDto>();
+        
+        var prihod30Dana = prihodByDate
+            .Where(p => p.Datum >= startDate && p.Datum <= endDate)
+            .ToList();
 
+        // Fill missing days with 0
+        var sviDani = new List<Prihod30DanaDto>();
         for (var datum = startDate; datum <= endDate; datum = datum.AddDays(1))
         {
-            var postojeci = prihod.FirstOrDefault(p => p.Datum.Date == datum.Date);
+            var postojeci = prihod30Dana.FirstOrDefault(p => p.Datum.Date == datum.Date);
             sviDani.Add(new Prihod30DanaDto
             {
                 Datum = datum,
@@ -111,13 +156,20 @@ public class DashboardService : IDashboardService
 
     private async Task<List<TopTuraDto>> GetTopTureAsync()
     {
-        var ture = await _dashboardRepository.GetTopTureAsync(5);
+        var allTure = await _dashboardRepository.GetAllTureWithIncludesAsync();
         
-        return ture.Select(t => new TopTuraDto
+        // Business logic: Top tours = tours with price > 0, ordered by price descending
+        var topTure = allTure
+            .Where(t => t.UlaznaCena.HasValue && t.UlaznaCena > 0)
+            .OrderByDescending(t => t.UlaznaCena)
+            .Take(5)
+            .ToList();
+        
+        return topTure.Select(t => new TopTuraDto
         {
             TuraId = t.TuraId,
             RedniBroj = t.RedniBroj,
-            Relacija = t.Relacija,
+            Relacija = t.MestoIstovara + " - " + t.MestoUtovara,
             UlaznaCena = t.UlaznaCena ?? 0,
             PrevoznikNaziv = t.Prevoznik?.Naziv ?? "N/A",
             VoziloNaziv = t.Vozilo?.Naziv
@@ -126,13 +178,14 @@ public class DashboardService : IDashboardService
 
     private async Task<List<KriticnoVoziloDto>> GetKriticnaVozilaAsync()
     {
-        var vozila = await _dashboardRepository.GetKriticnaVozilaAsync(7);
+        var allVozila = await _dashboardRepository.GetAllVozilaWithIncludesAsync();
         var danas = DateTime.UtcNow;
         var thresholdDate = danas.AddDays(7);
 
         var kriticna = new List<KriticnoVoziloDto>();
 
-        foreach (var vozilo in vozila)
+        // Business logic: Critical vehicles = vehicles with documents expiring within 7 days
+        foreach (var vozilo in allVozila)
         {
             // Registracija
             if (vozilo.RegistracijaDatumIsteka.HasValue &&
