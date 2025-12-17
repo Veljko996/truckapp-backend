@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using WebApplication1.DataAccess;
+using WebApplication1.DataAccess.Models;
+
 namespace WebApplication1.Repository.DashboardRepository;
 
 public class DashboardRepository : IDashboardRepository

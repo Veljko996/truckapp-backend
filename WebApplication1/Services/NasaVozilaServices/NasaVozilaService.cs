@@ -17,7 +17,7 @@ public class NasaVozilaService : INasaVozilaService
         
         // Don't throw exception if empty - return empty list instead
         // Frontend can handle empty lists better than exceptions
-        return vozila.Adapt<IEnumerable<NasaVozilaReadDto>>();
+        return vozila.Adapt<IEnumerable<NasaVozilaReadDto>>();`
     }
 
     public async Task<NasaVozilaReadDto> GetById(int voziloId)
@@ -115,7 +115,10 @@ public class NasaVozilaService : INasaVozilaService
             throw new NotFoundException("VoziloNotFound", $"Vozilo sa ID {voziloId} nije pronađeno.");
 
         // Business rule: Check if vehicle is assigned to active trips
-        if (vozilo.HasActiveTours())
+        // Active tours = tours that are not finished (not Zavrseno and not Otkazano)
+        var zavrseniStatusi = new[] { TuraStatus.Zavrseno, TuraStatus.Otkazano };
+        var hasActiveTours = vozilo.Ture.Any(t => !zavrseniStatusi.Contains(t.StatusTure));
+        if (hasActiveTours)
             throw new ConflictException("VoziloNaTuri", 
                 "Vozilo ne može biti obrisano jer je dodeljeno aktivnoj turi. Prvo završite ili otkazite turu.");
 
