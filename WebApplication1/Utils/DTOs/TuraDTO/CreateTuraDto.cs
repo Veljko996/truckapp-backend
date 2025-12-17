@@ -1,48 +1,62 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebApplication1.Utils.DTOs.TuraDTO
+namespace WebApplication1.Utils.DTOs.TuraDTO;
+
+public class CreateTuraDto
 {
-    public class CreateTuraDto
-    {
-        [Required(ErrorMessage = "Redni broj je obavezan.")]
-        [MaxLength(50, ErrorMessage = "Redni broj ne može biti duži od 50 karaktera.")]
-        public string RedniBroj { get; set; } = string.Empty;
+    [Required]
+    [MaxLength(50)]
+    public string RedniBroj { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Relacija je obavezna.")]
-        [MaxLength(200, ErrorMessage = "Relacija ne može biti duža od 200 karaktera.")]
-        public string Relacija { get; set; } = string.Empty;
+    [Required]
+    [MaxLength(150)]
+    public string MestoUtovara { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Datum utovara je obavezan.")]
-        public DateTime UtovarDatum { get; set; }
+    [Required]
+    [MaxLength(150)]
+    public string MestoIstovara { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Datum istovara je obavezan.")]
-        public DateTime IstovarDatum { get; set; }
+    public DateTime? DatumUtovaraOd { get; set; }
+    public DateTime? DatumUtovaraDo { get; set; }
+    public DateTime? DatumIstovaraOd { get; set; }
+    public DateTime? DatumIstovaraDo { get; set; }
 
-        [MaxLength(50, ErrorMessage = "Količina robe ne može biti duža od 50 karaktera.")]
-        public string? KolicinaRobe { get; set; }
+    [MaxLength(100)]
+    public string? KolicinaRobe { get; set; }
 
-        [MaxLength(50, ErrorMessage = "Težina ne može biti duža od 50 karaktera.")]
-        public string? Tezina { get; set; }
+    [MaxLength(50)]
+    public string? Tezina { get; set; }
 
-        [Required(ErrorMessage = "Opcija prevoza je obavezna.")]
-        [MaxLength(20, ErrorMessage = "Opcija prevoza ne može biti duža od 20 karaktera.")]
-        public string OpcijaPrevoza { get; set; } = "Solo";
+    [Required]
+    [MaxLength(50)]
+    public string OpcijaPrevoza { get; set; } = string.Empty;
 
-        [MaxLength(100, ErrorMessage = "Vrsta nadogradnje ne može biti duža od 100 karaktera.")]
-        public string? VrstaNadogradnje { get; set; }
+    [Required]
+    public int VrstaNadogradnjeId { get; set; }
 
-        [MaxLength(500, ErrorMessage = "Napomena ne može biti duža od 500 karaktera.")]
-        public string? Napomena { get; set; }
+    [MaxLength(500)]
+    public string? Napomena { get; set; }
 
-        [Range(0, double.MaxValue, ErrorMessage = "Ulazna cena mora biti pozitivan broj.")]
-        public decimal? UlaznaCena { get; set; }
+    [MaxLength(350)]
+    public string? NapomenaKlijenta { get; set; }
 
-        [Required(ErrorMessage = "Prevoznik ID je obavezan.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Prevoznik ID mora biti pozitivan broj.")]
-        public int PrevoznikId { get; set; }
+    [MaxLength(200)]
+    public string? IzvoznoCarinjenje { get; set; }
 
-        [Range(1, int.MaxValue, ErrorMessage = "Vozilo ID mora biti pozitivan broj ako je unet.")]
-        public int? VoziloId { get; set; } // Optional - can be assigned later
-    }
+    [MaxLength(200)]
+    public string? UvoznoCarinjenje { get; set; }
 
+    public decimal? UlaznaCena { get; set; }
+    public decimal? IzlaznaCena { get; set; }
+
+    [MaxLength(10)]
+    public string Valuta { get; set; } = "EUR";
+
+    [Required]
+    public int KlijentId { get; set; }
+
+    [Required]
+    public int PrevoznikId { get; set; }
+
+    public int? VoziloId { get; set; }
 }

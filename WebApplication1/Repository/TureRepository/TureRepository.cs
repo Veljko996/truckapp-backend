@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using WebApplication1.DataAccess;
 using WebApplication1.DataAccess.Models;
-using WebApplication1.Utils.Enums;
 
 namespace WebApplication1.Repository.TureRepository;
 
@@ -18,18 +17,21 @@ public class TureRepository : ITureRepository
     public IQueryable<Tura> GetAll()
     {
         return _context.Ture
-            .Include(t => t.Vozilo)
-            .Include(t => t.Prevoznik)
             .AsNoTracking()
-            .OrderByDescending(t => t.UtovarDatum);
+            .Include(t => t.Prevoznik)
+            .Include(t => t.Vozilo)
+            .Include(t => t.Klijent)
+            .Include(t => t.VrstaNadogradnje)
+            .OrderByDescending(t => t.TuraId);
     }
 
     public async Task<Tura?> GetByIdAsync(int id)
     {
         return await _context.Ture
-            .Include(t => t.Vozilo)
             .Include(t => t.Prevoznik)
-            .Include(t => t.StatusLogovi.OrderByDescending(sl => sl.Vreme))
+            .Include(t => t.Vozilo)
+            .Include(t => t.Klijent)
+            .Include(t => t.VrstaNadogradnje)
             .FirstOrDefaultAsync(t => t.TuraId == id);
     }
 
@@ -50,40 +52,12 @@ public class TureRepository : ITureRepository
 
     public async Task<bool> SaveChangesAsync()
     {
-        try
-        {
-            return await _context.SaveChangesAsync() > 0;
-        }
-        catch (DbUpdateException ex)
-        {
-            // Re-throw with context for proper error handling
-            throw new InvalidOperationException("Database update failed. See inner exception for details.", ex);
-        }
+        return await _context.SaveChangesAsync() > 0;
     }
 
     public async Task<IDbContextTransaction> BeginTransactionAsync()
     {
         return await _context.Database.BeginTransactionAsync();
-    }
-
-    /// <summary>
-    /// Checks if a vehicle is available for assignment. Uses database query to prevent race conditions.
-    /// </summary>
-    public async Task<bool> IsVehicleAvailableAsync(int voziloId, int? excludeTuraId = null)
-    {
-        // Use AsNoTracking for read-only check to improve performance
-        var query = _context.Ture
-            .AsNoTracking()
-            .Where(t => t.VoziloId == voziloId &&
-                t.StatusTrenutni != TuraStatus.Zavrseno &&
-                t.StatusTrenutni != TuraStatus.Otkazano);
-
-        if (excludeTuraId.HasValue)
-        {
-            query = query.Where(t => t.TuraId != excludeTuraId.Value);
-        }
-
-        return !await query.AnyAsync();
     }
 
     public async Task<bool> PrevoznikExistsAsync(int prevoznikId)
@@ -96,10 +70,5 @@ public class TureRepository : ITureRepository
     {
         return await _context.NasaVozila
             .AnyAsync(v => v.VoziloId == voziloId);
-    }
-
-    public async Task AddStatusLogAsync(TuraStatusLog statusLog)
-    {
-        await _context.TuraStatusLogs.AddAsync(statusLog);
     }
 }

@@ -41,7 +41,7 @@ public class AuthService : IAuthService
         await _authenticationRepository.UpdateAsync(user);
         await _authenticationRepository.SaveChangesAsync();
 
-        // 🔸 Sve OK, generiši token
+        // Sve OK, generiši token
         return await CreateTokenResponse(user);
     }
 
@@ -151,10 +151,8 @@ public class AuthService : IAuthService
 
         return newTokens;
     }
-
-    /// <summary>
     /// Invalidates refresh token for logout
-    /// </summary>
+    
     public async Task<bool> LogoutAsync(int? userId = null)
     {
         var httpContext = _contextAccessor.HttpContext;
