@@ -28,11 +28,21 @@ public class TuraService : ITuraService
     public async Task<TuraReadDto> Create(CreateTuraDto dto)
     {
         var tura = dto.Adapt<Tura>();
+
         _repository.Add(tura);
 
-        var saved = await _repository.SaveChangesAsync();
-        if (!saved)
+        var inserted = await _repository.SaveChangesAsync();
+        if (!inserted)
             throw new ConflictException("CreateFailed", "Greška prilikom kreiranja ture.");
+
+        int yearTwo = DateTime.UtcNow.Year % 100;
+        tura.RedniBroj = $"{tura.TuraId:D2}/{yearTwo}";
+
+        _repository.Update(tura);
+
+        var updated = await _repository.SaveChangesAsync();
+        if (!updated)
+            throw new ConflictException("UpdateFailed", "Greška pri dodeli rednog broja.");
 
         return tura.Adapt<TuraReadDto>();
     }
@@ -100,4 +110,6 @@ public class TuraService : ITuraService
 
         return true;
     }
+
+
 }

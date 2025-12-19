@@ -19,6 +19,7 @@
 
 	<ItemGroup>
 		<Folder Include="Resources\" />
+		<Folder Include="Utils\Helper\" />
 	</ItemGroup>
 
 </Project>
