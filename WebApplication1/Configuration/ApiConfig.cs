@@ -1,12 +1,12 @@
 ﻿using WebApplication1.Services.AuthenticationServices;
-using WebApplication1.Services.DashboardServices;
+//using WebApplication1.Services.DashboardServices;
 using WebApplication1.Services.NasaVozilaServices;
 using WebApplication1.Services.PoslovnicaServices;
 using WebApplication1.Services.PrevozniciServices;
 using WebApplication1.Services.TuraServices;
 using WebApplication1.Services.UserServices;
 using WebApplication1.Services.VinjeteServices;
-using WebApplication1.Repository.DashboardRepository;
+//using WebApplication1.Repository.DashboardRepository;
 using WebApplication1.Repository.PoslovnicaRepository;
 using WebApplication1.Repository.PrevozniciRepository;
 using WebApplication1.Repository.UserRepository;
@@ -41,8 +41,8 @@ public static class ApiConfig
         builder.Services.AddScoped<IPrevozniciService, PrevozniciService>();
         
         // Dashboard services
-        builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
-        builder.Services.AddScoped<IDashboardService, DashboardService>();
+        //builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
+        //builder.Services.AddScoped<IDashboardService, DashboardService>();
 
         return builder;
     }

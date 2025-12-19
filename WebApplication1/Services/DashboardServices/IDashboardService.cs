@@ -1,9 +1,9 @@
-using WebApplication1.Utils.DTOs.DashboardDTO;
+//using WebApplication1.Utils.DTOs.DashboardDTO;
 
-namespace WebApplication1.Services.DashboardServices;
+//namespace WebApplication1.Services.DashboardServices;
 
-public interface IDashboardService
-{
-    Task<DashboardOverviewDto> GetDashboardOverviewAsync();
-}
+//public interface IDashboardService
+//{
+//    Task<DashboardOverviewDto> GetDashboardOverviewAsync();
+//}
 

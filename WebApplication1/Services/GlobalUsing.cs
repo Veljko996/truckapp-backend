@@ -21,5 +21,4 @@ global using Microsoft.IdentityModel.Tokens;
 global using WebApplication1.Repository.AuthenticationRepository;
 global using WebApplication1.Utils.DTOs.UserDTO;
 global using WebApplication1.Utils.Jwt;
-global using WebApplication1.Utils.Enums;
 global using System.Linq;
