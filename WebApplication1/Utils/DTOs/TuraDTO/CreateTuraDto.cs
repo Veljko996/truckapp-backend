@@ -29,26 +29,26 @@ public class CreateTuraDto
     [Required]
     public int VrstaNadogradnjeId { get; set; }
 
-    [MaxLength(350)]
-    public string? NapomenaKlijenta { get; set; }
+    //[MaxLength(350)]
+    //public string? NapomenaKlijenta { get; set; }
 
-    [MaxLength(200)]
-    public string? IzvoznoCarinjenje { get; set; }
+    //[MaxLength(200)]
+    //public string? IzvoznoCarinjenje { get; set; }
 
-    [MaxLength(200)]
-    public string? UvoznoCarinjenje { get; set; }
+    //[MaxLength(200)]
+    //public string? UvoznoCarinjenje { get; set; }
 
-    public decimal? UlaznaCena { get; set; }
-    public decimal? IzlaznaCena { get; set; }
+    //public decimal? UlaznaCena { get; set; }
+    //public decimal? IzlaznaCena { get; set; }
 
-    [MaxLength(10)]
-    public string Valuta { get; set; } = "EUR";
+    //[MaxLength(10)]
+    //public string Valuta { get; set; } = "EUR";
 
-    [Required]
-    public int KlijentId { get; set; }
+    //[Required]
+    //public int KlijentId { get; set; }
 
-    [Required]
-    public int PrevoznikId { get; set; }
+    //[Required]
+    //public int PrevoznikId { get; set; }
 
-    public int? VoziloId { get; set; }
+    //public int? VoziloId { get; set; }
 }

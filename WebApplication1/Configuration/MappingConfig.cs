@@ -13,17 +13,40 @@ public static class MappingConfig
                 src => src.Vozilo != null ? src.Vozilo.Naziv : null);
 
         TypeAdapterConfig<CreateTuraDto, Tura>
-            .NewConfig()
-            .Ignore(dest => dest.TuraId)
-            .Ignore(dest => dest.Prevoznik)
-            .Ignore(dest => dest.Vozilo);
+             .NewConfig()
+             .Ignore(dest => dest.TuraId)
+             .Ignore(dest => dest.PrevoznikId)
+             .Ignore(dest => dest.VoziloId)
+             .Ignore(dest => dest.Prevoznik)
+             .Ignore(dest => dest.Vozilo)
+             .Ignore(dest => dest.KlijentId)
+             .Ignore(dest => dest.Klijent)
+             .Ignore(dest =>dest.KreiranPutniNalog);
 
 
         TypeAdapterConfig<UpdateTuraDto, Tura>
-             .NewConfig()
-             .IgnoreNullValues(true)
-             .Ignore(dest => dest.Prevoznik)
-             .Ignore(dest => dest.Vozilo);
+            .NewConfig()
+            .IgnoreNullValues(true)
+            .Ignore(dest => dest.PrevoznikId)
+            .Ignore(dest => dest.VoziloId)
+            .Ignore(dest => dest.KlijentId)
+            .Ignore(dest => dest.UlaznaCena)
+            .Ignore(dest => dest.IzlaznaCena)
+            .Ignore(dest => dest.Valuta)
+            .Ignore(dest => dest.StatusTure);
+
+        TypeAdapterConfig<UpdateTureBusinessDto, Tura>
+            .NewConfig()
+            .IgnoreNullValues(true)
+            .Ignore(dest => dest.StatusTure);
+
+        TypeAdapterConfig<UpdateTuraStatusDto, Tura>
+            .NewConfig()
+            .IgnoreNullValues(true);
+
+        TypeAdapterConfig<UpdateTuraNotesDto, Tura>
+            .NewConfig()
+            .IgnoreNullValues(true);
 
         #endregion Ture
 

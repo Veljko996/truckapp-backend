@@ -5,7 +5,6 @@ global using WebApplication1.Repository.VinjeteRepository;
 global using WebApplication1.Utils.DTOs.VinjetaDTO;
 global using WebApplication1.Utils.Exceptions;
 global using WebApplication1.DataAccess;
-global using WebApplication1.Repository.TureRepository;
 global using WebApplication1.Utils.DTOs.TuraDTO;
 global using WebApplication1.Repository.NasaVozilaRepository;
 global using WebApplication1.Utils.DTOs.NasaVozilaDTO;
@@ -21,4 +20,4 @@ global using Microsoft.IdentityModel.Tokens;
 global using WebApplication1.Repository.AuthenticationRepository;
 global using WebApplication1.Utils.DTOs.UserDTO;
 global using WebApplication1.Utils.Jwt;
-global using System.Linq;
+

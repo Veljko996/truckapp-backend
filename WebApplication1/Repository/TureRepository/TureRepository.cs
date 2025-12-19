@@ -1,9 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
-using WebApplication1.DataAccess;
-using WebApplication1.DataAccess.Models;
-
-namespace WebApplication1.Repository.TureRepository;
+﻿using Microsoft.EntityFrameworkCore.Storage;
 
 public class TureRepository : ITureRepository
 {
@@ -35,7 +30,7 @@ public class TureRepository : ITureRepository
             .FirstOrDefaultAsync(t => t.TuraId == id);
     }
 
-    public void Create(Tura tura)
+    public void Add(Tura tura)
     {
         _context.Ture.Add(tura);
     }
@@ -44,7 +39,6 @@ public class TureRepository : ITureRepository
     {
         _context.Ture.Update(tura);
     }
-
     public void Delete(Tura tura)
     {
         _context.Ture.Remove(tura);
@@ -62,13 +56,16 @@ public class TureRepository : ITureRepository
 
     public async Task<bool> PrevoznikExistsAsync(int prevoznikId)
     {
-        return await _context.Prevoznici
-            .AnyAsync(p => p.PrevoznikId == prevoznikId);
+        return await _context.Prevoznici.AnyAsync(p => p.PrevoznikId == prevoznikId);
     }
 
     public async Task<bool> VoziloExistsAsync(int voziloId)
     {
-        return await _context.NasaVozila
-            .AnyAsync(v => v.VoziloId == voziloId);
+        return await _context.NasaVozila.AnyAsync(v => v.VoziloId == voziloId);
+    }
+
+    public async Task<bool> KlijentExistsAsync(int klijentId)
+    {
+        return await _context.Klijenti.AnyAsync(c => c.KlijentId == klijentId);
     }
 }
