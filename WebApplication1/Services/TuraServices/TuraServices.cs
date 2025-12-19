@@ -31,7 +31,7 @@ public class TuraService : ITuraService
         var tura = dto.Adapt<Tura>();
 
         // 2. Insert
-        _repository.Create(tura);
+        _repository.Add(tura);
         await _repository.SaveChangesAsync(); // sada TuraId postoji
 
         // 3. Generate redni broj
