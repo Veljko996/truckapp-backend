@@ -14,6 +14,7 @@ public static class MappingConfig
 
         TypeAdapterConfig<CreateTuraDto, Tura>
              .NewConfig()
+             .Ignore(dest => dest.RedniBroj)
              .Ignore(dest => dest.TuraId)
              .Ignore(dest => dest.PrevoznikId)
              .Ignore(dest => dest.VoziloId)
