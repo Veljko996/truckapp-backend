@@ -9,19 +9,10 @@ public class Tura
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int TuraId { get; set; }
 
-    // Broj ture (npr. 42/25 prikazuješ u UI, ovde čuvaš string za sada)
-    [Required]
+    // Automatski dodeljuje backend nakon insert-a
     [MaxLength(50)]
-    public string RedniBroj { get; set; } = string.Empty;
+    public string? RedniBroj { get; set; }
 
-    // Roba – NAMERNO slobodan unos
-    [MaxLength(100)]
-    public string? KolicinaRobe { get; set; }
-    [MaxLength(50)]
-    public string? Tezina { get; set; }
-    [MaxLength(350)]
-    public string? NapomenaKlijenta { get; set; }
-    // Lokacije
     [Required]
     [MaxLength(150)]
     public string MestoUtovara { get; set; } = string.Empty;
@@ -30,53 +21,53 @@ public class Tura
     [MaxLength(150)]
     public string MestoIstovara { get; set; } = string.Empty;
 
-    // Datumi (od–do)
     public DateTime? DatumUtovaraOd { get; set; }
     public DateTime? DatumUtovaraDo { get; set; }
     public DateTime? DatumIstovaraOd { get; set; }
     public DateTime? DatumIstovaraDo { get; set; }
 
-    // Carinjenje – slobodan unos
+    [MaxLength(100)]
+    public string? KolicinaRobe { get; set; }
+
+    [MaxLength(50)]
+    public string? Tezina { get; set; }
+
+    [MaxLength(350)]
+    public string? NapomenaKlijenta { get; set; }
+
+    // Carinjenje – dodatno u detail fazi
     [MaxLength(200)]
     public string? IzvoznoCarinjenje { get; set; }
 
     [MaxLength(200)]
     public string? UvoznoCarinjenje { get; set; }
 
-    // Finansije
+    // Finansije – detail faza
     [Column(TypeName = "decimal(12,2)")]
     public decimal? UlaznaCena { get; set; }
 
     [Column(TypeName = "decimal(12,2)")]
     public decimal? IzlaznaCena { get; set; }
 
-    [Required]
     [MaxLength(10)]
-    public string Valuta { get; set; } = "EUR";
+    public string? Valuta { get; set; } = "EUR";
 
-    // Status ture (JEDAN status)
-    [Required]
     [MaxLength(50)]
-    public string StatusTure { get; set; } = string.Empty;
+    public string StatusTure { get; set; } = "Kreirana";
 
-    // Putni nalog
-    public bool KreiranPutniNalog { get; set; }
+    public bool KreiranPutniNalog { get; set; } = false;
 
-    // === FK veze ===
+    // --- FK opcioni dok se ne popune u sledećim fazama ---
 
-    [Required]
-    public int KlijentId { get; set; }
-    public Klijent Klijent { get; set; } = null!;
+    public int? KlijentId { get; set; }
+    public Klijent? Klijent { get; set; }
 
-    [Required]
-    public int PrevoznikId { get; set; }
-    public Prevoznik Prevoznik { get; set; } = null!;
+    public int? PrevoznikId { get; set; }
+    public Prevoznik? Prevoznik { get; set; }
 
-    // Vozilo – samo ako je interni prevoznik
     public int? VoziloId { get; set; }
     public NasaVozila? Vozilo { get; set; }
 
-    // Lookup
     [Required]
     public int VrstaNadogradnjeId { get; set; }
     public VrstaNadogradnje VrstaNadogradnje { get; set; } = null!;
