@@ -4,7 +4,6 @@ namespace WebApplication1.Utils.DTOs.TuraDTO;
 
 public class CreateTuraDto
 {
-    [Required]
     [MaxLength(50)]
     public string RedniBroj { get; set; } = string.Empty;
 
