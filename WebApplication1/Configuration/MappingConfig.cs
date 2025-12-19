@@ -6,11 +6,16 @@ public static class MappingConfig
     {
         #region Ture
         TypeAdapterConfig<Tura, TuraReadDto>
-            .NewConfig()
-            .Map(dest => dest.PrevoznikNaziv,
-                src => src.Prevoznik != null ? src.Prevoznik.Naziv : string.Empty)
-            .Map(dest => dest.VoziloNaziv,
-                src => src.Vozilo != null ? src.Vozilo.Naziv : null);
+             .NewConfig()
+             .IgnoreNullValues(true)
+             .Map(dest => dest.PrevoznikNaziv,
+                  src => src.Prevoznik != null ? src.Prevoznik.Naziv : null)
+             .Map(dest => dest.VoziloNaziv,
+                  src => src.Vozilo != null ? src.Vozilo.Naziv : null)
+             .Map(dest => dest.KlijentNaziv,
+                  src => src.Klijent != null ? src.Klijent.NazivFirme : null)
+             .Map(dest => dest.VrstaNadogradnjeNaziv,
+                  src => src.VrstaNadogradnje != null ? src.VrstaNadogradnje.Naziv : null);
 
         TypeAdapterConfig<CreateTuraDto, Tura>
              .NewConfig()
