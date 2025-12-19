@@ -25,4 +25,11 @@ public class CreateTuraDto
 
     [Required]
     public int VrstaNadogradnjeId { get; set; }
+    [Required]
+    public int KlijentId { get; set; }
+    [Required]
+    public int PrevoznikId { get; set; }
+    public int? VoziloId { get; set; }
+    
+
 }

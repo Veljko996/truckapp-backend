@@ -27,23 +27,22 @@ public class TuraService : ITuraService
 
     public async Task<TuraReadDto> Create(CreateTuraDto dto)
     {
-        // 1. DTO -> Entity
         var tura = dto.Adapt<Tura>();
 
-        // 2. Insert
         _repository.Add(tura);
-        await _repository.SaveChangesAsync(); // sada TuraId postoji
+        await _repository.SaveChangesAsync(); // dobija ID
 
-        // 3. Generate redni broj
-        int year = DateTime.UtcNow.Year % 100;
-        tura.RedniBroj = $"{tura.TuraId:D2}/{year}";
+        int yearTwo = DateTime.UtcNow.Year % 100;
+        tura.RedniBroj = $"{tura.TuraId:D2}/{yearTwo}";
 
-        // 4. Update samo jednom
         await _repository.SaveChangesAsync();
 
-        // 5. return
-        return tura.Adapt<TuraReadDto>();
+        // ❗ obavezan re-query - navigation data se puni
+        var created = await _repository.GetByIdAsync(tura.TuraId);
+
+        return created!.Adapt<TuraReadDto>();
     }
+
 
     public async Task<TuraReadDto> UpdateBasic(int id, UpdateTuraDto dto)
     {
