@@ -17,22 +17,10 @@ public class Tura
     // Roba – NAMERNO slobodan unos
     [MaxLength(100)]
     public string? KolicinaRobe { get; set; }
-
     [MaxLength(50)]
     public string? Tezina { get; set; }
-
-    // Solo / Sleper / itd. (za sada string)
-    [Required]
-    [MaxLength(50)]
-    public string OpcijaPrevoza { get; set; } = string.Empty;
-
-    // Napomene
-    [MaxLength(500)]
-    public string? Napomena { get; set; }
-
     [MaxLength(350)]
     public string? NapomenaKlijenta { get; set; }
-
     // Lokacije
     [Required]
     [MaxLength(150)]

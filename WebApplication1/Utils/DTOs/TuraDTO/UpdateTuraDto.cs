@@ -26,16 +26,8 @@ public class UpdateTuraDto
 
     [MaxLength(50)]
     public string? Tezina { get; set; }
-
-    [Required]
-    [MaxLength(50)]
-    public string OpcijaPrevoza { get; set; } = string.Empty;
-
     [Required]
     public int VrstaNadogradnjeId { get; set; }
-
-    [MaxLength(500)]
-    public string? Napomena { get; set; }
 
     [MaxLength(350)]
     public string? NapomenaKlijenta { get; set; }

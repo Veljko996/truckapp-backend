@@ -15,13 +15,8 @@ public class TuraReadDto
 
     public string? KolicinaRobe { get; set; }
     public string? Tezina { get; set; }
-
-    public string OpcijaPrevoza { get; set; } = string.Empty;
-
     public int VrstaNadogradnjeId { get; set; }
     public string VrstaNadogradnjeNaziv { get; set; } = string.Empty;
-
-    public string? Napomena { get; set; }
     public string? NapomenaKlijenta { get; set; }
 
     public decimal? UlaznaCena { get; set; }
