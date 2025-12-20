@@ -64,6 +64,7 @@ public class TuraService : ITuraService
             ?? throw new NotFoundException("Tura", $"Tura sa ID {id} nije pronađena.");
 
         dto.Adapt(tura);
+        tura.StatusTure = "Dodeljena";
 
         _repository.Update(tura);
         await _repository.SaveChangesAsync();
