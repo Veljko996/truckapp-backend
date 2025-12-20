@@ -34,7 +34,7 @@ public class Tura
 
     [MaxLength(350)]
     public string? NapomenaKlijenta { get; set; }
-
+    public string? Napomena { get; set; }
     // Carinjenje – dodatno u detail fazi
     [MaxLength(200)]
     public string? IzvoznoCarinjenje { get; set; }
