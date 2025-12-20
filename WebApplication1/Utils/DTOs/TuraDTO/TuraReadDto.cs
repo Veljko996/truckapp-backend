@@ -25,6 +25,11 @@
     public int VrstaNadogradnjeId { get; set; }
 
     public bool KreiranPutniNalog { get; set; }
+    public string ? NapomenaKlijenta { get; set; }
+    public string? Napomena { get; set; }
+    public string? IzvoznoCarinjenje { get; set; }
+    public string? UvoznoCarinjenje { get; set; }
+
 
     // sve lookup nazive nullable
     public string? PrevoznikNaziv { get; set; }
