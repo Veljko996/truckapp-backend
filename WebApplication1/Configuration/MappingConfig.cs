@@ -111,6 +111,13 @@ public static class MappingConfig
 
         #endregion VrstaNadogradnje
 
+        #region Klijent
+
+        TypeAdapterConfig<Klijent, KlijentReadDto>
+            .NewConfig();
+
+        #endregion Klijent
+
         #region Nalog
 
         TypeAdapterConfig<Nalog, NalogReadDto>
