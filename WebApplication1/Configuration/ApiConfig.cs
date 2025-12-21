@@ -6,11 +6,13 @@ using WebApplication1.Services.PrevozniciServices;
 using WebApplication1.Services.TuraServices;
 using WebApplication1.Services.UserServices;
 using WebApplication1.Services.VinjeteServices;
+using WebApplication1.Services.VrstaNadogradnjeServices;
 //using WebApplication1.Repository.DashboardRepository;
 using WebApplication1.Repository.PoslovnicaRepository;
 using WebApplication1.Repository.PrevozniciRepository;
 using WebApplication1.Repository.UserRepository;
 using WebApplication1.Repository.NalogRepository;
+using WebApplication1.Repository.VrstaNadogradnjeRepository;
 using WebApplication1.Services.NalogServices;
 
 namespace WebApplication1.Configuration;
@@ -48,6 +50,10 @@ public static class ApiConfig
         // Prevoznici services
         builder.Services.AddScoped<IPrevozniciRepository, PrevozniciRepository>();
         builder.Services.AddScoped<IPrevozniciService, PrevozniciService>();
+        
+        // VrstaNadogradnje services
+        builder.Services.AddScoped<IVrstaNadogradnjeRepository, VrstaNadogradnjeRepository>();
+        builder.Services.AddScoped<IVrstaNadogradnjeService, VrstaNadogradnjeService>();
         
         // Dashboard services
         //builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();

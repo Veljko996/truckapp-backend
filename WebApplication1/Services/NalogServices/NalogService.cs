@@ -58,8 +58,8 @@ public class NalogService : INalogService
         await _repository.SaveChangesAsync();
 
         nalog.NalogBroj = $"{nalog.NalogId}/{DateTime.Now.Year % 100}";
-        nalog.StatusNaloga = "KreiranNalog";
-        tura.StatusTure = "KreiranNalog";
+        nalog.StatusNaloga = "U Toku";
+        tura.StatusTure = "Kreiran Nalog";
 
         await _repository.SaveChangesAsync();
 

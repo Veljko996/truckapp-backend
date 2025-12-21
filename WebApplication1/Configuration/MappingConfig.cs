@@ -104,6 +104,13 @@ public static class MappingConfig
 
         #endregion Prevoznici
 
+        #region VrstaNadogradnje
+
+        TypeAdapterConfig<VrstaNadogradnje, VrstaNadogradnjeReadDto>
+            .NewConfig();
+
+        #endregion VrstaNadogradnje
+
         #region Nalog
 
         TypeAdapterConfig<Nalog, NalogReadDto>
