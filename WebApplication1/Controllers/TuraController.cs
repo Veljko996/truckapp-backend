@@ -20,7 +20,6 @@ public class TuraController : ControllerBase
         var result = await _service.GetAll();
         return Ok(result);
     }
-
     [HttpGet("{id}")]
     public async Task<ActionResult<TuraReadDto>> GetById(int id)
     {

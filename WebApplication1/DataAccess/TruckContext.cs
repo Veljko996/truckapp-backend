@@ -9,6 +9,7 @@ public class TruckContext : DbContext
 
     // === Glavni entiteti ===
     public DbSet<Tura> Ture { get; set; } = null!;
+    public DbSet<Nalog> Nalozi { get; set; } = null!;
     public DbSet<NasaVozila> NasaVozila { get; set; } = null!;
     public DbSet<Vinjeta> Vinjete { get; set; } = null!;
     public DbSet<Poslovnica> Poslovnice { get; set; } = null!;

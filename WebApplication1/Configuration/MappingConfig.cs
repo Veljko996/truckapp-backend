@@ -1,4 +1,6 @@
-﻿namespace WebApplication1.Utils.Mapping;
+﻿using WebApplication1.Utils.DTOs.NalogDTO;
+
+namespace WebApplication1.Utils.Mapping;
 
 public static class MappingConfig
 {
@@ -101,5 +103,71 @@ public static class MappingConfig
             .Ignore(dest => dest.PrevoznikId);
 
         #endregion Prevoznici
+
+        #region Nalog
+
+        TypeAdapterConfig<Nalog, NalogReadDto>
+            .NewConfig()
+            .IgnoreNullValues(true)
+            .Map(dest => dest.PrevoznikNaziv,
+                 src => src.Prevoznik != null ? src.Prevoznik.Naziv : null);
+
+        TypeAdapterConfig<CreateNalogDto, Nalog>
+            .NewConfig()
+            .Ignore(dest => dest.NalogId)
+            .Ignore(dest => dest.NalogBroj)
+            .Ignore(dest => dest.Prevoznik)
+            .Ignore(dest => dest.Tura);
+
+        TypeAdapterConfig<AssignPrevoznikDto, Nalog>
+            .NewConfig()
+            .IgnoreNullValues(true)
+            .Ignore(dest => dest.NalogId)
+            .Ignore(dest => dest.NalogBroj)
+            .Ignore(dest => dest.TuraId)
+            .Ignore(dest => dest.Prevoznik)
+            .Ignore(dest => dest.Tura);
+
+        TypeAdapterConfig<UpdateBusinessFieldsDto, Nalog>
+            .NewConfig()
+            .IgnoreNullValues(true)
+            .Ignore(dest => dest.NalogId)
+            .Ignore(dest => dest.NalogBroj)
+            .Ignore(dest => dest.TuraId)
+            .Ignore(dest => dest.PrevoznikId)
+            .Ignore(dest => dest.Prevoznik)
+            .Ignore(dest => dest.Tura);
+
+        TypeAdapterConfig<UpdateNotesDto, Nalog>
+            .NewConfig()
+            .IgnoreNullValues(true)
+            .Ignore(dest => dest.NalogId)
+            .Ignore(dest => dest.NalogBroj)
+            .Ignore(dest => dest.TuraId)
+            .Ignore(dest => dest.PrevoznikId)
+            .Ignore(dest => dest.Prevoznik)
+            .Ignore(dest => dest.Tura);
+
+        TypeAdapterConfig<UpdateStatusDto, Nalog>
+            .NewConfig()
+            .IgnoreNullValues(true)
+            .Ignore(dest => dest.NalogId)
+            .Ignore(dest => dest.NalogBroj)
+            .Ignore(dest => dest.TuraId)
+            .Ignore(dest => dest.PrevoznikId)
+            .Ignore(dest => dest.Prevoznik)
+            .Ignore(dest => dest.Tura);
+
+        TypeAdapterConfig<MarkIstovarenDto, Nalog>
+            .NewConfig()
+            .IgnoreNullValues(true)
+            .Ignore(dest => dest.NalogId)
+            .Ignore(dest => dest.NalogBroj)
+            .Ignore(dest => dest.TuraId)
+            .Ignore(dest => dest.PrevoznikId)
+            .Ignore(dest => dest.Prevoznik)
+            .Ignore(dest => dest.Tura);
+
+        #endregion Nalog
     }
 }
