@@ -8,12 +8,14 @@ public class NalogService : INalogService
     private readonly INalogRepository _repository;
     private readonly ITureRepository _turaRepository;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IWebHostEnvironment _env;
 
-    public NalogService(INalogRepository repository, ITureRepository turaRepository, IHttpContextAccessor httpContextAccessor)
+    public NalogService(INalogRepository repository, IWebHostEnvironment env, ITureRepository turaRepository, IHttpContextAccessor httpContextAccessor)
     {
         _repository = repository;
         _turaRepository = turaRepository;
         _httpContextAccessor = httpContextAccessor;
+        _env = env;
     }
 
     public async Task<IEnumerable<NalogReadDto>> GetAllAsync()
@@ -163,5 +165,35 @@ public class NalogService : INalogService
         return updated!.Adapt<NalogReadDto>();
     }
 
+    public async Task<byte[]> GenerateHtmlAsync(int id)
+    {
+        var nalog = await _repository.GetByIdAsync(id)
+            ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
+        
+        var templatePath = Path.Combine(_env.ContentRootPath, "Templates", "NalogTemplate.html");
+        if (!File.Exists(templatePath))
+            throw new FileNotFoundException("NalogTemplate.html nije pronađen.", templatePath);
 
+        string html = await File.ReadAllTextAsync(templatePath);
+
+        // 3) Zameni placeholder-e vrednostima iz NalogReadDto
+        html = html
+            .Replace("{{NALOG_BROJ}}", nalog.NalogBroj ?? "")
+            .Replace("{{RELACIJA}}", nalog.Relacija ?? "")
+            .Replace("{{DATUM_UTOVARA}}", nalog.DatumUtovara?.ToString("dd.MM.yyyy HH:mm") ?? "")
+            .Replace("{{DATUM_ISTOVARA}}", nalog.DatumIstovara?.ToString("dd.MM.yyyy HH:mm") ?? "")
+            .Replace("{{KOLICINA_ROBE}}", nalog.KolicinaRobe ?? "")
+            .Replace("{{VRSTA_ROBE}}", nalog.VrstaRobe ?? "")
+            .Replace("{{ADRESA_UTOVARA}}", nalog.AdresaUtovara ?? "")
+            .Replace("{{IZVOZNIK}}", nalog.Izvoznik ?? "")
+            .Replace("{{GRANICNI_PRELAZ}}", nalog.GranicniPrelaz ?? "")
+            .Replace("{{UVOZNIK}}", nalog.Uvoznik ?? "")
+            .Replace("{{SPEDICIJA}}", nalog.Spedicija ?? "")
+            .Replace("{{STATUS_NALOGA}}", nalog.StatusNaloga ?? "")
+            .Replace("{{PREVOZNIK_ID}}", nalog.PrevoznikId?.ToString() ?? "")
+            .Replace("{{NAPOMENA_NALOGA}}", nalog.NapomenaNalog?? "");
+
+        // 4) Vrati kao byte[] (da controller lako šalje kao fajl)
+        return Encoding.UTF8.GetBytes(html);
+    }
 }

@@ -84,5 +84,26 @@ public class NalogController : ControllerBase
         var result = await _service.Ponisti(id);
         return Ok(result);
     }
+
+    [HttpGet("{id}/document")]
+    public async Task<IActionResult> GenerateHtmlAsync(int id,[FromQuery] string format = "html") 
+    {
+        var bytes = await _service.GenerateHtmlAsync(id);
+
+        if (format.Equals("doc", StringComparison.OrdinalIgnoreCase))
+        {
+            return File(
+                bytes, 
+                "application/msword", 
+                $"Nalog_{id}.doc");
+        }
+
+        return File(
+            bytes, 
+            "text/html; charset=utf-8", 
+            $"Nalog_{id}.html"
+            );
+        }
+    
 }
 
