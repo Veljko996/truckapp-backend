@@ -45,8 +45,8 @@ public class NalogService : INalogService
 
         nalog.TuraId = turaId;
         nalog.Relacija = $"{tura.MestoUtovara} - {tura.MestoIstovara}";
-        nalog.DatumUtovara = tura.DatumUtovaraOd; 
-        nalog.DatumIstovara = tura.DatumIstovaraDo;
+        nalog.DatumUtovara = tura.DatumUtovara; 
+        nalog.DatumIstovara = tura.DatumIstovara;
         nalog.KolicinaRobe = tura.KolicinaRobe;
 
         //polja koja se vuku iz ture ali se mogu menjati na nalogu

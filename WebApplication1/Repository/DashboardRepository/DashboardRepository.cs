@@ -58,8 +58,8 @@ public class DashboardRepository : IDashboardRepository
     {
         var danas = DateTime.UtcNow.Date;
         return await _context.Ture
-            .Where(t => t.DatumUtovaraOd.HasValue 
-                && t.DatumUtovaraOd.Value.Date == danas 
+            .Where(t => t.DatumUtovara.HasValue 
+                && t.DatumUtovara.Value.Date == danas 
                 && t.UlaznaCena.HasValue)
             .SumAsync(t => t.UlaznaCena ?? 0);
     }
@@ -67,9 +67,9 @@ public class DashboardRepository : IDashboardRepository
     public async Task<decimal> GetPrihodZaPeriodAsync(DateTime startDate, DateTime endDate)
     {
         return await _context.Ture
-            .Where(t => t.DatumUtovaraOd.HasValue
-                && t.DatumUtovaraOd.Value.Date >= startDate.Date
-                && t.DatumUtovaraOd.Value.Date <= endDate.Date
+            .Where(t => t.DatumUtovara.HasValue
+                && t.DatumUtovara.Value.Date >= startDate.Date
+                && t.DatumUtovara.Value.Date <= endDate.Date
                 && t.UlaznaCena.HasValue)
             .SumAsync(t => t.UlaznaCena ?? 0);
     }
@@ -77,11 +77,11 @@ public class DashboardRepository : IDashboardRepository
     public async Task<List<(DateTime Datum, decimal Suma)>> GetPrihodByDateAsync(DateTime startDate, DateTime endDate)
     {
         var prihod = await _context.Ture
-            .Where(t => t.DatumUtovaraOd.HasValue
-                && t.DatumUtovaraOd.Value.Date >= startDate.Date
-                && t.DatumUtovaraOd.Value.Date <= endDate.Date
+            .Where(t => t.DatumUtovara.HasValue
+                && t.DatumUtovara.Value.Date >= startDate.Date
+                && t.DatumUtovara.Value.Date <= endDate.Date
                 && t.UlaznaCena.HasValue)
-            .GroupBy(t => t.DatumUtovaraOd!.Value.Date)
+            .GroupBy(t => t.DatumUtovara!.Value.Date)
             .Select(g => new { Datum = g.Key, Suma = g.Sum(t => t.UlaznaCena ?? 0) })
             .OrderBy(x => x.Datum)
             .AsNoTracking()
