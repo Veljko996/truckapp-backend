@@ -18,8 +18,15 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Folder Include="Templates\" />
 		<Folder Include="Resources\" />
 		<Folder Include="Utils\Helper\" />
+	</ItemGroup>
+	
+	<ItemGroup>
+		<Content Include="Templates\NalogTemplate.html">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</Content>
 	</ItemGroup>
 
 </Project>

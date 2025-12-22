@@ -170,10 +170,12 @@ public class NalogService : INalogService
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
         
+
         var templatePath = Path.Combine(_env.ContentRootPath, "Templates", "NalogTemplate.html");
         if (!File.Exists(templatePath))
             throw new FileNotFoundException("NalogTemplate.html nije pronađen.", templatePath);
 
+        
         string html = await File.ReadAllTextAsync(templatePath);
 
         // 3) Zameni placeholder-e vrednostima iz NalogReadDto
