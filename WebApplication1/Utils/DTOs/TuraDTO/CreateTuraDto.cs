@@ -12,10 +12,8 @@ public class CreateTuraDto
     [MaxLength(150)]
     public string MestoIstovara { get; set; } = string.Empty;
 
-    public DateTime? DatumUtovaraOd { get; set; }
-    public DateTime? DatumUtovaraDo { get; set; }
-    public DateTime? DatumIstovaraOd { get; set; }
-    public DateTime? DatumIstovaraDo { get; set; }
+    public DateTime? DatumUtovara { get; set; }
+    public DateTime? DatumIstovara { get; set; }
 
     [MaxLength(100)]
     public string? KolicinaRobe { get; set; }
