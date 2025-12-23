@@ -124,7 +124,9 @@ public static class MappingConfig
             .NewConfig()
             .IgnoreNullValues(true)
             .Map(dest => dest.PrevoznikNaziv,
-                 src => src.Prevoznik != null ? src.Prevoznik.Naziv : null);
+                 src => src.Prevoznik != null ? src.Prevoznik.Naziv : null)
+            .Map(dest => dest.TuraRedniBroj,
+                 src => src.Tura != null ? src.Tura.RedniBroj : null);
 
         TypeAdapterConfig<CreateNalogDto, Nalog>
             .NewConfig()

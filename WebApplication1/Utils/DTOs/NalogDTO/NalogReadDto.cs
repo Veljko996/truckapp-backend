@@ -6,6 +6,7 @@ public class NalogReadDto
     public string? NalogBroj { get; set; }
     
     public int TuraId { get; set; }
+    public string? TuraRedniBroj { get; set; }
     public string? Relacija { get; set; }
     public DateTime? DatumUtovara { get; set; }
     public DateTime? DatumIstovara { get; set; }
