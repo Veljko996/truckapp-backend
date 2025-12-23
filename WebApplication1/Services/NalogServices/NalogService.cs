@@ -171,7 +171,7 @@ public class NalogService : INalogService
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
         
 
-        var templatePath = Path.Combine(_env.ContentRootPath, "Templates", "NalogTemplate.html");
+        var templatePath = Path.Combine(_env.ContentRootPath, "Templates", "MtsNalogTemplate.html");
         if (!File.Exists(templatePath))
             throw new FileNotFoundException("NalogTemplate.html nije pronađen.", templatePath);
 
