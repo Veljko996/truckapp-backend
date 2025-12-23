@@ -3,7 +3,7 @@ namespace WebApplication1.Utils.DTOs.NalogDTO;
 public class CreateNalogDto
 {
     public int TuraId { get; set; }
-
+    //public string? RedniBroj { get; set; }
     public string? AdresaUtovara { get; set; }
     public string? VrstaRobe { get; set; }
     public string? Izvoznik { get; set; }

@@ -46,6 +46,7 @@ public class NalogService : INalogService
         var nalog = dto.Adapt<Nalog>();
 
         nalog.TuraId = turaId;
+        //nalog.TuraRedniBroj = tura.RedniBroj;
         nalog.Relacija = $"{tura.MestoUtovara} - {tura.MestoIstovara}";
         nalog.DatumUtovara = tura.DatumUtovara;
         nalog.DatumIstovara = tura.DatumIstovara;
