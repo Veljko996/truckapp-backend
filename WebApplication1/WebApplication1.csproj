@@ -23,9 +23,6 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<Content Include="Templates\NalogTemplate.html">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</Content>
 		<Content Include="Templates\TallTeamNalogTemplate.html">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
