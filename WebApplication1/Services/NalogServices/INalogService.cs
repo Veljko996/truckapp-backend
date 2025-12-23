@@ -14,6 +14,6 @@ public interface INalogService
     Task<NalogReadDto> MarkIstovaren(int id, MarkIstovarenDto dto);
     Task<NalogReadDto> Storniraj(int id);
     Task<NalogReadDto> Ponisti(int id);
-    Task<byte[]> GenerateHtmlAsync(int id);
+    Task<byte[]> GenerateHtmlAsync(int id, string templateKey);
 }
 

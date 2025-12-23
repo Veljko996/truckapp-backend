@@ -17,31 +17,13 @@
         }
 
         .header {
-            text-align: center;
+            text-align: left;
             margin-bottom: 10px;
         }
 
-        .company-name {
-            font-size: 22px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .company-row {
-            display: table;
-            width: 100%;
-            margin-top: 5px;
+        .header-lines {
             font-size: 13px;
-        }
-
-        .company-left {
-            display: table-cell;
-            text-align: left;
-        }
-
-        .company-right {
-            display: table-cell;
-            text-align: right;
+            line-height: 1.3;
         }
 
         hr {
@@ -53,6 +35,7 @@
         .nalog-broj {
             font-weight: bold;
             margin: 10px 0;
+            text-align: center;
         }
 
         table {
@@ -127,11 +110,18 @@
     <!-- ================== STRANA 1 ===================== -->
 
     <div class="header">
-        <div class="company-name">MTS doo</div>
-        <div class="company-row">
-            <div class="company-left">Branka Bajića 12, 21000 Novi Sad</div>
-            <div class="company-right">MB: 21884995 ; PIB: 113536304</div>
+        <div class="header-lines">
+            <strong>SUINS DOO NOVI SAD, BRANKA BAJIĆA 12, 21000 Novi Sad</strong><br>
+            PIB: 107024756; Matični broj: 20726695; šifra delatnosti: 5229<br>
+            Sedište: Novi Sad Branka Bajića 12; tel: 021/6393-416; office@suins.rs<br>
+            PJ Subotica: +381 (0)24 551-651; fax: + 381 (0)24 551-113; e-mail: subotica@suins.rs<br>
+            PJ Horgoš: +381 69 795 014; horgoš@suins.rs<br>
+            PJ Kelebija: +381 (0)24 789 071
         </div>
+    </div>
+
+    <div class="footer" style="margin-top:6px;">
+        www.suins.rs
     </div>
 
     <hr>
@@ -144,7 +134,7 @@
         <tr>
             <td>
                 <div class="section-title">Davalac naloga:</div>
-                Firma: SUINS MTS DOO<br>
+                Firma: SUINS DOO Novi Sad<br>
                 Ime: Stefan Miletić<br>
                 Tel.: +381 63 512 425<br>
                 E-mail: transport@suins.rs
@@ -198,16 +188,23 @@
     <div class="page-break"></div>
 
     <div class="header">
-        <div class="company-name">MTS doo</div>
-        <div class="company-row">
-            <div class="company-left">Branka Bajića 12, 21000 Novi Sad</div>
-            <div class="company-right">MB: 21884995 ; PIB: 113536304</div>
+        <div class="header-lines">
+            <strong>SUINS DOO NOVI SAD, BRANKA BAJIĆA 12, 21000 Novi Sad</strong><br>
+            PIB: 107024756; Matični broj: 20726695; šifra delatnosti: 5229<br>
+            Sedište: Novi Sad Branka Bajića 12; tel: 021/6393-416; office@suins.rs<br>
+            PJ Subotica: +381 (0)24 551-651; fax: + 381 (0)24 551-113; e-mail: subotica@suins.rs<br>
+            PJ Horgoš: +381 69 795 014; horgoš@suins.rs<br>
+            PJ Kelebija: +381 (0)24 789 071
         </div>
+    </div>
+
+    <div class="footer" style="margin-top:6px;">
+        www.suins.rs
     </div>
 
     <hr>
 
-    <h3>Nalog za transport: {{NALOG_BROJ}}</h3>
+    <h3 style="text-align:center;">Nalog za transport: {{NALOG_BROJ}}</h3>
 
     <table style="width:100%; border-collapse:collapse; margin-top:10px;">
         <tr>

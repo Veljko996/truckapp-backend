@@ -45,7 +45,7 @@ public class NalogService : INalogService
 
         nalog.TuraId = turaId;
         nalog.Relacija = $"{tura.MestoUtovara} - {tura.MestoIstovara}";
-        nalog.DatumUtovara = tura.DatumUtovara; 
+        nalog.DatumUtovara = tura.DatumUtovara;
         nalog.DatumIstovara = tura.DatumIstovara;
         nalog.KolicinaRobe = tura.KolicinaRobe;
 
@@ -76,7 +76,7 @@ public class NalogService : INalogService
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
 
         nalog.PrevoznikId = dto.PrevoznikId;
-        
+
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
 
@@ -89,7 +89,7 @@ public class NalogService : INalogService
     {
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
-        
+
         dto.Adapt(nalog);
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
@@ -102,7 +102,7 @@ public class NalogService : INalogService
     {
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
-        
+
         dto.Adapt(nalog);
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
@@ -115,7 +115,7 @@ public class NalogService : INalogService
     {
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
-        
+
         dto.Adapt(nalog);
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
@@ -128,7 +128,7 @@ public class NalogService : INalogService
     {
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
-        
+
         dto.Adapt(nalog);
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
@@ -142,7 +142,7 @@ public class NalogService : INalogService
     {
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
-        
+
         nalog.StatusNaloga = "Storniran";
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
@@ -155,7 +155,7 @@ public class NalogService : INalogService
     {
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
-        
+
         nalog.StatusNaloga = "Ponisten";
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
@@ -164,38 +164,78 @@ public class NalogService : INalogService
         var updated = await _repository.GetByIdAsync(id);
         return updated!.Adapt<NalogReadDto>();
     }
-
-    public async Task<byte[]> GenerateHtmlAsync(int id)
+    private static readonly Dictionary<string, string> TemplateMap =
+        new(StringComparer.OrdinalIgnoreCase)
+        {
+            ["mts"] = "MtsNalogTemplate.html",
+            ["suins"] = "SuinsNalogTemplate.html",
+            ["timnalog"] = "TallTeamNalogTemplate.html"
+        };
+    public async Task<byte[]> GenerateHtmlAsync(int id, string templateKey)
     {
         var nalog = await _repository.GetByIdAsync(id)
-            ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
-        
+            ?? throw new NotFoundException(
+                "Nalog",
+                $"Nalog sa ID {id} nije pronađen."
+            );
 
-        var templatePath = Path.Combine(_env.ContentRootPath, "Templates", "MtsNalogTemplate.html");
+        if (!TemplateMap.TryGetValue(templateKey, out var templateFile))
+            throw new ArgumentException(
+                $"Nepoznat template '{templateKey}'.",
+                nameof(templateKey)
+            );
+
+        var templatePath = Path.Combine(
+            _env.ContentRootPath,
+            "Templates",
+            templateFile
+        );
+
         if (!File.Exists(templatePath))
-            throw new FileNotFoundException("NalogTemplate.html nije pronađen.", templatePath);
+            throw new FileNotFoundException(
+                $"{templateFile} nije pronađen.",
+                templatePath
+            );
 
-        
-        string html = await File.ReadAllTextAsync(templatePath);
+        var html = await File.ReadAllTextAsync(templatePath);
 
-        // 3) Zameni placeholder-e vrednostima iz NalogReadDto
         html = html
+            // ===== HEADER / OSNOVNO =====
             .Replace("{{NALOG_BROJ}}", nalog.NalogBroj ?? "")
+            .Replace(
+                "{{DATUM_KREIRANJA}}",
+                nalog.CreatedAt.ToString("dd.MM.yyyy")
+            )
+
+            // ===== PODACI NALOGA =====
             .Replace("{{RELACIJA}}", nalog.Relacija ?? "")
-            .Replace("{{DATUM_UTOVARA}}", nalog.DatumUtovara?.ToString("dd.MM.yyyy HH:mm") ?? "")
-            .Replace("{{DATUM_ISTOVARA}}", nalog.DatumIstovara?.ToString("dd.MM.yyyy HH:mm") ?? "")
+            .Replace(
+                "{{DATUM_UTOVARA}}",
+                nalog.DatumUtovara.HasValue
+                    ? nalog.DatumUtovara.Value.ToString("dd.MM.yyyy HH:mm")
+                    : ""
+            )
+            .Replace(
+                "{{DATUM_ISTOVARA}}",
+                nalog.DatumIstovara.HasValue
+                    ? nalog.DatumIstovara.Value.ToString("dd.MM.yyyy HH:mm")
+                    : ""
+            )
             .Replace("{{KOLICINA_ROBE}}", nalog.KolicinaRobe ?? "")
             .Replace("{{VRSTA_ROBE}}", nalog.VrstaRobe ?? "")
             .Replace("{{ADRESA_UTOVARA}}", nalog.AdresaUtovara ?? "")
+
+            // ===== CARINJENJE / PARTNERI =====
             .Replace("{{IZVOZNIK}}", nalog.Izvoznik ?? "")
             .Replace("{{GRANICNI_PRELAZ}}", nalog.GranicniPrelaz ?? "")
             .Replace("{{UVOZNIK}}", nalog.Uvoznik ?? "")
             .Replace("{{SPEDICIJA}}", nalog.Spedicija ?? "")
-            .Replace("{{STATUS_NALOGA}}", nalog.StatusNaloga ?? "")
-            .Replace("{{PREVOZNIK_ID}}", nalog.PrevoznikId?.ToString() ?? "")
-            .Replace("{{NAPOMENA_NALOGA}}", nalog.NapomenaNalog?? "");
 
-        // 4) Vrati kao byte[] (da controller lako šalje kao fajl)
+            // ===== NAPOMENA =====
+            .Replace("{{NAPOMENA_NALOGA}}", nalog.NapomenaNalog ?? "");
+
         return Encoding.UTF8.GetBytes(html);
     }
+
+
 }
