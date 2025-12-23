@@ -202,23 +202,28 @@ public class NalogService : INalogService
         var html = await File.ReadAllTextAsync(templatePath);
 
         // Load and embed logo as Base64 (only for suins and mts templates)
+        // Embed logo only for suins and mts templates
         if (templateKey.Equals("suins", StringComparison.OrdinalIgnoreCase) ||
             templateKey.Equals("mts", StringComparison.OrdinalIgnoreCase))
         {
             var logoBase64 = await GetLogoBase64Async();
-            if (string.IsNullOrEmpty(logoBase64))
-            {
-                // Remove entire img tag if logo not found - try different line ending variations
-                html = html.Replace("<img src=\"data:image/png;base64,{{LOGO_BASE64}}\" style=\"max-width: 150px; height: auto; margin-bottom: 10px;\" />", "");
-                html = html.Replace("<img src=\"data:image/png;base64,{{LOGO_BASE64}}\" style=\"max-width: 150px; height: auto; margin-bottom: 10px;\" />\r\n", "");
-                html = html.Replace("<img src=\"data:image/png;base64,{{LOGO_BASE64}}\" style=\"max-width: 150px; height: auto; margin-bottom: 10px;\" />\n", "");
-                html = html.Replace("<img src=\"data:image/png;base64,{{LOGO_BASE64}}\" style=\"max-width: 150px; height: auto; margin-bottom: 10px;\" />\r", "");
-            }
-            else
+
+            if (!string.IsNullOrWhiteSpace(logoBase64))
             {
                 html = html.Replace("{{LOGO_BASE64}}", logoBase64);
             }
+            else
+            {
+                // Leave empty src → Word will simply not render image
+                html = html.Replace("{{LOGO_BASE64}}", string.Empty);
+            }
         }
+        else
+        {
+            // Templates without logo
+            html = html.Replace("{{LOGO_BASE64}}", string.Empty);
+        }
+
 
         // Load tura data for additional placeholders
         var tura = nalog.Tura;
