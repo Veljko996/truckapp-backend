@@ -271,31 +271,45 @@ public class NalogService : INalogService
 
     private async Task<string> GetLogoBase64Async()
     {
-        try
-        {
-            var logoPath = Path.Combine(_env.ContentRootPath, "Resources", "logo.png");
-            
-            if (!File.Exists(logoPath))
-            {
-                _logger.LogWarning($"Logo file not found at: {logoPath}");
-                return string.Empty;
-            }
+        var logoPath = Path.Combine(
+            _env.ContentRootPath,
+            "Resources",
+            "logo.jpg"
+        );
 
-            var logoBytes = await File.ReadAllBytesAsync(logoPath);
-            
-            if (logoBytes.Length == 0)
-            {
-                _logger.LogWarning("Logo file is empty");
-                return string.Empty;
-            }
+        Console.WriteLine($"[LOGO] Trying to load logo from: {logoPath}");
 
-            return Convert.ToBase64String(logoBytes);
-        }
-        catch (Exception ex)
+        if (!File.Exists(logoPath))
         {
-            _logger.LogError(ex, "Error loading logo file");
-            return string.Empty;
+            Console.WriteLine($"[LOGO][ERROR] File NOT FOUND: {logoPath}");
+            _logger.LogError("Logo file NOT FOUND at path: {Path}", logoPath);
+            throw new FileNotFoundException("Logo file not found", logoPath);
         }
+
+        var logoBytes = await File.ReadAllBytesAsync(logoPath);
+
+        Console.WriteLine($"[LOGO] File loaded. Bytes length: {logoBytes.Length}");
+
+        if (logoBytes.Length == 0)
+        {
+            Console.WriteLine($"[LOGO][ERROR] File is EMPTY: {logoPath}");
+            _logger.LogError("Logo file is EMPTY at path: {Path}", logoPath);
+            throw new InvalidOperationException("Logo file is empty");
+        }
+
+        var base64 = Convert.ToBase64String(logoBytes);
+
+        Console.WriteLine($"[LOGO] Base64 generated. Length: {base64.Length}");
+
+        if (string.IsNullOrWhiteSpace(base64))
+        {
+            Console.WriteLine("[LOGO][ERROR] Base64 string is EMPTY after conversion");
+            throw new InvalidOperationException("Base64 conversion failed");
+        }
+
+        Console.WriteLine("[LOGO] Logo Base64 READY ✔");
+
+        return base64;
     }
 
 
