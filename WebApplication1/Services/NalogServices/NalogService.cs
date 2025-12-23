@@ -88,11 +88,15 @@ public class NalogService : INalogService
         return updated!.Adapt<NalogReadDto>();
     }
 
+    /// <summary>
+    /// Updates business fields of a nalog. Allows updates regardless of status.
+    /// </summary>
     public async Task<NalogReadDto> UpdateBusiness(int id, UpdateBusinessFieldsDto dto)
     {
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
 
+        // Note: Updates are allowed regardless of nalog status (e.g., "Završen")
         dto.Adapt(nalog);
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
@@ -101,11 +105,16 @@ public class NalogService : INalogService
         var updated = await _repository.GetByIdAsync(id);
         return updated!.Adapt<NalogReadDto>();
     }
+    
+    /// <summary>
+    /// Updates notes of a nalog. Allows updates regardless of status.
+    /// </summary>
     public async Task<NalogReadDto> UpdateNotes(int id, UpdateNotesDto dto)
     {
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
 
+        // Note: Updates are allowed regardless of nalog status (e.g., "Završen")
         dto.Adapt(nalog);
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
@@ -114,11 +123,17 @@ public class NalogService : INalogService
         var updated = await _repository.GetByIdAsync(id);
         return updated!.Adapt<NalogReadDto>();
     }
+    
+    /// <summary>
+    /// Updates status of a nalog. Allows status changes at any time.
+    /// </summary>
     public async Task<NalogReadDto> UpdateStatus(int id, UpdateStatusDto dto)
     {
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
 
+        // Note: Status can be changed at any time, including setting to "Završen"
+        // This does not lock the nalog - all other fields can still be updated
         dto.Adapt(nalog);
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
