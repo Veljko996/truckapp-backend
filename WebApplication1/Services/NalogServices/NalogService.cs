@@ -9,13 +9,15 @@ public class NalogService : INalogService
     private readonly ITureRepository _turaRepository;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IWebHostEnvironment _env;
+    private readonly ILogger<NalogService> _logger;
 
-    public NalogService(INalogRepository repository, IWebHostEnvironment env, ITureRepository turaRepository, IHttpContextAccessor httpContextAccessor)
+    public NalogService(INalogRepository repository, IWebHostEnvironment env, ITureRepository turaRepository, IHttpContextAccessor httpContextAccessor, ILogger<NalogService> logger)
     {
         _repository = repository;
         _turaRepository = turaRepository;
         _httpContextAccessor = httpContextAccessor;
         _env = env;
+        _logger = logger;
     }
 
     public async Task<IEnumerable<NalogReadDto>> GetAllAsync()
@@ -204,7 +206,18 @@ public class NalogService : INalogService
             templateKey.Equals("mts", StringComparison.OrdinalIgnoreCase))
         {
             var logoBase64 = await GetLogoBase64Async();
-            html = html.Replace("{{LOGO_BASE64}}", logoBase64);
+            if (string.IsNullOrEmpty(logoBase64))
+            {
+                // Remove entire img tag if logo not found - try different line ending variations
+                html = html.Replace("<img src=\"data:image/png;base64,{{LOGO_BASE64}}\" style=\"max-width: 150px; height: auto; margin-bottom: 10px;\" />", "");
+                html = html.Replace("<img src=\"data:image/png;base64,{{LOGO_BASE64}}\" style=\"max-width: 150px; height: auto; margin-bottom: 10px;\" />\r\n", "");
+                html = html.Replace("<img src=\"data:image/png;base64,{{LOGO_BASE64}}\" style=\"max-width: 150px; height: auto; margin-bottom: 10px;\" />\n", "");
+                html = html.Replace("<img src=\"data:image/png;base64,{{LOGO_BASE64}}\" style=\"max-width: 150px; height: auto; margin-bottom: 10px;\" />\r", "");
+            }
+            else
+            {
+                html = html.Replace("{{LOGO_BASE64}}", logoBase64);
+            }
         }
 
         // Load tura data for additional placeholders
@@ -258,13 +271,31 @@ public class NalogService : INalogService
 
     private async Task<string> GetLogoBase64Async()
     {
-        var logoPath = Path.Combine(_env.ContentRootPath, "Resources", "logo.png");
-        
-        if (!File.Exists(logoPath))
-            return string.Empty;
+        try
+        {
+            var logoPath = Path.Combine(_env.ContentRootPath, "Resources", "logo.png");
+            
+            if (!File.Exists(logoPath))
+            {
+                _logger.LogWarning($"Logo file not found at: {logoPath}");
+                return string.Empty;
+            }
 
-        var logoBytes = await File.ReadAllBytesAsync(logoPath);
-        return Convert.ToBase64String(logoBytes);
+            var logoBytes = await File.ReadAllBytesAsync(logoPath);
+            
+            if (logoBytes.Length == 0)
+            {
+                _logger.LogWarning("Logo file is empty");
+                return string.Empty;
+            }
+
+            return Convert.ToBase64String(logoBytes);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error loading logo file");
+            return string.Empty;
+        }
     }
 
 
