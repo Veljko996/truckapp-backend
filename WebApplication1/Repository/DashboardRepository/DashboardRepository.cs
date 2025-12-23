@@ -35,10 +35,12 @@ public class DashboardRepository : IDashboardRepository
 
     public async Task<Dictionary<string, int>> GetTureStatusDistribucijaAsync()
     {
-        return await _context.Ture
+        var result = await _context.Ture
             .GroupBy(t => t.StatusTure)
-            .Select(g => new { Status = g.Key, Count = g.Count() })
-            .ToDictionaryAsync(x => x.Status, x => x.Count);
+            .Select(g => new { Status = g.Key ?? "Nepoznat", Count = g.Count() })
+            .ToListAsync();
+        
+        return result.ToDictionary(x => x.Status, x => x.Count);
     }
 
     public async Task<List<Tura>> GetTopTureByPriceAsync(int take, CancellationToken cancellationToken = default)
@@ -56,22 +58,40 @@ public class DashboardRepository : IDashboardRepository
 
     public async Task<decimal> GetPrihodZaDanasAsync()
     {
-        var danas = DateTime.UtcNow.Date;
-        return await _context.Ture
-            .Where(t => t.DatumUtovara.HasValue 
-                && t.DatumUtovara.Value.Date == danas 
-                && t.UlaznaCena.HasValue)
-            .SumAsync(t => t.UlaznaCena ?? 0);
+        try
+        {
+            var danas = DateTime.UtcNow.Date;
+            var result = await _context.Ture
+                .Where(t => t.DatumUtovara.HasValue 
+                    && t.DatumUtovara.Value.Date == danas 
+                    && t.UlaznaCena.HasValue)
+                .SumAsync(t => t.UlaznaCena ?? 0);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in GetPrihodZaDanasAsync");
+            return 0;
+        }
     }
 
     public async Task<decimal> GetPrihodZaPeriodAsync(DateTime startDate, DateTime endDate)
     {
-        return await _context.Ture
-            .Where(t => t.DatumUtovara.HasValue
-                && t.DatumUtovara.Value.Date >= startDate.Date
-                && t.DatumUtovara.Value.Date <= endDate.Date
-                && t.UlaznaCena.HasValue)
-            .SumAsync(t => t.UlaznaCena ?? 0);
+        try
+        {
+            var result = await _context.Ture
+                .Where(t => t.DatumUtovara.HasValue
+                    && t.DatumUtovara.Value.Date >= startDate.Date
+                    && t.DatumUtovara.Value.Date <= endDate.Date
+                    && t.UlaznaCena.HasValue)
+                .SumAsync(t => t.UlaznaCena ?? 0);
+            return result;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in GetPrihodZaPeriodAsync");
+            return 0;
+        }
     }
 
     public async Task<List<(DateTime Datum, decimal Suma)>> GetPrihodByDateAsync(DateTime startDate, DateTime endDate)
@@ -106,11 +126,13 @@ public class DashboardRepository : IDashboardRepository
 
     public async Task<Dictionary<string, int>> GetNaloziStatusDistribucijaAsync()
     {
-        return await _context.Nalozi
+        var result = await _context.Nalozi
             .Where(n => n.StatusNaloga != null)
             .GroupBy(n => n.StatusNaloga!)
             .Select(g => new { Status = g.Key, Count = g.Count() })
-            .ToDictionaryAsync(x => x.Status, x => x.Count);
+            .ToListAsync();
+        
+        return result.ToDictionary(x => x.Status, x => x.Count);
     }
 
     // === Vozila Statistics ===
@@ -159,7 +181,7 @@ public class DashboardRepository : IDashboardRepository
     {
         return await _context.NasaVozila
             .Include(v => v.Vinjete)
-            .Include(v => v.Ture.Where(t => t.StatusTure != "Zavrsena" && t.StatusTure != "Otkazana"))
+            .Include(v => v.Ture)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
