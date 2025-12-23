@@ -170,26 +170,44 @@
 
     <div class="page-break"></div>
 
-    <h3 style="text-align:center;">Nalog za transport: {{NALOG_BROJ}}</h3>
+    <div class="page-two">
 
-    <table style="width:100%; margin-top:6px;">
-        <tr><td width="30%"><strong>Cena transporta:</strong></td><td>{{CENA_TRANSPORTA}}</td></tr>
-        <tr><td><strong>Valuta plaćanja:</strong></td><td>60 dana od dana prijema originalne overene dokumentacije (CMR,EX)</td></tr>
-        <tr><td><strong>Način plaćanja:</strong></td><td class="gray">Plaćanje po srednjem kursu NBS-a</td></tr>
-        <tr>
-            <td><strong>Napomena:</strong></td>
-            <td class="gray">
-                Faktura će preko SEF biti prihvaćena samo ukoliko sadrži dokaz o izvršenoj usluzi i svu neophodnu dokumentaciju.
-                Obavezno je upisivanje broja naloga u polje Order Reference.<br>
-                Rok za dostavu dokumentacije je 15 dana od datuma istovara. U slučaju kašnjenja sa istom,
-                faktura će Vam biti umanjena za 1%.
-            </td>
-        </tr>
-    </table>
+        <table width="100%">
+            <tr>
+                <td width="35%">
+                    <img src="data:image/png;base64,{{LOGO_BASE64}}" style="height:60px;" />
+                </td>
+                <td width="65%" align="right">
+                    <div style="font-size:22px; font-weight:bold;">MTS doo</div>
+                    <div style="font-size:13px;">
+                        Branka Bajića 12, 21000 Novi Sad<br>
+                        MB: 21884995 | PIB: 113536304
+                    </div>
+                </td>
+            </tr>
+        </table>
 
-    <p><strong>Primalac naloga prihvata sledeće uslove:</strong></p>
+        <div class="footer" style="margin-top:6px;">www.suins.rs</div>
+        <hr>
 
-    <div style="line-height:1.1;">
+        <h3 style="text-align:center;">Nalog za transport: {{NALOG_BROJ}}</h3>
+
+        <table>
+            <tr><td><strong>Cena transporta:</strong></td><td>{{CENA_TRANSPORTA}}</td></tr>
+            <tr><td><strong>Valuta plaćanja:</strong></td><td>60 dana od dana prijema originalne overene dokumentacije (CMR,EX)</td></tr>
+            <tr><td><strong>Način plaćanja:</strong></td><td>Plaćanje po srednjem kursu NBS-a</td></tr>
+            <tr>
+                <td><strong>Napomena:</strong></td>
+                <td>
+                    Faktura će preko SEF biti prihvaćena samo ukoliko sadrži dokaz o izvršenoj usluzi i svu neophodnu dokumentaciju.
+                    Obavezno je upisivanje broja naloga u polje Order Reference.
+                    <br><br>Rok za dostavu dokumentacije je 15 dana od datuma istovara. U slučaju kašnjenja sa istom, faktura će Vam biti umanjena za 1%.
+                </td>
+            </tr>
+        </table>
+
+        <p><strong>Primalac naloga prihvata sledeće uslove:</strong></p>
+
         <p>1. Zaštita imena poslovnih partnera mora biti zagarantovana, direktan kontakt sa našim klijentom bez našeg znanja je najstrožije zabranjen;</p>
         <p>2. Pretovar, dotovar bez našeg znanja nije dozvoljen;</p>
         <p>3. Eventualna nezgoda, kvar ili bilo kakvo drugo odugovlačenje sa datumom utovara/istovara mora se javiti u pismenoj formi. Vozilo mora imati CMR osiguranje, u suprotnom svi naknadni troškovi ili nezgode idu na Vas. Ukoliko nama odbiju procenat od vozarine prenećemo taj trošak na Vas. CMR osiguranje nam se mora dostaviti pre utovara. U suprotnom se ne priznaje;</p>
@@ -202,18 +220,15 @@
         <p>10. Bilo kakav nedostatak ili uzorkovanje robe od strane carinika ili špeditera mora biti upisano u CMR, u suprotnom će vozač biti zadužen za svaki nedostatak robe;</p>
         <p>11. Ako vozač dobije T5 ili TC11 dokument, obavezno ga mora overiti na zadnjoj Evropskoj granici i dostaviti ga nama u originalu; overen EX-1/T1 dokument obavezno dostaviti nama jer je to uslov naplate vozarine;</p>
         <p>12. U slučaju da bilo koji od navedenih uslova nije zadovoljen, ne možemo Vam garantovati isplatu vozarine ili nekog dela iste.</p>
-    </div>
 
-    <p>
-        U slučaju spora nadležan je sud u Novom Sadu.<br>
-        Ovu stranu naloga ne smete pokazivati na utovaru/istovaru!!!<br>
-        Uslov naplate vozarine
-        <span style="float:right;">Datum: {{DATUM_KREIRANJA}}</span>
-    </p>
+        <p>
+            U slučaju spora nadležan je sud u Novom Sadu<br>
+            Ovu stranu naloga ne smete pokazivati na utovaru/istovaru!!!<br>
+            Uslov naplate vozarine &nbsp;&nbsp; Datum: {{DATUM_KREIRANJA}}
+        </p>
 
-    <div class="footer">
-        <hr>
-        www.suins.rs
+        <div class="footer"><hr>www.suins.rs</div>
+
     </div>
 
 </body>

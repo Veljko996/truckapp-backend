@@ -16,31 +16,21 @@
             color: #000;
         }
 
-        .header {
-            text-align: left;
-            margin-bottom: 10px;
-        }
-
-        .header-lines {
-            font-size: 13px;
-            line-height: 1.3;
-        }
-
         hr {
             border: none;
             border-top: 2px solid #000;
             margin: 10px 0;
         }
 
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
         .nalog-broj {
             font-weight: bold;
             margin: 10px 0;
             text-align: center;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
         }
 
         .two-col td {
@@ -100,22 +90,35 @@
 
         .page-break {
             page-break-before: always;
-            break-before: page;
         }
+
+        /* ================== DRUGA STRANA – ZBIJANJE ================== */
+
+        .page-two {
+            font-size: 12px;
+            line-height: 1.12;
+        }
+
+            .page-two p {
+                margin: 3px 0;
+            }
+
+            .page-two table td {
+                padding: 4px;
+            }
     </style>
 </head>
 
 <body>
 
-    <!-- ================== STRANA 1 ===================== -->
+    <!-- ================== STRANA 1 (NE DIRAMO) ===================== -->
 
-    <table width="100%" cellpadding="0" cellspacing="0">
+    <table width="100%">
         <tr>
-            <td width="35%" valign="middle">
+            <td width="35%">
                 <img src="data:image/png;base64,{{LOGO_BASE64}}" style="height:60px;" />
-
             </td>
-            <td width="65%" valign="middle" align="right">
+            <td width="65%" align="right">
                 <div style="font-size:22px; font-weight:bold;">MTS doo</div>
                 <div style="font-size:13px;">
                     Branka Bajića 12, 21000 Novi Sad<br>
@@ -125,16 +128,10 @@
         </tr>
     </table>
 
-
-    <div class="footer" style="margin-top:6px;">
-        www.suins.rs
-    </div>
-
+    <div class="footer" style="margin-top:6px;">www.suins.rs</div>
     <hr>
 
-    <div class="nalog-broj">
-        Nalog za transport: {{NALOG_BROJ}}
-    </div>
+    <div class="nalog-broj">Nalog za transport: {{NALOG_BROJ}}</div>
 
     <table class="two-col">
         <tr>
@@ -184,140 +181,71 @@
         {{NAPOMENA_NALOGA}}
     </div>
 
-    <div class="footer">
-        <hr>
-        www.suins.rs
-    </div>
+    <div class="footer"><hr>www.suins.rs</div>
 
-    <!-- ================== STRANA 2 ===================== -->
+    <!-- ================== STRANA 2 (ZBIJENA) ===================== -->
 
     <div class="page-break"></div>
 
-    <table width="100%" cellpadding="0" cellspacing="0">
-        <tr>
-            <td width="35%" valign="middle">
-                <img src="data:image/png;base64,{{LOGO_BASE64}}" style="height:60px;" />
-            </td>
-            <td width="65%" valign="middle" align="right">
-                <div style="font-size:22px; font-weight:bold;">MTS doo</div>
-                <div style="font-size:13px;">
-                    Branka Bajića 12, 21000 Novi Sad<br>
-                    MB: 21884995 | PIB: 113536304
-                </div>
-            </td>
-        </tr>
-    </table>
+    <div class="page-two">
 
+        <table width="100%">
+            <tr>
+                <td width="35%">
+                    <img src="data:image/png;base64,{{LOGO_BASE64}}" style="height:60px;" />
+                </td>
+                <td width="65%" align="right">
+                    <div style="font-size:22px; font-weight:bold;">MTS doo</div>
+                    <div style="font-size:13px;">
+                        Branka Bajića 12, 21000 Novi Sad<br>
+                        MB: 21884995 | PIB: 113536304
+                    </div>
+                </td>
+            </tr>
+        </table>
 
-    <div class="footer" style="margin-top:6px;">
-        www.suins.rs
-    </div>
-
-    <hr>
-
-    <h3 style="text-align:center;">Nalog za transport: {{NALOG_BROJ}}</h3>
-
-    <table style="width:100%; border-collapse:collapse; margin-top:10px;">
-        <tr>
-            <td style="width:30%; font-weight:bold;">Cena transporta:</td>
-            <td style="width:70%;">{{CENA_TRANSPORTA}}</td>
-        </tr>
-        <tr>
-            <td style="font-weight:bold;">Valuta plaćanja:</td>
-            <td>60 dana od dana prijema originalne overene dokumentacije (CMR,EX)</td>
-        </tr>
-        <tr>
-            <td style="font-weight:bold;">Način plaćanja:</td>
-            <td class="gray">Plaćanje po srednjem kursu NBS-a</td>
-        </tr>
-        <tr>
-            <td style="font-weight:bold;">Napomena:</td>
-            <td class="gray">
-                Faktura će preko SEF biti prihvaćena samo ukoliko sadrži dokaz o izvršenoj usluzi i svu neophodnu dokumentaciju.
-                Obavezno je upisivanje broja naloga u polje Order Reference.<br><br>
-                Rok za dostavu dokumentacije je 15 dana od datuma istovara. U slučaju kašnjenja sa istom, faktura će Vam biti umanjena za 1%.
-            </td>
-        </tr>
-    </table>
-
-    <br>
-
-    <p><strong>Primalac naloga prihvata sledeće uslove:</strong></p>
-
-    <p><strong>Primalac naloga prihvata sledeće uslove:</strong></p>
-
-    <p>1. Zaštita imena poslovnih partnera mora biti zagarantovana, direktan kontakt sa našim klijentom bez našeg znanja je najstrožije zabranjen;</p>
-
-    <p>2. Pretovar, dotovar bez našeg znanja nije dozvoljen;</p>
-
-    <p>
-        3. Eventualna nezgoda, kvar ili bilo kakvo drugo odugovlačenje sa datumom
-        utovara/istovara mora se javiti u pismenoj formi. Vozilo mora imati CMR
-        osiguranje, u suprotnom svi naknadni troškovi ili nezgode idu na Vas.
-        Ukoliko nama odbiju procenat od vozarine prenećemo taj trošak na Vas.
-        CMR osiguranje nam se mora dostaviti pre utovara. U suprotnom se ne priznaje;
-    </p>
-
-    <p>
-        4. Plaćanje transporta nije moguće bez originala, pečatiranog i potpisanog
-        CMR-a bez ikakvih primedbi od strane primaoca. U slučaju bilo kakvih problema
-        odmah nas kontaktirajte;
-    </p>
-
-    <p>
-        5. Kamioni imaju 24 sata za utovar i 48 sati za istovar besplatno.
-        Subota posle 16:00 h i nedelja se ne računaju u pomenuto vreme;
-    </p>
-
-    <p>
-        6. Vozač mora prisustvovati utovaru/istovaru i robu primiti/predati uredno
-        po broju koleata prema dokumentima koji moraju biti uredno potpisani i overeni;
-    </p>
-
-    <p>
-        7. Vozač je odgovoran za osovinsko opterećenje vozila i dužan je da vodi računa
-        o pravilnom rasporedu tereta. Za ukupno opterećenje vozila vozač ima pravo na
-        nadoknadu uz originalnu priznanicu;
-    </p>
-
-    <p>
-        8. Prilikom utovara španeri su obavezni; Vozila na utovar moraju doći ispravna
-        i čista sa ispravnom ceradom;
-    </p>
-
-    <p>
-        9. Bilo kakvi naknadni dogovori sa isporučiocem/primaocem robe, a mimo našeg
-        naloga i znanja su zabranjeni;
-    </p>
-
-    <p>
-        10. Bilo kakav nedostatak ili uzorkovanje robe od strane carinika ili
-        špeditera mora biti upisano u CMR, u suprotnom će vozač biti zadužen za svaki
-        nedostatak robe;
-    </p>
-
-    <p>
-        11. Ako vozač dobije T5 ili TC11 dokument, obavezno ga mora overiti na zadnjoj
-        Evropskoj granici i dostaviti ga nama u originalu; overen EX-1/T1 dokument
-        obavezno dostaviti nama jer je to uslov naplate vozarine;
-    </p>
-
-    <p>
-        12. U slučaju da bilo koji od navedenih uslova nije zadovoljen, ne možemo Vam
-        garantovati isplatu vozarine ili nekog dela iste.
-    </p>
-
-
-
-    <p>
-        U slučaju spora nadležan je sud u Novom Sadu<br>
-        Ovu stranu naloga ne smete pokazivati na utovaru/istovaru!!!<br>
-        Uslov naplate vozarine &nbsp;&nbsp; Datum: {{DATUM_KREIRANJA}}
-    </p>
-
-    <div class="footer">
+        <div class="footer" style="margin-top:6px;">www.suins.rs</div>
         <hr>
-        www.suins.rs
+
+        <h3 style="text-align:center;">Nalog za transport: {{NALOG_BROJ}}</h3>
+
+        <table>
+            <tr><td><strong>Cena transporta:</strong></td><td>{{CENA_TRANSPORTA}}</td></tr>
+            <tr><td><strong>Valuta plaćanja:</strong></td><td>60 dana od dana prijema originalne overene dokumentacije (CMR,EX)</td></tr>
+            <tr><td><strong>Način plaćanja:</strong></td><td>Plaćanje po srednjem kursu NBS-a</td></tr>
+            <tr><td><strong>Napomena:</strong></td>
+                <td>Faktura će preko SEF biti prihvaćena samo ukoliko sadrži dokaz o izvršenoj usluzi i svu neophodnu dokumentaciju.
+                    Obavezno je upisivanje broja naloga u polje Order Reference.
+                    <br><br>Rok za dostavu dokumentacije je 15 dana od datuma istovara. U slučaju kašnjenja sa istom, faktura će Vam biti umanjena za 1%.
+                </td>
+            </tr>
+
+           
+        </table>
+
+        <p><strong>Primalac naloga prihvata sledeće uslove:</strong></p>
+
+        <p>1. Zaštita imena poslovnih partnera mora biti zagarantovana, direktan kontakt sa našim klijentom bez našeg znanja je najstrožije zabranjen;</p>
+        <p>2. Pretovar, dotovar bez našeg znanja nije dozvoljen;</p>
+        <p>3. Eventualna nezgoda, kvar ili bilo kakvo drugo odugovlačenje sa datumom utovara/istovara mora se javiti u pismenoj formi. Vozilo mora imati CMR osiguranje, u suprotnom svi naknadni troškovi ili nezgode idu na Vas. Ukoliko nama odbiju procenat od vozarine prenećemo taj trošak na Vas. CMR osiguranje nam se mora dostaviti pre utovara. U suprotnom se ne priznaje;</p>
+        <p>4. Plaćanje transporta nije moguće bez originala, pečatiranog i potpisanog CMR-a bez ikakvih primedbi od strane primaoca. U slučaju bilo kakvih problema odmah nas kontaktirajte;</p>
+        <p>5. Kamioni imaju 24 sata za utovar i 48 sati za istovar besplatno. Subota posle 16:00 h i nedelja se ne računaju u pomenuto vreme;</p>
+        <p>6. Vozač mora prisustvovati utovaru/istovaru i robu primiti/predati uredno po broju koleata prema dokumentima koji moraju biti uredno potpisani i overeni;</p>
+        <p>7. Vozač je odgovoran za osovinsko opterećenje vozila i dužan je da vodi računa o pravilnom rasporedu tereta. Za ukupno opterećenje vozila vozač ima pravo na nadoknadu uz originalnu priznanicu;</p>
+        <p>8. Prilikom utovara španeri su obavezni; Vozila na utovar moraju doći ispravna i čista sa ispravnom ceradom;</p>
+        <p>9. Bilo kakvi naknadni dogovori sa isporučiocem/primaocem robe, a mimo našeg naloga i znanja su zabranjeni;</p>
+        <p>10. Bilo kakav nedostatak ili uzorkovanje robe od strane carinika ili špeditera mora biti upisano u CMR, u suprotnom će vozač biti zadužen za svaki nedostatak robe;</p>
+        <p>11. Ako vozač dobije T5 ili TC11 dokument, obavezno ga mora overiti na zadnjoj Evropskoj granici i dostaviti ga nama u originalu; overen EX-1/T1 dokument obavezno dostaviti nama jer je to uslov naplate vozarine;</p>
+        <p>12. U slučaju da bilo koji od navedenih uslova nije zadovoljen, ne možemo Vam garantovati isplatu vozarine ili nekog dela iste.</p>
+
+        <p>
+            U slučaju spora nadležan je sud u Novom Sadu<br>
+            Ovu stranu naloga ne smete pokazivati na utovaru/istovaru!!!<br>
+            Uslov naplate vozarine &nbsp;&nbsp; Datum: {{DATUM_KREIRANJA}}
+        </p>
+
+        <div class="footer"><hr>www.suins.rs</div>
+
     </div>
 
 </body>
