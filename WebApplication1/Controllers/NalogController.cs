@@ -88,17 +88,30 @@ public class NalogController : ControllerBase
     [HttpGet("{id}/document")]
     public async Task<IActionResult> GenerateDocument(
     int id,
-    [FromQuery] string template = "mts"
+    [FromQuery] string template = "mts",
+    [FromQuery] string format = "html"
 )
     {
         var bytes = await _service.GenerateHtmlAsync(id, template);
 
-        // Always return as HTML file - frontend can handle conversion if needed
-        return File(
-            bytes,
-            "text/html; charset=utf-8",
-            $"Nalog_{id}.html"
-        );
+        return format.ToLowerInvariant() switch
+        {
+            "doc" => File(
+                bytes,
+                "application/msword",
+                $"Nalog_{id}.doc"
+            ),
+
+            "html" => File(
+                bytes,
+                "text/html; charset=utf-8",
+                $"Nalog_{id}.html"
+            ),
+
+            _ => BadRequest(
+                "Nepoznat format. Dozvoljeno: html, doc."
+            )
+        };
     }
 
 
