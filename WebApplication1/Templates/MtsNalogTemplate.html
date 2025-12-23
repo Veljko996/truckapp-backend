@@ -7,24 +7,21 @@
     <style>
         @page {
             size: A4;
-            margin: 20mm;
+            margin: 15mm;
         }
 
         body {
             font-family: "Times New Roman", serif;
-            font-size: 12px;
-            line-height: 1.15;
+            font-size: 13px;
             color: #000;
-        }
-
-        p {
-            margin: 3px 0;
+            margin: 0;
+            padding: 0;
         }
 
         hr {
             border: none;
             border-top: 2px solid #000;
-            margin: 8px 0;
+            margin: 5px 0;
         }
 
         table {
@@ -32,22 +29,50 @@
             border-collapse: collapse;
         }
 
+        .header-table {
+            margin-bottom: 5px;
+        }
+
+        .header-table img {
+            max-width: 120px;
+            height: auto;
+        }
+
+        .header-info {
+            font-size: 11px;
+            line-height: 1.3;
+        }
+
         .nalog-broj {
             font-weight: bold;
-            text-align: center;
             margin: 8px 0;
+            text-align: center;
+            font-size: 14px;
         }
 
         .two-col td {
             width: 50%;
             vertical-align: top;
-            padding: 5px;
+            padding: 4px;
             border-top: 2px solid #000;
+            font-size: 12px;
+        }
+
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 12px;
         }
 
         .label {
             font-weight: bold;
             width: 40%;
+            font-size: 12px;
+        }
+
+        .value {
+            width: 60%;
+            font-size: 12px;
         }
 
         .gray {
@@ -57,6 +82,7 @@
         .info-table td {
             border: 1px solid #000;
             padding: 4px;
+            font-size: 12px;
         }
 
         .top-info {
@@ -64,6 +90,7 @@
             margin-bottom: 4px;
             display: table;
             width: 100%;
+            font-size: 12px;
         }
 
             .top-info div {
@@ -79,14 +106,52 @@
             }
 
         .footer {
-            margin-top: 10px;
+            margin-top: 8px;
             text-align: center;
             font-size: 11px;
         }
 
         .page-break {
             page-break-before: always;
+            break-before: page;
         }
+
+        .napomena-section {
+            margin-top: 6px;
+            font-size: 12px;
+        }
+
+        /* ================== DRUGA STRANA ================== */
+
+        .page-two {
+            font-size: 11px;
+            line-height: 1.2;
+        }
+
+            .page-two h3 {
+                margin: 5px 0;
+                font-size: 14px;
+            }
+
+            .page-two p {
+                margin: 2px 0;
+                font-size: 11px;
+                line-height: 1.3;
+            }
+
+            .page-two table td {
+                padding: 4px;
+                font-size: 11px;
+            }
+
+            .page-two .header-table {
+                margin-bottom: 5px;
+            }
+
+            .page-two .header-info {
+                font-size: 11px;
+                line-height: 1.3;
+            }
     </style>
 </head>
 
@@ -94,41 +159,37 @@
 
     <!-- ================== STRANA 1 ===================== -->
 
-    <table width="100%" cellpadding="0" cellspacing="0">
+    <table class="header-table" width="100%" style="border-collapse: collapse;">
         <tr>
-            <td width="35%" valign="middle">
-                <img src="data:image/png;base64,{{LOGO_BASE64}}" style="height:60px;" />
-
+            <td width="30%" style="vertical-align: top;">
+                <img src="data:image/png;base64,{{LOGO_BASE64}}" style="max-width: 120px; height: auto;" />
             </td>
-            <td width="65%" valign="middle" align="right">
-                <div style="font-size:20px; font-weight:bold;">MTS doo</div>
-                <div style="font-size:12px;">
+            <td width="70%" style="vertical-align: top; padding-left: 10px;">
+                <div class="header-info">
+                    <strong>MTS doo</strong><br>
                     Branka Bajića 12, 21000 Novi Sad<br>
-                    MB: 21884995 | PIB: 113536304
+                    MB: 21884995 ; PIB: 113536304
                 </div>
             </td>
         </tr>
     </table>
 
-    <div class="footer">www.suins.rs</div>
-
+    <div class="footer" style="margin-top:4px;">www.suins.rs</div>
     <hr>
 
-    <div class="nalog-broj">
-        Nalog za transport: {{NALOG_BROJ}}
-    </div>
+    <div class="nalog-broj">Nalog za transport: {{NALOG_BROJ}}</div>
 
     <table class="two-col">
         <tr>
             <td>
-                <strong>Davalac naloga:</strong><br>
-                Firma: SUINS DOO Novi Sad<br>
+                <div class="section-title">Davalac naloga:</div>
+                Firma: SUINS MTS DOO<br>
                 Ime: Stefan Miletić<br>
                 Tel.: +381 63 512 425<br>
                 E-mail: transport@suins.rs
             </td>
             <td>
-                <strong>Primalac naloga:</strong><br>
+                <div class="section-title">Primalac naloga:</div>
                 <div class="gray">Firma:</div>
                 <div class="gray">Ime:</div>
                 <div class="gray">Tel:</div>
@@ -144,27 +205,29 @@
     </div>
 
     <table class="info-table">
-        <tr><td class="label">Broj vozila:</td><td class="gray">{{BROJ_VOZILA}}</td></tr>
-        <tr><td class="label">Relacija:</td><td class="gray">{{RELACIJA}}</td></tr>
-        <tr><td class="label">Datum i vreme utovara:</td><td class="gray">{{DATUM_UTOVARA}}</td></tr>
-        <tr><td class="label">Mesto utovara:</td><td class="gray">{{MESTO_UTOVARA}}</td></tr>
-        <tr><td class="label">Adresa utovara:</td><td class="gray">{{ADRESA_UTOVARA}}</td></tr>
-        <tr><td class="label">Količina robe:</td><td class="gray">{{KOLICINA_ROBE}}</td></tr>
-        <tr><td class="label">Vrsta robe:</td><td class="gray">{{VRSTA_ROBE}}</td></tr>
-        <tr><td class="label">Izvoznik:</td><td class="gray">{{IZVOZNIK}}</td></tr>
-        <tr><td class="label">Granični prelaz:</td><td class="gray">{{GRANICNI_PRELAZ}}</td></tr>
-        <tr><td class="label">Uvoznik:</td><td class="gray">{{UVOZNIK}}</td></tr>
-        <tr><td class="label">Špedicija:</td><td class="gray">{{SPEDICIJA}}</td></tr>
-        <tr><td class="label">Datum istovara:</td><td class="gray">{{DATUM_ISTOVARA}}</td></tr>
-        <tr><td class="label">Mesto istovara:</td><td class="gray">{{MESTO_ISTOVARA}}</td></tr>
+        <tr><td class="label">Broj vozila:</td><td class="value gray">{{BROJ_VOZILA}}</td></tr>
+        <tr><td class="label">Relacija:</td><td class="value gray">{{RELACIJA}}</td></tr>
+        <tr><td class="label">Datum i vreme utovara:</td><td class="value gray">{{DATUM_UTOVARA}}</td></tr>
+        <tr><td class="label">Mesto utovara:</td><td class="value gray">{{MESTO_UTOVARA}}</td></tr>
+        <tr><td class="label">Adresa utovara:</td><td class="value gray">{{ADRESA_UTOVARA}}</td></tr>
+        <tr><td class="label">Količina robe:</td><td class="value gray">{{KOLICINA_ROBE}}</td></tr>
+        <tr><td class="label">Vrsta robe:</td><td class="value gray">{{VRSTA_ROBE}}</td></tr>
+        <tr><td class="label">Izvoznik:</td><td class="value gray">{{IZVOZNIK}}</td></tr>
+        <tr><td class="label">Izvozno carinjenje:</td><td class="value gray">{{IZVOZNO_CARINJENJE}}</td></tr>
+        <tr><td class="label">Granični prelaz ulaska u Srbiju:</td><td class="value gray">{{GRANICNI_PRELAZ}}</td></tr>
+        <tr><td class="label">Uvoznik:</td><td class="value gray">{{UVOZNIK}}</td></tr>
+        <tr><td class="label">Uvozno carinjenje:</td><td class="value gray">{{UVOZNO_CARINJENJE}}</td></tr>
+        <tr><td class="label">Špedicija:</td><td class="value gray">{{SPEDICIJA}}</td></tr>
+        <tr><td class="label">Datum istovara:</td><td class="value gray">{{DATUM_ISTOVARA}}</td></tr>
+        <tr><td class="label">Mesto istovara:</td><td class="value gray">{{MESTO_ISTOVARA}}</td></tr>
     </table>
 
-    <p><strong>Napomena:</strong><br>{{NAPOMENA_NALOGA}}</p>
-
-    <div class="footer">
-        <hr>
-        www.suins.rs
+    <div class="napomena-section">
+        <strong>Napomena:</strong><br>
+        {{NAPOMENA_NALOGA}}
     </div>
+
+    <div class="footer"><hr>www.suins.rs</div>
 
     <!-- ================== STRANA 2 ===================== -->
 
@@ -172,33 +235,42 @@
 
     <div class="page-two">
 
-        <table width="100%">
+        <table class="header-table" width="100%" style="border-collapse: collapse;">
             <tr>
-                <td width="35%">
-                    <img src="data:image/png;base64,{{LOGO_BASE64}}" style="height:60px;" />
+                <td width="30%" style="vertical-align: top;">
+                    <img src="data:image/png;base64,{{LOGO_BASE64}}" style="max-width: 120px; height: auto;" />
                 </td>
-                <td width="65%" align="right">
-                    <div style="font-size:22px; font-weight:bold;">MTS doo</div>
-                    <div style="font-size:13px;">
+                <td width="70%" style="vertical-align: top; padding-left: 10px;">
+                    <div class="header-info">
+                        <strong>MTS doo</strong><br>
                         Branka Bajića 12, 21000 Novi Sad<br>
-                        MB: 21884995 | PIB: 113536304
+                        MB: 21884995 ; PIB: 113536304
                     </div>
                 </td>
             </tr>
         </table>
 
-        <div class="footer" style="margin-top:6px;">www.suins.rs</div>
+        <div class="footer" style="margin-top:4px;">www.suins.rs</div>
         <hr>
 
         <h3 style="text-align:center;">Nalog za transport: {{NALOG_BROJ}}</h3>
 
-        <table>
-            <tr><td><strong>Cena transporta:</strong></td><td>{{CENA_TRANSPORTA}}</td></tr>
-            <tr><td><strong>Valuta plaćanja:</strong></td><td>60 dana od dana prijema originalne overene dokumentacije (CMR,EX)</td></tr>
-            <tr><td><strong>Način plaćanja:</strong></td><td>Plaćanje po srednjem kursu NBS-a</td></tr>
+        <table style="width:100%; border-collapse:collapse; border: 1px solid #000; margin-top: 5px;">
             <tr>
-                <td><strong>Napomena:</strong></td>
-                <td>
+                <td style="border: 1px solid #000; padding: 4px; font-weight:bold; width: 30%; font-size: 11px;">Cena transporta:</td>
+                <td style="border: 1px solid #000; padding: 4px; background-color: #f5f5f5; font-size: 11px;">{{CENA_TRANSPORTA}}</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 4px; font-weight:bold; font-size: 11px;">Valuta plaćanja:</td>
+                <td style="border: 1px solid #000; padding: 4px; background-color: #f5f5f5; font-size: 11px;">60 dana od dana prijema originalne overene dokumentacije (CMR,EX)</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 4px; font-weight:bold; font-size: 11px;">Način plaćanja:</td>
+                <td style="border: 1px solid #000; padding: 4px; background-color: #f5f5f5; font-size: 11px;">Plaćanje po srednjem kursu NBS-a</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #000; padding: 4px; font-weight:bold; vertical-align: top; font-size: 11px;">Napomena:</td>
+                <td style="border: 1px solid #000; padding: 4px; background-color: #f5f5f5; font-size: 11px;">
                     Faktura će preko SEF biti prihvaćena samo ukoliko sadrži dokaz o izvršenoj usluzi i svu neophodnu dokumentaciju.
                     Obavezno je upisivanje broja naloga u polje Order Reference.
                     <br><br>Rok za dostavu dokumentacije je 15 dana od datuma istovara. U slučaju kašnjenja sa istom, faktura će Vam biti umanjena za 1%.
