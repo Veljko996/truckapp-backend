@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Nalog za transport {{NALOG_BROJ}}</title>
+
+    <style>
+        body {
+            font-family: "Times New Roman", serif;
+            font-size: 14px;
+            margin: 40px;
+            color: #000;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .company-name {
+            font-size: 26px;
+            font-weight: bold;
+            color: #0b4da2;
+            text-transform: uppercase;
+        }
+
+        .company-row {
+            display: table;
+            width: 100%;
+            margin-top: 5px;
+            color: #0b4da2;
+            font-size: 13px;
+        }
+
+        .company-left {
+            display: table-cell;
+            text-align: left;
+        }
+
+        .company-right {
+            display: table-cell;
+            text-align: right;
+        }
+
+        hr {
+            border: none;
+            border-top: 2px solid #000;
+            margin: 10px 0;
+        }
+
+        .nalog-broj {
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .two-col td {
+            width: 50%;
+            vertical-align: top;
+            padding: 6px;
+            border-top: 2px solid #000;
+        }
+
+        .section-title {
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .label {
+            font-weight: bold;
+            width: 40%;
+        }
+
+        .value {
+            width: 60%;
+        }
+
+        .gray {
+            background-color: #e6e6e6;
+        }
+
+        .info-table td {
+            border: 1px solid #000;
+            padding: 6px;
+        }
+
+        .top-info {
+            margin-top: 10px;
+            margin-bottom: 5px;
+            display: table;
+            width: 100%;
+        }
+
+            .top-info div {
+                display: table-cell;
+            }
+
+            .top-info .center {
+                text-align: center;
+            }
+
+            .top-info .right {
+                text-align: right;
+            }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <div class="company-name">TALL TIM GROUP doo</div>
+
+        <div class="company-row">
+            <div class="company-left">Alekse Vidića 11, 24000 Subotica</div>
+            <div class="company-right">MB: 20194677 | PIB: 104599237</div>
+        </div>
+    </div>
+
+    <hr>
+
+    <!-- BROJ NALOGA -->
+    <div class="nalog-broj">
+        Nalog za transport: {{NALOG_BROJ}}
+    </div>
+
+    <!-- DAVALAC / PRIMALAC -->
+    <table class="two-col">
+        <tr>
+            <td>
+                <div class="section-title">Davalac naloga:</div>
+                Firma: TALL-TIM GROUP DOO<br>
+                Ime: Stefan Miletić<br>
+                Tel: +381 63 512 425<br>
+                E-mail: transport@suins.rs
+            </td>
+            <td>
+                <div class="section-title">Primalac naloga:</div>
+                <div class="gray">Firma:</div>
+                <div class="gray">Ime:</div>
+                <div class="gray">Tel:</div>
+                <div class="gray">E-mail:</div>
+            </td>
+        </tr>
+    </table>
+
+    <!-- PODACI NALOGA HEADER -->
+    <div class="top-info">
+        <div><strong>Podaci naloga</strong></div>
+        <div class="center"><strong>Predmet: Transport</strong></div>
+        <div class="right"><strong>Datum: {{DATUM_KREIRANJA}}</strong></div>
+    </div>
+
+    <!-- GLAVNA TABELA -->
+    <table class="info-table">
+        <tr><td class="label">Broj vozila:</td><td class="value gray"></td></tr>
+        <tr><td class="label">Relacija:</td><td class="value gray">{{RELACIJA}}</td></tr>
+        <tr><td class="label">Datum i vreme utovara:</td><td class="value gray">{{DATUM_UTOVARA}}</td></tr>
+        <tr><td class="label">Mesto utovara:</td><td class="value gray"></td></tr>
+        <tr><td class="label">Adresa utovara:</td><td class="value gray">{{ADRESA_UTOVARA}}</td></tr>
+        <tr><td class="label">Količina robe:</td><td class="value gray">{{KOLICINA_ROBE}}</td></tr>
+        <tr><td class="label">Vrsta robe:</td><td class="value gray">{{VRSTA_ROBE}}</td></tr>
+        <tr><td class="label">Izvoznik:</td><td class="value gray">{{IZVOZNIK}}</td></tr>
+        <tr><td class="label">Izvozno carinjenje:</td><td class="value gray"></td></tr>
+        <tr><td class="label">Granični prelaz ulaska u Srbiju:</td><td class="value gray">{{GRANICNI_PRELAZ}}</td></tr>
+        <tr><td class="label">Uvoznik:</td><td class="value gray">{{UVOZNIK}}</td></tr>
+        <tr><td class="label">Uvozno carinjenje:</td><td class="value gray"></td></tr>
+        <tr><td class="label">Špedicija:</td><td class="value gray">{{SPEDICIJA}}</td></tr>
+        <tr><td class="label">Datum istovara:</td><td class="value gray">{{DATUM_ISTOVARA}}</td></tr>
+        <tr><td class="label">Mesto istovara:</td><td class="value gray"></td></tr>
+    </table>
+
+    <!-- NAPOMENA -->
+    <div style="margin-top: 10px;">
+        <strong>Napomena:</strong><br>
+        {{NAPOMENA_NALOGA}}
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <hr>
+        www.suins.rs
+    </div>
+
+</body>
+</html>
