@@ -207,6 +207,9 @@ public class NalogService : INalogService
             html = html.Replace("{{LOGO_BASE64}}", logoBase64);
         }
 
+        // Load tura data for additional placeholders
+        var tura = nalog.Tura;
+
         html = html
             // ===== HEADER / OSNOVNO =====
             .Replace("{{NALOG_BROJ}}", nalog.NalogBroj ?? "")
@@ -232,12 +235,20 @@ public class NalogService : INalogService
             .Replace("{{KOLICINA_ROBE}}", nalog.KolicinaRobe ?? "")
             .Replace("{{VRSTA_ROBE}}", nalog.VrstaRobe ?? "")
             .Replace("{{ADRESA_UTOVARA}}", nalog.AdresaUtovara ?? "")
+            .Replace("{{MESTO_UTOVARA}}", tura?.MestoUtovara ?? "")
+            .Replace("{{MESTO_ISTOVARA}}", tura?.MestoIstovara ?? "")
+            .Replace("{{BROJ_VOZILA}}", tura?.Vozilo?.Naziv ?? "")
 
             // ===== CARINJENJE / PARTNERI =====
             .Replace("{{IZVOZNIK}}", nalog.Izvoznik ?? "")
             .Replace("{{GRANICNI_PRELAZ}}", nalog.GranicniPrelaz ?? "")
             .Replace("{{UVOZNIK}}", nalog.Uvoznik ?? "")
             .Replace("{{SPEDICIJA}}", nalog.Spedicija ?? "")
+            .Replace("{{IZVOZNO_CARINJENJE}}", nalog.IzvoznoCarinjenje ?? "")
+            .Replace("{{UVOZNO_CARINJENJE}}", nalog.UvoznoCarinjenje ?? "")
+
+            // ===== FINANSIJE =====
+            .Replace("{{CENA_TRANSPORTA}}", tura?.UlaznaCena?.ToString("N2") ?? "")
 
             // ===== NAPOMENA =====
             .Replace("{{NAPOMENA_NALOGA}}", nalog.NapomenaNalog ?? "");

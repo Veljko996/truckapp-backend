@@ -14,7 +14,8 @@ public class NalogRepository : INalogRepository
         return await _context
             .Nalozi
             .Include(n => n.Prevoznik)
-            .Include(n => n.Tura)
+            .Include(n => n.Tura!)
+                .ThenInclude(t => t.Vozilo)
             .FirstOrDefaultAsync(n => n.NalogId == id);
     }
 
