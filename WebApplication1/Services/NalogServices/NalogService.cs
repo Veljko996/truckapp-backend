@@ -199,6 +199,14 @@ public class NalogService : INalogService
 
         var html = await File.ReadAllTextAsync(templatePath);
 
+        // Load and embed logo as Base64 (only for suins and mts templates)
+        if (templateKey.Equals("suins", StringComparison.OrdinalIgnoreCase) ||
+            templateKey.Equals("mts", StringComparison.OrdinalIgnoreCase))
+        {
+            var logoBase64 = await GetLogoBase64Async();
+            html = html.Replace("{{LOGO_BASE64}}", logoBase64);
+        }
+
         html = html
             // ===== HEADER / OSNOVNO =====
             .Replace("{{NALOG_BROJ}}", nalog.NalogBroj ?? "")
@@ -235,6 +243,17 @@ public class NalogService : INalogService
             .Replace("{{NAPOMENA_NALOGA}}", nalog.NapomenaNalog ?? "");
 
         return Encoding.UTF8.GetBytes(html);
+    }
+
+    private async Task<string> GetLogoBase64Async()
+    {
+        var logoPath = Path.Combine(_env.ContentRootPath, "Resources", "logo.png");
+        
+        if (!File.Exists(logoPath))
+            return string.Empty;
+
+        var logoBytes = await File.ReadAllBytesAsync(logoPath);
+        return Convert.ToBase64String(logoBytes);
     }
 
 
