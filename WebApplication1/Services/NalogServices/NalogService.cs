@@ -279,7 +279,7 @@ public class NalogService : INalogService
         var logoPath = Path.Combine(
             _env.ContentRootPath,
             "Resources",
-            "logo.jpg"
+            "logo.png"
         );
 
         Console.WriteLine($"[LOGO] Trying to load logo from: {logoPath}");
