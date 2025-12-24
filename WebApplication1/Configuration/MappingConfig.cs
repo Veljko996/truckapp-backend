@@ -116,6 +116,19 @@ public static class MappingConfig
         TypeAdapterConfig<Klijent, KlijentReadDto>
             .NewConfig();
 
+        TypeAdapterConfig<KlijentCreateDto, Klijent>
+            .NewConfig()
+            .Ignore(dest => dest.KlijentId)
+            .Ignore(dest => dest.DatumKreiranja)
+            .Ignore(dest => dest.DatumAzuriranja);
+
+        TypeAdapterConfig<KlijentUpdateDto, Klijent>
+            .NewConfig()
+            .IgnoreNullValues(true)
+            .Ignore(dest => dest.KlijentId)
+            .Ignore(dest => dest.DatumKreiranja)
+            .Ignore(dest => dest.DatumAzuriranja);
+
         #endregion Klijent
 
         #region Nalog

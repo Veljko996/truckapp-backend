@@ -23,15 +23,6 @@ public class DashboardController : ControllerBase
         _logger = logger;
     }
 
-    /// <summary>
-    /// Gets complete dashboard overview with all metrics and statistics.
-    /// </summary>
-    /// <param name="cancellationToken">Cancellation token for async operations.</param>
-    /// <returns>Dashboard overview DTO with KPI, distributions, revenue, top tours, critical vehicles, and recent logs.</returns>
-    /// <response code="200">Returns dashboard overview successfully.</response>
-    /// <response code="401">Unauthorized - user not authenticated.</response>
-    /// <response code="403">Forbidden - user doesn't have required role.</response>
-    /// <response code="500">Internal server error occurred.</response>
     [HttpGet("overview")]
     [ProducesResponseType(typeof(Utils.DTOs.DashboardDTO.DashboardOverviewDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]

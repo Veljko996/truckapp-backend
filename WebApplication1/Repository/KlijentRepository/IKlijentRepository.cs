@@ -6,5 +6,9 @@ public interface IKlijentRepository
 {
     IQueryable<Klijent> GetAll();
     Task<Klijent?> GetById(int klijentId);
+    void Create(Klijent klijent);
+    void Update(Klijent klijent);
+    void Delete(Klijent klijent);
+    Task<bool> SaveChangesAsync();
 }
 

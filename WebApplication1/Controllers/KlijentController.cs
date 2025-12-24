@@ -25,9 +25,29 @@ public class KlijentController : ControllerBase
     [HttpGet("{klijentId}")]
     public async Task<ActionResult<KlijentReadDto>> GetById(int klijentId)
     {
-        // Service throws NotFoundException if not found - handled by middleware
         var klijent = await _service.GetById(klijentId);
         return Ok(klijent);
+    }
+
+    [HttpPost]
+    public async Task<ActionResult<KlijentReadDto>> Create([FromBody] KlijentCreateDto dto)
+    {
+        var klijent = await _service.Create(dto);
+        return CreatedAtAction(nameof(GetById), new { klijentId = klijent.KlijentId }, klijent);
+    }
+
+    [HttpPatch("{klijentId}")]
+    public async Task<ActionResult<KlijentReadDto>> Update(int klijentId, [FromBody] KlijentUpdateDto dto)
+    {
+        var klijent = await _service.Update(klijentId, dto);
+        return Ok(klijent);
+    }
+
+    [HttpDelete("{klijentId}")]
+    public async Task<IActionResult> Delete(int klijentId)
+    {
+        await _service.Delete(klijentId);
+        return NoContent();
     }
 }
 

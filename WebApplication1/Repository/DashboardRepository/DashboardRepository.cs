@@ -4,10 +4,6 @@ using WebApplication1.DataAccess.Models;
 
 namespace WebApplication1.Repository.DashboardRepository;
 
-/// <summary>
-/// Repository implementation for dashboard data aggregation.
-/// Optimized queries with proper indexes and async execution.
-/// </summary>
 public class DashboardRepository : IDashboardRepository
 {
     private readonly TruckContext _context;
@@ -18,8 +14,6 @@ public class DashboardRepository : IDashboardRepository
         _context = context;
         _logger = logger;
     }
-
-    // === Ture Statistics ===
 
     public async Task<int> GetTotalTureCountAsync()
     {
@@ -52,46 +46,23 @@ public class DashboardRepository : IDashboardRepository
             .Where(t => t.UlaznaCena.HasValue && t.UlaznaCena > 0)
             .OrderByDescending(t => t.UlaznaCena)
             .Take(take)
-            .AsNoTracking() // Read-only optimization
+            .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
 
     public async Task<decimal> GetPrihodZaDanasAsync()
     {
-        try
-        {
-            var danas = DateTime.UtcNow.Date;
-            var result = await _context.Ture
-                .Where(t => t.DatumUtovara.HasValue 
-                    && t.DatumUtovara.Value.Date == danas 
-                    && t.UlaznaCena.HasValue)
-                .SumAsync(t => t.UlaznaCena ?? 0);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error in GetPrihodZaDanasAsync");
-            return 0;
-        }
+        var danas = DateTime.UtcNow.Date;
+        return await _context.Ture
+            .Where(t => t.DatumUtovara.HasValue && t.DatumUtovara.Value.Date == danas && t.UlaznaCena.HasValue)
+            .SumAsync(t => t.UlaznaCena ?? 0);
     }
 
     public async Task<decimal> GetPrihodZaPeriodAsync(DateTime startDate, DateTime endDate)
     {
-        try
-        {
-            var result = await _context.Ture
-                .Where(t => t.DatumUtovara.HasValue
-                    && t.DatumUtovara.Value.Date >= startDate.Date
-                    && t.DatumUtovara.Value.Date <= endDate.Date
-                    && t.UlaznaCena.HasValue)
-                .SumAsync(t => t.UlaznaCena ?? 0);
-            return result;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error in GetPrihodZaPeriodAsync");
-            return 0;
-        }
+        return await _context.Ture
+            .Where(t => t.DatumUtovara.HasValue && t.DatumUtovara.Value.Date >= startDate.Date && t.DatumUtovara.Value.Date <= endDate.Date && t.UlaznaCena.HasValue)
+            .SumAsync(t => t.UlaznaCena ?? 0);
     }
 
     public async Task<List<(DateTime Datum, decimal Suma)>> GetPrihodByDateAsync(DateTime startDate, DateTime endDate)
@@ -110,8 +81,6 @@ public class DashboardRepository : IDashboardRepository
         return prihod.Select(p => (p.Datum, p.Suma)).ToList();
     }
 
-    // === Nalozi Statistics ===
-
     public async Task<int> GetTotalNaloziCountAsync()
     {
         return await _context.Nalozi.CountAsync();
@@ -120,8 +89,7 @@ public class DashboardRepository : IDashboardRepository
     public async Task<int> GetAktivniNaloziCountAsync()
     {
         var aktivniStatusi = new[] { "U Toku", "Kreiran" };
-        return await _context.Nalozi
-            .CountAsync(n => n.StatusNaloga != null && aktivniStatusi.Contains(n.StatusNaloga));
+        return await _context.Nalozi.CountAsync(n => n.StatusNaloga != null && aktivniStatusi.Contains(n.StatusNaloga));
     }
 
     public async Task<Dictionary<string, int>> GetNaloziStatusDistribucijaAsync()
@@ -135,8 +103,6 @@ public class DashboardRepository : IDashboardRepository
         return result.ToDictionary(x => x.Status, x => x.Count);
     }
 
-    // === Vozila Statistics ===
-
     public async Task<int> GetTotalVozilaCountAsync()
     {
         return await _context.NasaVozila.CountAsync();
@@ -145,8 +111,7 @@ public class DashboardRepository : IDashboardRepository
     public async Task<int> GetAktivnaVozilaCountAsync()
     {
         var aktivniStatusi = new[] { "Slobodno", "Na Putu", "Zauzeto" };
-        return await _context.NasaVozila
-            .CountAsync(v => v.Raspolozivost != null && aktivniStatusi.Contains(v.Raspolozivost));
+        return await _context.NasaVozila.CountAsync(v => v.Raspolozivost != null && aktivniStatusi.Contains(v.Raspolozivost));
     }
 
     public async Task<List<NasaVozila>> GetVozilaSaIsticucimDokumentimaAsync(int daysThreshold, CancellationToken cancellationToken = default)
@@ -186,18 +151,12 @@ public class DashboardRepository : IDashboardRepository
             .ToListAsync(cancellationToken);
     }
 
-    // === Vinjete Statistics ===
-
     public async Task<int> GetIsticeVinjetaCountAsync(int daysThreshold)
     {
         var danas = DateTime.UtcNow.Date;
         var thresholdDate = danas.AddDays(daysThreshold);
-
-        return await _context.Vinjete
-            .CountAsync(v => v.DatumIsteka.Date >= danas && v.DatumIsteka.Date <= thresholdDate);
+        return await _context.Vinjete.CountAsync(v => v.DatumIsteka.Date >= danas && v.DatumIsteka.Date <= thresholdDate);
     }
-
-    // === Other ===
 
     public async Task<List<Log>> GetNajnovijiLogoviAsync(int count, CancellationToken cancellationToken = default)
     {
