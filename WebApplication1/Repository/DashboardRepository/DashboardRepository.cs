@@ -22,9 +22,8 @@ public class DashboardRepository : IDashboardRepository
 
     public async Task<int> GetAktivneTureCountAsync()
     {
-        var aktivniStatusi = new[] { "U Toku", "Kreirana", "Na Putu", "Utovar U Toku", "Istovar U Toku", "Carina" };
         return await _context.Ture
-            .CountAsync(t => aktivniStatusi.Contains(t.StatusTure));
+            .CountAsync(t => t.StatusTure != "Kreiran Nalog");
     }
 
     public async Task<Dictionary<string, int>> GetTureStatusDistribucijaAsync()
@@ -88,8 +87,8 @@ public class DashboardRepository : IDashboardRepository
 
     public async Task<int> GetAktivniNaloziCountAsync()
     {
-        var aktivniStatusi = new[] { "U Toku", "Kreiran" };
-        return await _context.Nalozi.CountAsync(n => n.StatusNaloga != null && aktivniStatusi.Contains(n.StatusNaloga));
+        var neaktivniStatusi = new[] { "Završen", "Ponisten", "Storniran" };
+        return await _context.Nalozi.CountAsync(n => n.StatusNaloga != null && !neaktivniStatusi.Contains(n.StatusNaloga));
     }
 
     public async Task<Dictionary<string, int>> GetNaloziStatusDistribucijaAsync()
