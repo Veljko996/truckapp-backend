@@ -1,5 +1,6 @@
 ﻿using WebApplication1.Repository.NalogRepository;
 using WebApplication1.Utils.DTOs.NalogDTO;
+using WebApplication1.Utils.Helper;
 
 namespace WebApplication1.Services.NalogServices;
 
@@ -62,8 +63,11 @@ public class NalogService : INalogService
         _repository.Add(nalog);
         await _repository.SaveChangesAsync();
 
-        nalog.NalogBroj = $"{nalog.NalogId}/{DateTime.Now.Year % 100}";
-        nalog.StatusNaloga = "U Toku";
+       
+        var yearTwo = DateTime.UtcNow.Year % 100;
+        var broj = YearlyCounters.NextNalog();
+
+        nalog.NalogBroj = $"{broj}/{yearTwo}";
         tura.StatusTure = "Kreiran Nalog";
 
         await _repository.SaveChangesAsync();

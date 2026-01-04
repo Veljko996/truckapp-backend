@@ -1,4 +1,6 @@
-﻿namespace WebApplication1.Services.TuraServices;
+﻿using WebApplication1.Utils.Helper;
+
+namespace WebApplication1.Services.TuraServices;
 
 public class TuraService : ITuraService
 {
@@ -30,14 +32,15 @@ public class TuraService : ITuraService
         var tura = dto.Adapt<Tura>();
 
         _repository.Add(tura);
-        await _repository.SaveChangesAsync(); // dobija ID
+        await _repository.SaveChangesAsync();
 
-        int yearTwo = DateTime.UtcNow.Year % 100;
-        tura.RedniBroj = $"{tura.TuraId:D2}/{yearTwo}";
+        var yearTwo = DateTime.UtcNow.Year % 100;
+        var counter = YearlyCounters.NextTura();
+
+        tura.RedniBroj = $"{counter}/{yearTwo}";
 
         await _repository.SaveChangesAsync();
 
-        // ❗ obavezan re-query - navigation data se puni
         var created = await _repository.GetByIdAsync(tura.TuraId);
 
         return created!.Adapt<TuraReadDto>();
