@@ -20,12 +20,15 @@ public class Nalog
 
     #region new business fields
     public string? AdresaUtovara { get; set; }
+    public string? AdresaIstovara { get; set; }
+    public string? RegistarskiBrojVozilaExt { get; set; }
     public string? VrstaRobe { get; set; }
     public string? Izvoznik { get; set; }
     public string? Spedicija { get; set; }
     public string? GranicniPrelaz { get; set; }
     public string? Uvoznik { get; set; }
     public bool? Istovar { get; set; } = false;
+  
     #endregion
 
     #region polja koja se vuku iz ture ali mogu se menjati na nalogu

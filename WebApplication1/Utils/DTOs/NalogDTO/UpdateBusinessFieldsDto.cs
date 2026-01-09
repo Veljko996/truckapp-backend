@@ -3,6 +3,9 @@ namespace WebApplication1.Utils.DTOs.NalogDTO;
 public class UpdateBusinessFieldsDto
 {
     public string? AdresaUtovara { get; set; }
+
+    public string? AdresaIstovara { get; set; }
+    public string? RegistarskiBrojVozilaExt { get; set; }
     public string? VrstaRobe { get; set; }
     public string? Izvoznik { get; set; }
     public string? Spedicija { get; set; }

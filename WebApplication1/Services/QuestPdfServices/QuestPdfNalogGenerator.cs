@@ -154,6 +154,7 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
                             });
 
                             AddTableRow(table, "Broj vozila:", nalog.Tura?.Vozilo?.Naziv ?? "");
+                            AddTableRow(table, "Registarski broj vozila:", nalog.RegistarskiBrojVozilaExt ?? "");
                             AddTableRow(table, "Relacija:", nalog.Relacija ?? "");
                             AddTableRow(table, "Datum i vreme utovara:", 
                                 nalog.DatumUtovara?.ToString("dd.MM.yyyy HH:mm") ?? "");
@@ -170,6 +171,7 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
                             AddTableRow(table, "Datum istovara:", 
                                 nalog.DatumIstovara?.ToString("dd.MM.yyyy HH:mm") ?? "");
                             AddTableRow(table, "Mesto istovara:", nalog.Tura?.MestoIstovara ?? "");
+                            AddTableRow(table, "Adresa istovara:", nalog.AdresaIstovara ?? "");
                         });
 
                         column.Item().PaddingTop(10);
@@ -359,6 +361,7 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
                         });
 
                         AddTableRow(table, "Broj vozila:", nalog.Tura?.Vozilo?.Naziv ?? "");
+                        AddTableRow(table, "Registarski broj vozila:", nalog.RegistarskiBrojVozilaExt ?? "");
                         AddTableRow(table, "Relacija:", nalog.Relacija ?? "");
                         AddTableRow(table, "Datum i vreme utovara:",
                             nalog.DatumUtovara?.ToString("dd.MM.yyyy HH:mm") ?? "");
@@ -375,6 +378,7 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
                         AddTableRow(table, "Datum istovara:",
                             nalog.DatumIstovara?.ToString("dd.MM.yyyy HH:mm") ?? "");
                         AddTableRow(table, "Mesto istovara:", nalog.Tura?.MestoIstovara ?? "");
+                        AddTableRow(table, "Adresa istovara:", nalog.AdresaIstovara ?? "");
                     });
 
                     column.Item().PaddingTop(10);
