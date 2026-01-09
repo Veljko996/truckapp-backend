@@ -125,9 +125,9 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
                             {
                                 col.Item().Text("Primalac naloga:").Bold();
                                 // Background se primenjuje na kontejner, ne na TextBlockDescriptor
-                                col.Item().Background(Colors.Grey.Lighten3).Text("Firma:");
-                                col.Item().Background(Colors.Grey.Lighten3).Text("Ime:");
-                                col.Item().Background(Colors.Grey.Lighten3).Text("Tel:");
+                                col.Item().Background(Colors.Grey.Lighten3).Text($"Firma: {nalog.Prevoznik?.Naziv ?? ""}");
+                                col.Item().Background(Colors.Grey.Lighten3).Text($"Ime: {nalog.Prevoznik?.Kontakt ?? ""}");
+                                col.Item().Background(Colors.Grey.Lighten3).Text($"Tel: {nalog.Prevoznik?.Telefon ?? ""}");
                                 col.Item().Background(Colors.Grey.Lighten3).Text("E-mail:");
                             });
                         });
@@ -233,7 +233,7 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
                             });
 
                             AddTableRowSmall(table, "Cena transporta:", 
-                                nalog.Tura?.UlaznaCena?.ToString("N2") ?? "");
+                                $"{(nalog.Tura?.UlaznaCena?.ToString("N2") ?? "")} {(nalog.Tura?.Valuta ?? "")}".Trim());
                             AddTableRowSmall(table, "Valuta plaćanja:", 
                                 "60 dana od dana prijema originalne overene dokumentacije (CMR,EX)");
                             AddTableRowSmall(table, "Način plaćanja:", 
@@ -330,9 +330,9 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
                         row.RelativeItem().Column(col =>
                         {
                             col.Item().Text("Primalac naloga:").Bold();
-                            col.Item().Background(Colors.Grey.Lighten3).Text("Firma:");
-                            col.Item().Background(Colors.Grey.Lighten3).Text("Ime:");
-                            col.Item().Background(Colors.Grey.Lighten3).Text("Tel:");
+                            col.Item().Background(Colors.Grey.Lighten3).Text($"Firma: {nalog.Prevoznik?.Naziv ?? ""}");
+                            col.Item().Background(Colors.Grey.Lighten3).Text($"Ime: {nalog.Prevoznik?.Kontakt ?? ""}");
+                            col.Item().Background(Colors.Grey.Lighten3).Text($"Tel: {nalog.Prevoznik?.Telefon ?? ""}");
                             col.Item().Background(Colors.Grey.Lighten3).Text("E-mail:");
                         });
                     });
@@ -430,7 +430,7 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
                         });
 
                         AddTableRowSmall(table, "Cena transporta:",
-                            nalog.Tura?.UlaznaCena?.ToString("N2") ?? "");
+                            $"{(nalog.Tura?.UlaznaCena?.ToString("N2") ?? "")} {(nalog.Tura?.Valuta ?? "")}".Trim());
                         AddTableRowSmall(table, "Valuta plaćanja:",
                             "60 dana od dana prijema originalne overene dokumentacije (CMR,EX)");
                         AddTableRowSmall(table, "Način plaćanja:",
