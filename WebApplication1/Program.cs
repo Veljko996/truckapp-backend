@@ -15,7 +15,6 @@ builder.Services.AddDbContext<TruckContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("TruckContext"))
 );
 
-// ================= CORS =================
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
