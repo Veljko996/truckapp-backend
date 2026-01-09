@@ -52,6 +52,7 @@ public class NalogService : INalogService
         nalog.DatumUtovara = tura.DatumUtovara;
         nalog.DatumIstovara = tura.DatumIstovara;
         nalog.KolicinaRobe = tura.KolicinaRobe;
+        nalog.Tezina = tura.Tezina;
 
         //polja koja se vuku iz ture ali se mogu menjati na nalogu
         nalog.PrevoznikId = tura.PrevoznikId;

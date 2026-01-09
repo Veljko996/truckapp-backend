@@ -11,7 +11,7 @@ public class NalogReadDto
     public DateTime? DatumUtovara { get; set; }
     public DateTime? DatumIstovara { get; set; }
     public string? KolicinaRobe { get; set; }
-    
+    public string? Tezina { get; set; }
     public string? AdresaUtovara { get; set; }
     public string? AdresaIstovara { get; set; }
     public string? RegistarskiBrojVozilaExt { get; set; }

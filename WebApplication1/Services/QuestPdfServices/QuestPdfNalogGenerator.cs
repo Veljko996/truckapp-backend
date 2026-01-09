@@ -160,7 +160,8 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
                                 nalog.DatumUtovara?.ToString("dd.MM.yyyy HH:mm") ?? "");
                             AddTableRow(table, "Mesto utovara:", nalog.Tura?.MestoUtovara ?? "");
                             AddTableRow(table, "Adresa utovara:", nalog.AdresaUtovara ?? "");
-                            AddTableRow(table, "Količina robe:", nalog.KolicinaRobe ?? "");
+                            AddTableRow(table, "Količina robe:", 
+                                FormatKolicinaITezina(nalog.KolicinaRobe, nalog.Tura?.Tezina));
                             AddTableRow(table, "Vrsta robe:", nalog.VrstaRobe ?? "");
                             AddTableRow(table, "Izvoznik:", nalog.Izvoznik ?? "");
                             AddTableRow(table, "Izvozno carinjenje:", nalog.IzvoznoCarinjenje ?? "");
@@ -367,7 +368,8 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
                             nalog.DatumUtovara?.ToString("dd.MM.yyyy HH:mm") ?? "");
                         AddTableRow(table, "Mesto utovara:", nalog.Tura?.MestoUtovara ?? "");
                         AddTableRow(table, "Adresa utovara:", nalog.AdresaUtovara ?? "");
-                        AddTableRow(table, "Količina robe:", nalog.KolicinaRobe ?? "");
+                        AddTableRow(table, "Količina robe:", 
+                            FormatKolicinaITezina(nalog.KolicinaRobe, nalog.Tura?.Tezina));
                         AddTableRow(table, "Vrsta robe:", nalog.VrstaRobe ?? "");
                         AddTableRow(table, "Izvoznik:", nalog.Izvoznik ?? "");
                         AddTableRow(table, "Izvozno carinjenje:", nalog.IzvoznoCarinjenje ?? "");
@@ -503,6 +505,23 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
             .BorderColor(Colors.Black)
             .Padding(5)
             .Background(Colors.Grey.Lighten3);
+    }
+
+    private static string FormatKolicinaITezina(string? kolicina, string? tezina)
+    {
+        var hasKolicina = !string.IsNullOrWhiteSpace(kolicina);
+        var hasTezina = !string.IsNullOrWhiteSpace(tezina);
+
+        if (hasKolicina && hasTezina)
+            return $"{kolicina}; {tezina}";
+        
+        if (hasKolicina)
+            return kolicina;
+        
+        if (hasTezina)
+            return tezina;
+        
+        return "";
     }
 }
 
