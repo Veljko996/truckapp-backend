@@ -1,4 +1,5 @@
 using WebApplication1.Services.NalogServices;
+using WebApplication1.Services.QuestPdfServices;
 using WebApplication1.Utils.DTOs.NalogDTO;
 
 namespace WebApplication1.Controllers;
@@ -9,10 +10,12 @@ namespace WebApplication1.Controllers;
 public class NalogController : ControllerBase
 {
     private readonly INalogService _service;
+    private readonly IQuestPdfNalogGenerator _questPdfGenerator; // EKSPERIMENTALNO
 
-    public NalogController(INalogService service)
+    public NalogController(INalogService service, IQuestPdfNalogGenerator questPdfGenerator)
     {
         _service = service;
+        _questPdfGenerator = questPdfGenerator; // EKSPERIMENTALNO
     }
 
     [HttpGet]
@@ -87,31 +90,17 @@ public class NalogController : ControllerBase
 
     [HttpGet("{id}/document")]
     public async Task<IActionResult> GenerateDocument(
-    int id,
-    [FromQuery] string template = "mts",
-    [FromQuery] string format = "html"
-)
+        int id,
+        [FromQuery] string template = "mts"
+    )
     {
-        var bytes = await _service.GenerateHtmlAsync(id, template);
+        var pdfBytes = await _questPdfGenerator.GeneratePdfAsync(id, template);
 
-        return format.ToLowerInvariant() switch
-        {
-            "doc" => File(
-                bytes,
-                "application/msword",
-                $"Nalog_{id}.doc"
-            ),
-
-            "html" => File(
-                bytes,
-                "text/html; charset=utf-8",
-                $"Nalog_{id}.html"
-            ),
-
-            _ => BadRequest(
-                "Nepoznat format. Dozvoljeno: html, doc."
-            )
-        };
+        return File(
+            pdfBytes,
+            "application/pdf",
+            $"Nalog_{id}_{template}.pdf"
+        );
     }
 
 

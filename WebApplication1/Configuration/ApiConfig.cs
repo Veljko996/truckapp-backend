@@ -16,6 +16,7 @@ using WebApplication1.Repository.NalogRepository;
 using WebApplication1.Repository.VrstaNadogradnjeRepository;
 using WebApplication1.Repository.KlijentRepository;
 using WebApplication1.Services.NalogServices;
+using WebApplication1.Services.QuestPdfServices;
 
 namespace WebApplication1.Configuration;
 
@@ -44,6 +45,9 @@ public static class ApiConfig
 
         builder.Services.AddScoped<INalogRepository, NalogRepository>();
         builder.Services.AddScoped<INalogService, NalogService>();
+        
+        // EKSPERIMENTALNO: QuestPDF servis za direktno PDF generisanje
+        builder.Services.AddScoped<IQuestPdfNalogGenerator, QuestPdfNalogGenerator>();
 
         // Poslovnica services
         builder.Services.AddScoped<IPoslovnicaRepository, PoslovnicaRepository>();

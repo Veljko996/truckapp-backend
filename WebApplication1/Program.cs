@@ -1,14 +1,18 @@
 ﻿using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using QuestPDF.Infrastructure;
 using WebApplication1.Configuration;
 using WebApplication1.Middleware;
 using WebApplication1.Utils.Mapping;
+
+QuestPDF.Settings.License = LicenseType.Community;
+QuestPDF.Settings.EnableDebugging = false;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // ================= DB =================
 builder.Services.AddDbContext<TruckContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options.UseSqlServer(builder.Configuration.GetConnectionString("TruckContext"))
 );
 
 // ================= CORS =================
@@ -39,7 +43,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// ================= AUTH (JWT + Cookies) =================
+
 builder.Services
     .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -58,7 +62,7 @@ builder.Services
             ClockSkew = TimeSpan.Zero
         };
 
-        // 🔑 Čitanje JWT-a iz HttpOnly cookie-ja
+        //  Čitanje JWT-a iz HttpOnly cookie-ja
         options.Events = new JwtBearerEvents
         {
             OnMessageReceived = context =>
@@ -101,7 +105,7 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
-// ================= MAPSTER =================
+
 var config = TypeAdapterConfig.GlobalSettings;
 MappingConfig.RegisterMappings();
 config.Default.IgnoreNullValues(true);
@@ -115,6 +119,7 @@ builder.AddApiConfiguration();
 builder.Services.AddSwaggerConfiguration();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
+
 
 var app = builder.Build();
 
@@ -135,7 +140,10 @@ else
 }
 
 // ================= PIPELINE =================
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseCors("AllowFrontend");
 
 app.UseMiddleware<ErrorHandlerMiddleware>();

@@ -225,9 +225,6 @@ public class UserController : ControllerBase
 
     // ==================== EMPLOYEE ENDPOINTS ====================
 
-    /// <summary>
-    /// Vraća sve zaposlene
-    /// </summary>
     [HttpGet("employees")]
     public async Task<ActionResult<IEnumerable<EmployeeReadDto>>> GetAllEmployees([FromQuery] bool includeInactive = false)
     {
@@ -243,9 +240,7 @@ public class UserController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Vraća zaposlenog po ID-u
-    /// </summary>
+ 
     [HttpGet("employees/{id}")]
     public async Task<ActionResult<EmployeeReadDto>> GetEmployeeById(int id)
     {
@@ -265,9 +260,6 @@ public class UserController : ControllerBase
     }
 
 
-    /// <summary>
-    /// Vraća zaposlene po poslovnici
-    /// </summary>
     [HttpGet("employees/poslovnica/{poslovnicaId}")]
     public async Task<ActionResult<IEnumerable<EmployeeReadDto>>> GetEmployeesByPoslovnica(int poslovnicaId)
     {
@@ -283,9 +275,6 @@ public class UserController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Kreira novog zaposlenog
-    /// </summary>
     [HttpPost("employees")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<EmployeeReadDto>> CreateEmployee([FromBody] EmployeeCreateDto createDto)
@@ -302,9 +291,7 @@ public class UserController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Ažurira zaposlenog
-    /// </summary>
+  
     [HttpPut("employees/{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<EmployeeReadDto>> UpdateEmployee(int id, [FromBody] EmployeeUpdateDto updateDto)
@@ -322,9 +309,6 @@ public class UserController : ControllerBase
         }
     }
 
-    /// <summary>
-    /// Briše zaposlenog (soft delete)
-    /// </summary>
     [HttpDelete("employees/{id}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult> DeleteEmployee(int id)

@@ -1,7 +1,4 @@
-using WebApplication1.DataAccess.Models;
 using WebApplication1.Repository.UserRepository;
-using WebApplication1.Utils.DTOs.UserDTO;
-using WebApplication1.Utils.Exceptions;
 
 namespace WebApplication1.Services.UserServices;
 
