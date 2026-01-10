@@ -69,6 +69,7 @@ public class NalogService : INalogService
         var broj = YearlyCounters.NextNalog();
 
         nalog.NalogBroj = $"{broj}/{yearTwo}";
+        nalog.StatusNaloga = "U Toku";
         tura.StatusTure = "Kreiran Nalog";
 
         await _repository.SaveChangesAsync();
