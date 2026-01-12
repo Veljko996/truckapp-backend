@@ -309,12 +309,12 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
                             });
                             row.RelativeItem(7).PaddingLeft(10).Column(col =>
                             {
-                                col.Item().Text("SUINS DOO NOVI SAD, BRANKA BAJIĆA 12, 21000 Novi Sad").Bold();
-                                col.Item().Text("PIB: 107024756; Matični broj: 20726695; šifra delatnosti: 5229");
-                                col.Item().Text("Sedište: Novi Sad Branka Bajića 12; tel: 021/6393-416; office@suins.rs");
-                                col.Item().Text("PJ Subotica: +381 (0)24 551-651; fax: +381 (0)24 551-113; e-mail: subotica@suins.rs");
-                                col.Item().Text("PJ Horgoš: +381 69 795 014; horgoš@suins.rs");
-                                col.Item().Text("PJ Kelebija: +381 (0)24 789 071");
+                                col.Item().Text("SUINS DOO NOVI SAD, BRANKA BAJIĆA 12, 21000 Novi Sad").Bold().FontSize(10);
+                                col.Item().Text("PIB: 107024756; Matični broj: 20726695; šifra delatnosti: 5229").FontSize(9);
+                                col.Item().Text("Sedište: Novi Sad Branka Bajića 12; tel: 021/6393-416; office@suins.rs").FontSize(9);
+                                col.Item().Text("PJ Subotica: +381 (0)24 551-651; fax: +381 (0)24 551-113; e-mail: subotica@suins.rs").FontSize(9);
+                                col.Item().Text("PJ Horgoš: +381 69 795 014; horgoš@suins.rs").FontSize(9);
+                                col.Item().Text("PJ Kelebija: +381 (0)24 789 071").FontSize(9);
                             });
                         });
 
@@ -426,12 +426,12 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
                             });
                             row.RelativeItem(7).PaddingLeft(10).Column(col =>
                             {
-                                col.Item().Text("SUINS DOO NOVI SAD, BRANKA BAJIĆA 12, 21000 Novi Sad").Bold().FontSize(14);
-                                col.Item().Text("PIB: 107024756; Matični broj: 20726695; šifra delatnosti: 5229");
-                                col.Item().Text("Sedište: Novi Sad Branka Bajića 12; tel: 021/6393-416; office@suins.rs");
-                                col.Item().Text("PJ Subotica: +381 (0)24 551-651; fax: +381 (0)24 551-113; e-mail: subotica@suins.rs");
-                                col.Item().Text("PJ Horgoš: +381 69 795 014; horgoš@suins.rs");
-                                col.Item().Text("PJ Kelebija: +381 (0)24 789 071");
+                                col.Item().Text("SUINS DOO NOVI SAD, BRANKA BAJIĆA 12, 21000 Novi Sad").Bold().FontSize(10);
+                                col.Item().Text("PIB: 107024756; Matični broj: 20726695; šifra delatnosti: 5229").FontSize(9);
+                                col.Item().Text("Sedište: Novi Sad Branka Bajića 12; tel: 021/6393-416; office@suins.rs").FontSize(9);
+                                col.Item().Text("PJ Subotica: +381 (0)24 551-651; fax: +381 (0)24 551-113; e-mail: subotica@suins.rs").FontSize(9);
+                                col.Item().Text("PJ Horgoš: +381 69 795 014; horgoš@suins.rs").FontSize(9);
+                                col.Item().Text("PJ Kelebija: +381 (0)24 789 071").FontSize(9);
                             });
                         });
 
