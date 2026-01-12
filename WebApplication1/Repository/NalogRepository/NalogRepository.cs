@@ -1,3 +1,6 @@
+using System.Data;
+using Microsoft.Data.SqlClient;
+
 namespace WebApplication1.Repository.NalogRepository;
 
 public class NalogRepository : INalogRepository
@@ -40,6 +43,26 @@ public class NalogRepository : INalogRepository
             .Nalozi
             .Update(nalog);
     }
+
+    public async Task<string> GetNextNalogBrojAsync()
+    {
+        var output = new SqlParameter
+        {
+            ParameterName = "@Result",
+            SqlDbType = SqlDbType.NVarChar,
+            Size = 20,
+            Direction = ParameterDirection.Output
+        };
+
+        await _context.Database.ExecuteSqlRawAsync(
+            "EXEC dbo.GetNextDocumentNumber @DocumentType, @Result OUTPUT",
+            new SqlParameter("@DocumentType", "NALOG"),
+            output
+        );
+
+        return (string)output.Value!;
+    }
+
 
     public async Task<bool> SaveChangesAsync()
     {

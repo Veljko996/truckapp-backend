@@ -9,8 +9,7 @@ public interface ITureRepository
     void Update(Tura tura); 
     void Delete(Tura tura);
     Task<bool> SaveChangesAsync();
-
-    Task<IDbContextTransaction> BeginTransactionAsync();
+    Task<string> GetNextTuraBrojAsync();
 
     // tehničke provere FK vrednosti
     Task<bool> VoziloExistsAsync(int voziloId);

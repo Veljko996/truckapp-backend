@@ -1,15 +1,12 @@
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Services.DashboardServices;
 
 namespace WebApplication1.Controllers;
 
-/// <summary>
 /// Dashboard controller providing overview metrics and statistics.
-/// </summary>
+
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "Admin,Korisnik")]
+[Authorize(Roles = "Admin")]
 public class DashboardController : ControllerBase
 {
     private readonly IDashboardService _dashboardService;

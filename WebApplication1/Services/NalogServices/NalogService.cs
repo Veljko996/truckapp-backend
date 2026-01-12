@@ -44,40 +44,44 @@ public class NalogService : INalogService
 
         var username = _httpContextAccessor.HttpContext?.User?.Identity?.Name;
 
+        // 1) Uzmi broj iz baze (DB je autoritet)
+        var nalogBroj = await _repository.GetNextNalogBrojAsync();
+
+        // 2) Mapiraj DTO -> Entity
         var nalog = dto.Adapt<Nalog>();
 
+        // 3) Popuni iz ture
         nalog.TuraId = turaId;
-        //nalog.TuraRedniBroj = tura.RedniBroj;
         nalog.Relacija = $"{tura.MestoUtovara} - {tura.MestoIstovara}";
         nalog.DatumUtovara = tura.DatumUtovara;
         nalog.DatumIstovara = tura.DatumIstovara;
         nalog.KolicinaRobe = tura.KolicinaRobe;
         nalog.Tezina = tura.Tezina;
 
-        //polja koja se vuku iz ture ali se mogu menjati na nalogu
         nalog.PrevoznikId = tura.PrevoznikId;
         nalog.IzvoznoCarinjenje = tura.IzvoznoCarinjenje;
         nalog.UvoznoCarinjenje = tura.UvoznoCarinjenje;
+
+        // 4) Sistemsка polja
         nalog.CreatedAt = DateTime.UtcNow;
         nalog.CreatedBy = username;
 
+        // 5) Broj + status
+        nalog.NalogBroj = nalogBroj;
+        nalog.StatusNaloga = "U Toku";
+
+        // 6) Promeni status ture (ako je ovo pravilo)
+        tura.StatusTure = "Kreiran Nalog";
+
+        // 7) Save jednom
         _repository.Add(nalog);
         await _repository.SaveChangesAsync();
 
-       
-        var yearTwo = DateTime.UtcNow.Year % 100;
-        var broj = YearlyCounters.NextNalog();
-
-        nalog.NalogBroj = $"{broj}/{yearTwo}";
-        nalog.StatusNaloga = "U Toku";
-        tura.StatusTure = "Kreiran Nalog";
-
-        await _repository.SaveChangesAsync();
-
-        // Re-query to load navigation properties
+        // 8) Re-query (ako ti treba navigacija)
         var created = await _repository.GetByIdAsync(nalog.NalogId);
         return created!.Adapt<NalogReadDto>();
     }
+
 
     public async Task<NalogReadDto> AssignPrevoznik(int id, AssignPrevoznikDto dto)
     {

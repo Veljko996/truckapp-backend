@@ -28,6 +28,5 @@ public class CreateTuraDto
     [Required]
     public int PrevoznikId { get; set; }
     public int? VoziloId { get; set; }
-    
 
 }

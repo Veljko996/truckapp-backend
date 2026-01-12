@@ -29,22 +29,25 @@ public class TuraService : ITuraService
 
     public async Task<TuraReadDto> Create(CreateTuraDto dto)
     {
+        // 1) Uzmi sledeći broj iz baze (DB broji)
+        var turaBroj = await _repository.GetNextTuraBrojAsync();
+
+        // 2) Mapiraj DTO → Entity
         var tura = dto.Adapt<Tura>();
 
+        // 3) Sistemsка polja
+        tura.RedniBroj = turaBroj;
+        tura.StatusTure = "Kreirana"; // ili šta već koristiš
+        
+        // 4) Jedan insert, jedan SaveChanges
         _repository.Add(tura);
         await _repository.SaveChangesAsync();
 
-        var yearTwo = DateTime.UtcNow.Year % 100;
-        var counter = YearlyCounters.NextTura();
-
-        tura.RedniBroj = $"{counter}/{yearTwo}";
-
-        await _repository.SaveChangesAsync();
-
+        // 5) Re-query ako ti treba kompletan graf
         var created = await _repository.GetByIdAsync(tura.TuraId);
-
         return created!.Adapt<TuraReadDto>();
     }
+
 
 
     public async Task<TuraReadDto> UpdateBasic(int id, UpdateTuraDto dto)

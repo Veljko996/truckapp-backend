@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore.Storage;
+﻿using System.Data;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Storage;
 
 public class TureRepository : ITureRepository
 {
@@ -44,14 +46,28 @@ public class TureRepository : ITureRepository
         _context.Ture.Remove(tura);
     }
 
+    public async Task<string> GetNextTuraBrojAsync()
+    {
+        var output = new SqlParameter
+        {
+            ParameterName = "@Result",
+            SqlDbType = SqlDbType.NVarChar,
+            Size = 20,
+            Direction = ParameterDirection.Output
+        };
+
+        await _context.Database.ExecuteSqlRawAsync(
+            "EXEC dbo.GetNextDocumentNumber @DocumentType, @Result OUTPUT",
+            new SqlParameter("@DocumentType", "TURA"),
+            output
+        );
+
+        return (string)output.Value!;
+    }
+
     public async Task<bool> SaveChangesAsync()
     {
         return await _context.SaveChangesAsync() > 0;
-    }
-
-    public async Task<IDbContextTransaction> BeginTransactionAsync()
-    {
-        return await _context.Database.BeginTransactionAsync();
     }
 
     public async Task<bool> PrevoznikExistsAsync(int prevoznikId)
