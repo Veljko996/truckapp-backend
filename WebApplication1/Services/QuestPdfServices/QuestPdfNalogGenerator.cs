@@ -185,8 +185,6 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
                         }
 
                         column.Item().PaddingTop(10);
-                        column.Item().LineHorizontal(1).LineColor(Colors.Black);
-                        column.Item().PaddingTop(5).AlignCenter().Text("www.suins.rs").FontSize(12);
                     });
             });
 
@@ -304,7 +302,7 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
                         {
                             if (logoBytes != null)
                             {
-                                col.Item().Width(120).Image(logoBytes).FitWidth();
+                                col.Item().Width(160).Image(logoBytes).FitWidth();
                             }
                         });
 
@@ -391,8 +389,6 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
                         }
 
                         column.Item().PaddingTop(10);
-                        column.Item().LineHorizontal(1).LineColor(Colors.Black);
-                        column.Item().PaddingTop(5).AlignCenter().Text("www.suins.rs").FontSize(12);
                     });
             });
 
@@ -411,7 +407,7 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
                         {
                             if (logoBytes != null)
                             {
-                                col.Item().Width(120).Image(logoBytes).FitWidth();
+                                col.Item().Width(160).Image(logoBytes).FitWidth();
                             }
                         });
 
@@ -589,8 +585,6 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
                     }
 
                     column.Item().PaddingTop(10);
-                    column.Item().LineHorizontal(1).LineColor(Colors.Black);
-                    column.Item().PaddingTop(5).AlignCenter().Text("www.suins.rs").FontSize(12);
                 });
             });
 
