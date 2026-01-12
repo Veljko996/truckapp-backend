@@ -142,6 +142,8 @@ public class NalogService : INalogService
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
 
+        nalog.StatusNaloga = "Završen";
+
         dto.Adapt(nalog);
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();

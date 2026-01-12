@@ -37,7 +37,7 @@ public class TuraService : ITuraService
 
         // 3) Sistemsка polja
         tura.RedniBroj = turaBroj;
-        tura.StatusTure = "Kreirana"; // ili šta već koristiš
+        tura.StatusTure = "Kreirana"; 
         
         // 4) Jedan insert, jedan SaveChanges
         _repository.Add(tura);
