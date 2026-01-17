@@ -88,7 +88,7 @@ public class UserService : IUserService
         return MapToUserReadDto(user);
     }
 
-    public async Task<UserReadDto> UpdateUserAsync(UserUpdateDto updateDto)
+    public async Task UpdateUserAsync(UserUpdateDto updateDto)
     {
         var user = await _userRepository.GetByIdAsync(updateDto.UserId);
         if (user is null)
@@ -126,8 +126,6 @@ public class UserService : IUserService
             throw new ConflictException("SaveFailed", "Došlo je do greške prilikom ažuriranja korisnika.");
 
         _logger.LogInformation("Korisnik ažuriran: {Username} (ID: {UserId})", user.Username, user.UserId);
-
-        return MapToUserReadDto(user);
     }
 
     public async Task<bool> DeleteUserAsync(int userId)
@@ -280,7 +278,7 @@ public class UserService : IUserService
         return MapToEmployeeReadDto(createdEmployee!);
     }
 
-    public async Task<EmployeeReadDto> UpdateEmployeeAsync(EmployeeUpdateDto updateDto)
+    public async Task UpdateEmployeeAsync(EmployeeUpdateDto updateDto)
     {
         var employee = await _userRepository.GetEmployeeByIdAsync(updateDto.EmployeeId);
         if (employee is null)
@@ -337,9 +335,6 @@ public class UserService : IUserService
             throw new ConflictException("SaveFailed", "Došlo je do greške prilikom ažuriranja zaposlenog.");
 
         _logger.LogInformation("Zaposleni ažuriran: Employee ID {EmployeeId}", employee.EmployeeId);
-
-        var updatedEmployee = await _userRepository.GetEmployeeByIdAsync(employee.EmployeeId);
-        return MapToEmployeeReadDto(updatedEmployee!);
     }
 
     public async Task<bool> DeleteEmployeeAsync(int employeeId)

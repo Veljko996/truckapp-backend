@@ -1,4 +1,4 @@
-﻿using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
+using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
 
 namespace WebApplication1.Services.VinjeteServices;
 
@@ -68,7 +68,7 @@ public class VinjeteService : IVinjeteService
         return vinjeta;
     }
 
-    public async Task<VinjetaReadDto> Update(int vinjetaId, VinjetaUpdateDto dto)
+    public async Task Update(int vinjetaId, VinjetaUpdateDto dto)
     {
         var vinjeta = await _repository.GetById(vinjetaId) ?? throw new NotFoundException("Default", $"Vinjeta sa ID {vinjetaId} nije pronađena.");
 
@@ -101,8 +101,6 @@ public class VinjeteService : IVinjeteService
 
         if (!await _repository.SaveChangesAsync())
             throw new ConflictException("SaveFailed", "Došlo je do greške prilikom čuvanja podataka.");
-
-        return vinjeta.Adapt<VinjetaReadDto>();
     }
 
     public async Task<bool> Delete(int vinjetaId)

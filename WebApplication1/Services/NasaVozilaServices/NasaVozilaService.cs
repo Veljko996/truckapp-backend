@@ -1,4 +1,4 @@
-﻿using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
+using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
 
 namespace WebApplication1.Services.NasaVozilaServices;
 
@@ -69,7 +69,7 @@ public class NasaVozilaService : INasaVozilaService
         return vozilo.Adapt<NasaVozilaReadDto>();
     }
 
-    public async Task<NasaVozilaReadDto> Update(int voziloId, NasaVozilaUpdateDto dto)
+    public async Task Update(int voziloId, NasaVozilaUpdateDto dto)
     {
         var vozilo = await _repository.GetById(voziloId);
 
@@ -103,8 +103,6 @@ public class NasaVozilaService : INasaVozilaService
         var result = await _repository.SaveChangesAsync();
         if (!result)
             throw new ConflictException("SaveFailed", "Greška prilikom ažuriranja vozila.");
-
-        return vozilo.Adapt<NasaVozilaReadDto>();
     }
 
 

@@ -107,7 +107,7 @@ public class UserController : ControllerBase
     /// Ažurira korisnika
     /// </summary>
     [HttpPut("{id}")]
-    public async Task<ActionResult<UserReadDto>> UpdateUser(int id, [FromBody] UserUpdateDto updateDto)
+    public async Task<IActionResult> UpdateUser(int id, [FromBody] UserUpdateDto updateDto)
     {
         try
         {
@@ -119,8 +119,8 @@ public class UserController : ControllerBase
                 return Forbid("Možete ažurirati samo svoj profil.");
 
             updateDto.UserId = id;
-            var user = await _userService.UpdateUserAsync(updateDto);
-            return Ok(user);
+            await _userService.UpdateUserAsync(updateDto);
+            return NoContent();
         }
         catch (Exception ex)
         {
@@ -294,13 +294,13 @@ public class UserController : ControllerBase
   
     [HttpPut("employees/{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<EmployeeReadDto>> UpdateEmployee(int id, [FromBody] EmployeeUpdateDto updateDto)
+    public async Task<IActionResult> UpdateEmployee(int id, [FromBody] EmployeeUpdateDto updateDto)
     {
         try
         {
             updateDto.EmployeeId = id;
-            var employee = await _userService.UpdateEmployeeAsync(updateDto);
-            return Ok(employee);
+            await _userService.UpdateEmployeeAsync(updateDto);
+            return NoContent();
         }
         catch (Exception ex)
         {

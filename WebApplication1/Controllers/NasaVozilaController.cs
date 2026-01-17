@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Services.NasaVozilaServices;
 
@@ -41,12 +41,12 @@ public class NasaVozilaController: ControllerBase
     }
 
     [HttpPatch("{voziloId}")]
-    public async Task<ActionResult<NasaVozilaReadDto>> Update(int voziloId, 
+    public async Task<IActionResult> Update(int voziloId, 
         [FromBody] NasaVozilaUpdateDto updateDto)
     {
         // Service throws NotFoundException if not found - handled by middleware
-        var vozilo = await _service.Update(voziloId, updateDto);
-        return Ok(vozilo);
+        await _service.Update(voziloId, updateDto);
+        return NoContent();
     }
 
     [HttpDelete("{voziloId}")]

@@ -1,4 +1,4 @@
-﻿using WebApplication1.Repository.NalogRepository;
+using WebApplication1.Repository.NalogRepository;
 using WebApplication1.Utils.DTOs.NalogDTO;
 using WebApplication1.Utils.Helper;
 
@@ -83,7 +83,7 @@ public class NalogService : INalogService
     }
 
 
-    public async Task<NalogReadDto> AssignPrevoznik(int id, AssignPrevoznikDto dto)
+    public async Task AssignPrevoznik(int id, AssignPrevoznikDto dto)
     {
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
@@ -92,13 +92,9 @@ public class NalogService : INalogService
 
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
-
-        // Re-query to load navigation properties
-        var updated = await _repository.GetByIdAsync(id);
-        return updated!.Adapt<NalogReadDto>();
     }
 
-    public async Task<NalogReadDto> UpdateBusiness(int id, UpdateBusinessFieldsDto dto)
+    public async Task UpdateBusiness(int id, UpdateBusinessFieldsDto dto)
     {
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
@@ -106,12 +102,8 @@ public class NalogService : INalogService
         dto.Adapt(nalog);
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
-
-        // Re-query to load navigation properties
-        var updated = await _repository.GetByIdAsync(id);
-        return updated!.Adapt<NalogReadDto>();
     }
-    public async Task<NalogReadDto> UpdateNotes(int id, UpdateNotesDto dto)
+    public async Task UpdateNotes(int id, UpdateNotesDto dto)
     {
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
@@ -119,12 +111,8 @@ public class NalogService : INalogService
         dto.Adapt(nalog);
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
-
-        // Re-query to load navigation properties
-        var updated = await _repository.GetByIdAsync(id);
-        return updated!.Adapt<NalogReadDto>();
     }
-    public async Task<NalogReadDto> UpdateStatus(int id, UpdateStatusDto dto)
+    public async Task UpdateStatus(int id, UpdateStatusDto dto)
     {
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
@@ -132,12 +120,8 @@ public class NalogService : INalogService
         dto.Adapt(nalog);
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
-
-        // Re-query to load navigation properties
-        var updated = await _repository.GetByIdAsync(id);
-        return updated!.Adapt<NalogReadDto>();
     }
-    public async Task<NalogReadDto> MarkIstovaren(int id, MarkIstovarenDto dto)
+    public async Task MarkIstovaren(int id, MarkIstovarenDto dto)
     {
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
@@ -147,13 +131,9 @@ public class NalogService : INalogService
         dto.Adapt(nalog);
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
-
-        // Re-query to load navigation properties
-        var updated = await _repository.GetByIdAsync(id);
-        return updated!.Adapt<NalogReadDto>();
     }
 
-    public async Task<NalogReadDto> Storniraj(int id)
+    public async Task Storniraj(int id)
     {
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
@@ -161,12 +141,8 @@ public class NalogService : INalogService
         nalog.StatusNaloga = "Storniran";
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
-
-        // Re-query to load navigation properties
-        var updated = await _repository.GetByIdAsync(id);
-        return updated!.Adapt<NalogReadDto>();
     }
-    public async Task<NalogReadDto> Ponisti(int id)
+    public async Task Ponisti(int id)
     {
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
@@ -174,10 +150,6 @@ public class NalogService : INalogService
         nalog.StatusNaloga = "Ponisten";
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
-
-        // Re-query to load navigation properties
-        var updated = await _repository.GetByIdAsync(id);
-        return updated!.Adapt<NalogReadDto>();
     }
     private static readonly Dictionary<string, string> TemplateMap =
         new(StringComparer.OrdinalIgnoreCase)

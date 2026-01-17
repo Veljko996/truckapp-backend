@@ -7,7 +7,7 @@ public interface IKlijentService
     Task<IEnumerable<KlijentReadDto>> GetAll();
     Task<KlijentReadDto> GetById(int klijentId);
     Task<KlijentReadDto> Create(KlijentCreateDto dto);
-    Task<KlijentReadDto> Update(int klijentId, KlijentUpdateDto dto);
+    Task Update(int klijentId, KlijentUpdateDto dto);
     Task<bool> Delete(int klijentId);
 }
 

@@ -53,7 +53,7 @@ public class KlijentService : IKlijentService
         return klijent.Adapt<KlijentReadDto>();
     }
 
-    public async Task<KlijentReadDto> Update(int klijentId, KlijentUpdateDto dto)
+    public async Task Update(int klijentId, KlijentUpdateDto dto)
     {
         var klijent = await _repository.GetById(klijentId);
         if (klijent == null)
@@ -72,8 +72,6 @@ public class KlijentService : IKlijentService
 
         if (!await _repository.SaveChangesAsync())
             throw new ConflictException("SaveFailed", "Greška prilikom ažuriranja klijenta.");
-
-        return klijent.Adapt<KlijentReadDto>();
     }
 
     public async Task<bool> Delete(int klijentId)

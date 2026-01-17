@@ -60,7 +60,7 @@ public class PrevozniciService : IPrevozniciService
         return prevoznik.Adapt<PrevoznikDto>();
     }
 
-    public async Task<PrevoznikDto> Update(int prevoznikId, UpdatePrevoznikDto dto)
+    public async Task Update(int prevoznikId, UpdatePrevoznikDto dto)
     {
         var prevoznik = await _repository.GetById(prevoznikId);
 
@@ -87,8 +87,6 @@ public class PrevozniciService : IPrevozniciService
         var result = await _repository.SaveChangesAsync();
         if (!result)
             throw new ConflictException("SaveFailed", "Greška prilikom ažuriranja prevoznika.");
-
-        return prevoznik.Adapt<PrevoznikDto>();
     }
 
     public async Task Delete(int prevoznikId)

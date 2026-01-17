@@ -82,13 +82,13 @@ public class PoslovnicaController : ControllerBase
     /// </summary>
     [HttpPut("{id}")]
     [Authorize(Roles = "Admin")]
-    public async Task<ActionResult<PoslovnicaReadDto>> UpdatePoslovnica(int id, [FromBody] PoslovnicaUpdateDto updateDto)
+    public async Task<IActionResult> UpdatePoslovnica(int id, [FromBody] PoslovnicaUpdateDto updateDto)
     {
         try
         {
             updateDto.PoslovnicaId = id;
-            var poslovnica = await _poslovnicaService.UpdatePoslovnicaAsync(updateDto);
-            return Ok(poslovnica);
+            await _poslovnicaService.UpdatePoslovnicaAsync(updateDto);
+            return NoContent();
         }
         catch (Exception ex)
         {

@@ -7,7 +7,7 @@ public interface IPrevozniciService
     Task<IEnumerable<PrevoznikDto>> GetAll();
     Task<PrevoznikDto> GetById(int prevoznikId);
     Task<PrevoznikDto> Create(CreatePrevoznikDto createDto);
-    Task<PrevoznikDto> Update(int prevoznikId, UpdatePrevoznikDto updateDto);
+    Task Update(int prevoznikId, UpdatePrevoznikDto updateDto);
     Task Delete(int prevoznikId);
 }
 

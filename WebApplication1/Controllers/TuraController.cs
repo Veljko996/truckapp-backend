@@ -1,4 +1,4 @@
-﻿using WebApplication1.Services.TuraServices;
+using WebApplication1.Services.TuraServices;
 
 namespace WebApplication1.Controllers;
 
@@ -43,26 +43,26 @@ public class TuraController : ControllerBase
 
 	// PATCH 2 – BUSINESS (komercijalni)
 	[HttpPatch("{id}/business")]
-    public async Task<ActionResult<TuraReadDto>> UpdateBusiness(int id, [FromBody] UpdateTureBusinessDto dto)
+    public async Task<IActionResult> UpdateBusiness(int id, [FromBody] UpdateTureBusinessDto dto)
     {
 		await _service.UpdateBusiness(id, dto);
-		return NoContent(); // 204
+		return NoContent();
 	}
 
     // PATCH 3 – NOTES (napomene/carinjenje)
     [HttpPatch("{id}/notes")]
-    public async Task<ActionResult<TuraReadDto>> UpdateNotes(int id, [FromBody] UpdateTuraNotesDto dto)
+    public async Task<IActionResult> UpdateNotes(int id, [FromBody] UpdateTuraNotesDto dto)
     {
 		await _service.UpdateNotes(id, dto);
-		return NoContent(); // 204
+		return NoContent();
 	}
 
     
     [HttpPatch("{id}/status")]
-    public async Task<ActionResult<TuraReadDto>> UpdateStatus(int id, [FromBody] UpdateTuraStatusDto dto)
+    public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateTuraStatusDto dto)
     {
 		await _service.UpdateStatus(id, dto);
-		return NoContent(); // 204
+		return NoContent();
 	}
 
     [HttpDelete("{id}")]

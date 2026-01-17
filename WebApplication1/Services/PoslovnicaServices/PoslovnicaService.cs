@@ -57,7 +57,7 @@ public class PoslovnicaService : IPoslovnicaService
         return MapToPoslovnicaReadDto(created!);
     }
 
-    public async Task<PoslovnicaReadDto> UpdatePoslovnicaAsync(PoslovnicaUpdateDto updateDto)
+    public async Task UpdatePoslovnicaAsync(PoslovnicaUpdateDto updateDto)
     {
         var poslovnica = await _poslovnicaRepository.GetByIdAsync(updateDto.PoslovnicaId);
         if (poslovnica is null)
@@ -88,9 +88,6 @@ public class PoslovnicaService : IPoslovnicaService
             throw new ConflictException("SaveFailed", "Došlo je do greške prilikom ažuriranja poslovnice.");
 
         _logger.LogInformation("Poslovnica ažurirana: {PJ} (ID: {PoslovnicaId})", poslovnica.PJ, poslovnica.PoslovnicaId);
-
-        var updated = await _poslovnicaRepository.GetByIdWithEmployeesAsync(poslovnica.PoslovnicaId);
-        return MapToPoslovnicaReadDto(updated!);
     }
 
     public async Task<bool> DeletePoslovnicaAsync(int poslovnicaId)

@@ -40,52 +40,52 @@ public class NalogController : ControllerBase
     }
 
     [HttpPut("{id}/assign-prevoznik")]
-    public async Task<ActionResult<NalogReadDto>> AssignPrevoznik(int id, [FromBody] AssignPrevoznikDto dto)
+    public async Task<IActionResult> AssignPrevoznik(int id, [FromBody] AssignPrevoznikDto dto)
     {
-        var result = await _service.AssignPrevoznik(id, dto);
-        return Ok(result);
+        await _service.AssignPrevoznik(id, dto);
+        return NoContent();
     }
 
     [HttpPut("{id}/update-business")]
-    public async Task<ActionResult<NalogReadDto>> UpdateBusiness(int id, [FromBody] UpdateBusinessFieldsDto dto)
+    public async Task<IActionResult> UpdateBusiness(int id, [FromBody] UpdateBusinessFieldsDto dto)
     {
-        var result = await _service.UpdateBusiness(id, dto);
-        return Ok(result);
+        await _service.UpdateBusiness(id, dto);
+        return NoContent();
     }
 
     [HttpPut("{id}/update-notes")]
-    public async Task<ActionResult<NalogReadDto>> UpdateNotes(int id, [FromBody] UpdateNotesDto dto)
+    public async Task<IActionResult> UpdateNotes(int id, [FromBody] UpdateNotesDto dto)
     {
-        var result = await _service.UpdateNotes(id, dto);
-        return Ok(result);
+        await _service.UpdateNotes(id, dto);
+        return NoContent();
     }
 
     [HttpPut("{id}/update-status")]
-    public async Task<ActionResult<NalogReadDto>> UpdateStatus(int id, [FromBody] UpdateStatusDto dto)
+    public async Task<IActionResult> UpdateStatus(int id, [FromBody] UpdateStatusDto dto)
     {
-        var result = await _service.UpdateStatus(id, dto);
-        return Ok(result);
+        await _service.UpdateStatus(id, dto);
+        return NoContent();
     }
 
     [HttpPut("{id}/mark-istovaren")]
-    public async Task<ActionResult<NalogReadDto>> MarkIstovaren(int id, [FromBody] MarkIstovarenDto dto)
+    public async Task<IActionResult> MarkIstovaren(int id, [FromBody] MarkIstovarenDto dto)
     {
-        var result = await _service.MarkIstovaren(id, dto);
-        return Ok(result);
+        await _service.MarkIstovaren(id, dto);
+        return NoContent();
     }
 
     [HttpPut("{id}/storniraj")]
-    public async Task<ActionResult<NalogReadDto>> Storniraj(int id)
+    public async Task<IActionResult> Storniraj(int id)
     {
-        var result = await _service.Storniraj(id);
-        return Ok(result);
+        await _service.Storniraj(id);
+        return NoContent();
     }
 
     [HttpPut("{id}/ponisti")]
-    public async Task<ActionResult<NalogReadDto>> Ponisti(int id)
+    public async Task<IActionResult> Ponisti(int id)
     {
-        var result = await _service.Ponisti(id);
-        return Ok(result);
+        await _service.Ponisti(id);
+        return NoContent();
     }
 
     [HttpGet("{id}/document")]

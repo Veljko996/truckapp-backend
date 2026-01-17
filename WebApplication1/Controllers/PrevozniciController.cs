@@ -1,4 +1,4 @@
-﻿global using Microsoft.AspNetCore.Authorization;
+global using Microsoft.AspNetCore.Authorization;
 global using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Services.PrevozniciServices;
 using WebApplication1.Utils.DTOs.PrevoznikDTO;
@@ -42,12 +42,12 @@ public class PrevozniciController : ControllerBase
     }
 
     [HttpPatch("{prevoznikId}")]
-    public async Task<ActionResult<PrevoznikDto>> Update(int prevoznikId,
+    public async Task<IActionResult> Update(int prevoznikId,
         [FromBody] UpdatePrevoznikDto updateDto)
     {
         // Service throws NotFoundException if not found - handled by middleware
-        var prevoznik = await _service.Update(prevoznikId, updateDto);
-        return Ok(prevoznik);
+        await _service.Update(prevoznikId, updateDto);
+        return NoContent();
     }
 
     [HttpDelete("{prevoznikId}")]

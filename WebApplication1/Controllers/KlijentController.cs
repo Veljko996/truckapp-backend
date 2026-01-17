@@ -37,10 +37,10 @@ public class KlijentController : ControllerBase
     }
 
     [HttpPatch("{klijentId}")]
-    public async Task<ActionResult<KlijentReadDto>> Update(int klijentId, [FromBody] KlijentUpdateDto dto)
+    public async Task<IActionResult> Update(int klijentId, [FromBody] KlijentUpdateDto dto)
     {
-        var klijent = await _service.Update(klijentId, dto);
-        return Ok(klijent);
+        await _service.Update(klijentId, dto);
+        return NoContent();
     }
 
     [HttpDelete("{klijentId}")]

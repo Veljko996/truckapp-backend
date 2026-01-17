@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WebApplication1.Services.VinjeteServices;
 
@@ -46,8 +46,8 @@ public class VinjeteController : ControllerBase
     [HttpPatch("{vinjetaId}")]
     public async Task<IActionResult> Update(int vinjetaId, [FromBody] VinjetaUpdateDto dto)
     {
-        var updated = await _service.Update(vinjetaId, dto);
-        return Ok(updated);
+        await _service.Update(vinjetaId, dto);
+        return NoContent();
     }
 
     [HttpDelete("{vinjetaId}")]
