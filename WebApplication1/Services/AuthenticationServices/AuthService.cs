@@ -1,4 +1,6 @@
 ﻿using WebApplication1.Utils;
+using WebApplication1.Utils.DTOs.UserDTO;
+using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
 
 namespace WebApplication1.Services.AuthenticationServices;
 
@@ -15,7 +17,7 @@ public class AuthService : IAuthService
         _contextAccessor = contextAccessor;
     }
 
-    public async Task<TokenResponseDto> LoginAsync(LoginUserDto request)
+    public async Task<LoginResultDto?> LoginAsync(LoginUserDto request)
     {
         if (string.IsNullOrWhiteSpace(request.Username))
             throw new ValidationException("EmptyUsername", "Korisničko ime je obavezno.");
@@ -32,7 +34,7 @@ public class AuthService : IAuthService
 
         if (passwordResult == PasswordVerificationResult.Failed)
         {
-            // ako želiš možeš brojati pokušaje logina
+            // uvedi brojac pokušaja logina
             throw new ValidationException("InvalidPassword", "Pogrešna lozinka. Pokušajte ponovo.");
         }
 
@@ -41,8 +43,21 @@ public class AuthService : IAuthService
         await _authenticationRepository.UpdateAsync(user);
         await _authenticationRepository.SaveChangesAsync();
 
-        // Sve OK, generiši token
-        return await CreateTokenResponse(user);
+        // Generiši tokene i kreiraj user DTO
+        var tokens = await CreateTokenResponse(user);
+        var userDto = new AuthUserDto
+        {
+            UserId = user.UserId,
+            Username = user.Username,
+            FullName = user.FullName,
+            Role = user.Roles.Name
+        };
+
+        return new LoginResultDto
+        {
+            Tokens = tokens,
+            User = userDto
+        };
     }
 
 

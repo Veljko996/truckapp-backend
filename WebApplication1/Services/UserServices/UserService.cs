@@ -1,4 +1,5 @@
 using WebApplication1.Repository.UserRepository;
+using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
 
 namespace WebApplication1.Services.UserServices;
 

@@ -49,62 +49,49 @@ public class TuraService : ITuraService
     }
 
 
+	public async Task UpdateBasic(int id, UpdateTuraDto dto)
+	{
+		var tura = await _repository.GetByIdAsync(id)
+			?? throw new NotFoundException("Tura", $"Tura sa ID {id} nije pronađena.");
 
-    public async Task<TuraReadDto> UpdateBasic(int id, UpdateTuraDto dto)
-    {
-        var tura = await _repository.GetByIdAsync(id)
-            ?? throw new NotFoundException("Tura", $"Tura sa ID {id} nije pronađena.");
+		dto.Adapt(tura);
+		await _repository.SaveChangesAsync();
+	}
 
-        dto.Adapt(tura);
-        
 
-        _repository.Update(tura);
-        await _repository.SaveChangesAsync();
+	public async Task UpdateBusiness(int id, UpdateTureBusinessDto dto)
+	{
+		var tura = await _repository.GetByIdAsync(id)
+			?? throw new NotFoundException("Tura", $"Tura sa ID {id} nije pronađena.");
 
-        return tura.Adapt<TuraReadDto>();
-    }
+		dto.Adapt(tura);
+		tura.StatusTure = "Dodeljena";
 
-    public async Task<TuraReadDto> UpdateBusiness(int id, UpdateTureBusinessDto dto)
-    {
-        var tura = await _repository.GetByIdAsync(id)
-            ?? throw new NotFoundException("Tura", $"Tura sa ID {id} nije pronađena.");
+		await _repository.SaveChangesAsync();
+	}
 
-        dto.Adapt(tura);
-        tura.StatusTure = "Dodeljena";
 
-        _repository.Update(tura);
-        await _repository.SaveChangesAsync();
+	public async Task UpdateNotes(int id, UpdateTuraNotesDto dto)
+	{
+		var tura = await _repository.GetByIdAsync(id)
+			?? throw new NotFoundException("Tura", $"Tura sa ID {id} nije pronađena.");
 
-        return tura.Adapt<TuraReadDto>();
-    }
+		dto.Adapt(tura);
+		await _repository.SaveChangesAsync();
+	}
 
-    public async Task<TuraReadDto> UpdateNotes(int id, UpdateTuraNotesDto dto)
-    {
-        var tura = await _repository.GetByIdAsync(id)
-            ?? throw new NotFoundException("Tura", $"Tura sa ID {id} nije pronađena.");
 
-        dto.Adapt(tura);
+	public async Task UpdateStatus(int id, UpdateTuraStatusDto dto)
+	{
+		var tura = await _repository.GetByIdAsync(id)
+			?? throw new NotFoundException("Tura", $"Tura sa ID {id} nije pronađena.");
 
-        _repository.Update(tura);
-        await _repository.SaveChangesAsync();
+		dto.Adapt(tura);
+		await _repository.SaveChangesAsync();
+	}
 
-        return tura.Adapt<TuraReadDto>();
-    }
 
-    public async Task<TuraReadDto> UpdateStatus(int id, UpdateTuraStatusDto dto)
-    {
-        var tura = await _repository.GetByIdAsync(id)
-            ?? throw new NotFoundException("Tura", $"Tura sa ID {id} nije pronađena.");
-
-        dto.Adapt(tura);
-
-        _repository.Update(tura);
-        await _repository.SaveChangesAsync();
-
-        return tura.Adapt<TuraReadDto>();
-    }
-
-    public async Task<bool> Delete(int id)
+	public async Task<bool> Delete(int id)
     {
         var tura = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Tura", $"Tura sa ID {id} nije pronađena.");

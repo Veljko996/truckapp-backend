@@ -1,4 +1,6 @@
-﻿namespace WebApplication1.Services.NasaVozilaServices;
+﻿using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
+
+namespace WebApplication1.Services.NasaVozilaServices;
 
 public class NasaVozilaService : INasaVozilaService
 {

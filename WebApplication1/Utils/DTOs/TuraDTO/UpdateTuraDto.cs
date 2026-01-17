@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace WebApplication1.Utils.DTOs.TuraDTO;
+﻿namespace WebApplication1.Utils.DTOs.TuraDTO;
 
 public class UpdateTuraDto
 {

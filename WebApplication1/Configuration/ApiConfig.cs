@@ -1,5 +1,6 @@
-﻿using WebApplication1.Services.AuthenticationServices;
+using WebApplication1.Services.AuthenticationServices;
 using WebApplication1.Services.DashboardServices;
+using WebApplication1.Services.ExceptionServices;
 using WebApplication1.Services.NasaVozilaServices;
 using WebApplication1.Services.PoslovnicaServices;
 using WebApplication1.Services.PrevozniciServices;
@@ -35,6 +36,9 @@ public static class ApiConfig
         
         builder.Services.AddScoped<ILoggingRepository, LoggingRepository>();
         builder.Services.AddScoped<ILogService, LogService>();
+        
+        // Exception handling services
+        builder.Services.AddSingleton<IExceptionMessageService, ExceptionMessageService>();
         
         builder.Services.AddScoped<ITureRepository, TureRepository>();
         builder.Services.AddScoped<ITuraService, TuraService>();

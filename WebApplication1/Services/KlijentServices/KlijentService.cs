@@ -1,6 +1,7 @@
 using WebApplication1.Repository.KlijentRepository;
 using WebApplication1.Utils.DTOs.KlijentDTO;
 using WebApplication1.Utils.Exceptions;
+using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
 
 namespace WebApplication1.Services.KlijentServices;
 

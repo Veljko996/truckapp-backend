@@ -1,4 +1,6 @@
-﻿namespace WebApplication1.Services.VinjeteServices;
+﻿using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
+
+namespace WebApplication1.Services.VinjeteServices;
 
 public class VinjeteService : IVinjeteService
 {

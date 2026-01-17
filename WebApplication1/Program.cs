@@ -1,4 +1,4 @@
-﻿using MapsterMapper;
+using MapsterMapper;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using QuestPDF.Infrastructure;
 using WebApplication1.Configuration;
@@ -119,6 +119,10 @@ builder.Services.AddSwaggerConfiguration();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
 
+// ================= EXCEPTION HANDLING =================
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
+builder.Services.AddProblemDetails();
+
 
 var app = builder.Build();
 
@@ -145,7 +149,8 @@ if (!app.Environment.IsDevelopment())
 }
 app.UseCors("AllowFrontend");
 
-app.UseMiddleware<ErrorHandlerMiddleware>();
+// Modern exception handling (replaces ErrorHandlerMiddleware)
+app.UseExceptionHandler();
 
 app.UseAuthentication();   
 app.UseAuthorization();
