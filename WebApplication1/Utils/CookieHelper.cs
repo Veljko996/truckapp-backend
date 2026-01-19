@@ -26,7 +26,7 @@ public static class CookieHelper
 				SameSite = sameSite,
 				Path = "/",
 				IsEssential = true,
-				Expires = DateTime.UtcNow.AddMinutes(30)
+				Expires = DateTime.UtcNow.AddHours(7)
 			});
 
 		response.Cookies.Append(
