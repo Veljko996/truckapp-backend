@@ -13,5 +13,6 @@ public class UpdateBusinessFieldsDto
     public string? Uvoznik { get; set; }
     public string? UvoznoCarinjenje { get; set; }
     public string? IzvoznoCarinjenje { get; set; }
+	public int? PrevoznikId { get; set; }
 }
 
