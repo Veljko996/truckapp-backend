@@ -36,13 +36,12 @@ public class GlobalExceptionHandler : IExceptionHandler
         Exception exception,
         CancellationToken cancellationToken)
     {
-        // If response has already started, we can't modify it
         if (httpContext.Response.HasStarted)
         {
-            _logger.LogError(exception, 
-                "Exception occurred but response has already started. Exception: {Message}", 
+            _logger.LogError(exception,
+                "Exception occurred but response has already started. Exception: {Message}",
                 exception.Message);
-            return false; // Let ASP.NET Core handle it
+            return false;
         }
 
         try
@@ -50,11 +49,8 @@ public class GlobalExceptionHandler : IExceptionHandler
             var errorDetails = MapExceptionToErrorDetails(exception);
             var errorResponse = CreateErrorResponse(httpContext, exception, errorDetails);
 
-            // Log to database (best-effort, non-blocking)
-            // Fire and forget - don't await to avoid blocking the response
             _ = LogExceptionAsync(httpContext, exception, errorDetails, cancellationToken);
 
-            // Set response
             httpContext.Response.StatusCode = errorResponse.Status;
             httpContext.Response.ContentType = "application/json";
 
@@ -66,63 +62,54 @@ public class GlobalExceptionHandler : IExceptionHandler
 
             await httpContext.Response.WriteAsJsonAsync(errorResponse, jsonOptions, cancellationToken);
 
-            return true; // Exception handled
+            return true;
         }
         catch (Exception handlerException)
         {
-            // Critical: Never throw exceptions from exception handler
             _logger.LogCritical(handlerException,
-                "CRITICAL: GlobalExceptionHandler failed to handle exception. Original: {OriginalMessage}",
+                "CRITICAL: GlobalExceptionHandler failed. Original: {Message}",
                 exception.Message);
 
-            // Try to send a basic error response if possible
             if (!httpContext.Response.HasStarted)
             {
-                try
-                {
-                    httpContext.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                    httpContext.Response.ContentType = "application/json";
-                    await httpContext.Response.WriteAsJsonAsync(
-                        new ErrorResponseDto
-                        {
-                            Status = 500,
-                            Message = "An error occurred while processing your request.",
-                            TraceId = httpContext.TraceIdentifier,
-                            Timestamp = DateTime.UtcNow
-                        },
-                        cancellationToken: cancellationToken);
-                }
-                catch
-                {
-                    // If even this fails, just log - don't throw
-                    _logger.LogCritical("Failed to send error response");
-                }
+                httpContext.Response.StatusCode = 500;
+                httpContext.Response.ContentType = "application/json";
+                await httpContext.Response.WriteAsJsonAsync(
+                    new ErrorResponseDto
+                    {
+                        Status = 500,
+                        Message = "An error occurred.",
+                        TraceId = httpContext.TraceIdentifier,
+                        Timestamp = DateTime.UtcNow
+                    },
+                    cancellationToken);
             }
 
-            return true; // Mark as handled to prevent further processing
+            return true;
         }
     }
 
-    private (HttpStatusCode StatusCode, string Key, string SubKey, string? Type) MapExceptionToErrorDetails(Exception exception)
+    private (HttpStatusCode StatusCode, string Key, string SubKey, string? Type)
+        MapExceptionToErrorDetails(Exception exception)
     {
         return exception switch
         {
-            NotFoundException nf => 
+            NotFoundException nf =>
                 (HttpStatusCode.NotFound, nameof(NotFoundException), nf.SubKey, "NotFoundException"),
-            
-            ValidationException ve => 
+
+            ValidationException ve =>
                 (HttpStatusCode.BadRequest, nameof(ValidationException), ve.SubKey, "ValidationException"),
-            
-            ConflictException ce => 
+
+            ConflictException ce =>
                 (HttpStatusCode.Conflict, nameof(ConflictException), ce.SubKey, "ConflictException"),
-            
-            AppException ae => 
+
+            AppException ae =>
                 (HttpStatusCode.BadRequest, nameof(AppException), ae.SubKey, "AppException"),
-            
-            UnauthorizedAccessException => 
+
+            UnauthorizedAccessException =>
                 (HttpStatusCode.Unauthorized, "UnauthorizedAccessException", string.Empty, "UnauthorizedAccessException"),
-            
-            _ => 
+
+            _ =>
                 (HttpStatusCode.InternalServerError, "InternalServerError", string.Empty, "InternalServerError")
         };
     }
@@ -132,25 +119,20 @@ public class GlobalExceptionHandler : IExceptionHandler
         Exception exception,
         (HttpStatusCode StatusCode, string Key, string SubKey, string? Type) errorDetails)
     {
-        // Get localized message
         var preferredLanguage = GetPreferredLanguage(httpContext);
         var message = _messageService.GetMessage(errorDetails.Key, errorDetails.SubKey, preferredLanguage)
                      ?? exception.Message;
 
-        // Create details object for development mode
-        object? details = _env.IsDevelopment() ? new
-        {
-            ExceptionType = exception.GetType().Name,
-            ExceptionMessage = exception.Message,
-            StackTrace = exception.StackTrace,
-            InnerException = exception.InnerException != null ? new
+        object? details = _env.IsDevelopment()
+            ? new
             {
-                Type = exception.InnerException.GetType().Name,
-                Message = exception.InnerException.Message
-            } : null
-        } : null;
+                ExceptionType = exception.GetType().Name,
+                ExceptionMessage = exception.Message,
+                StackTrace = exception.StackTrace
+            }
+            : null;
 
-        var response = new ErrorResponseDto
+        return new ErrorResponseDto
         {
             Status = (int)errorDetails.StatusCode,
             Message = message,
@@ -159,22 +141,14 @@ public class GlobalExceptionHandler : IExceptionHandler
             Timestamp = DateTime.UtcNow,
             Details = details
         };
-
-        return response;
     }
 
     private string GetPreferredLanguage(HttpContext httpContext)
     {
-        // Try to get language from Accept-Language header
         var acceptLanguage = httpContext.Request.Headers["Accept-Language"].ToString();
-        
-        if (acceptLanguage.Contains("sr", StringComparison.OrdinalIgnoreCase) ||
-            acceptLanguage.Contains("sr-Latn", StringComparison.OrdinalIgnoreCase))
-        {
-            return "sr-Latn";
-        }
-
-        return "en-US";
+        return acceptLanguage.Contains("sr", StringComparison.OrdinalIgnoreCase)
+            ? "sr-Latn"
+            : "en-US";
     }
 
     private async Task LogExceptionAsync(
@@ -183,8 +157,6 @@ public class GlobalExceptionHandler : IExceptionHandler
         (HttpStatusCode StatusCode, string Key, string SubKey, string? Type) errorDetails,
         CancellationToken cancellationToken)
     {
-        // Use service scope factory to create a scope for scoped services
-        // This is necessary because IExceptionHandler is singleton but ILogService is scoped
         try
         {
             using var scope = _serviceScopeFactory.CreateScope();
@@ -192,6 +164,7 @@ public class GlobalExceptionHandler : IExceptionHandler
 
             var controller = httpContext.Request.RouteValues["controller"]?.ToString() ?? "Unknown";
             var action = httpContext.Request.RouteValues["action"]?.ToString() ?? "Unknown";
+
             var userId = GetUserId(httpContext);
 
             var log = new Log
@@ -201,27 +174,25 @@ public class GlobalExceptionHandler : IExceptionHandler
                 Activity = action,
                 IpAddress = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
                 Message = $"EXCEPTION [{errorDetails.Type}]: {exception.Message}",
-                UserId = userId
+                UserId = userId,
+
+                RequestPath = httpContext.Request.Path + httpContext.Request.QueryString,
+                RequestMethod = httpContext.Request.Method,
+                HasAccessTokenCookie = httpContext.Request.Cookies.ContainsKey("accessToken"),
+                HasRefreshTokenCookie = httpContext.Request.Cookies.ContainsKey("refreshToken")
             };
 
             await logService.CreateAsync(log);
         }
         catch (Exception logEx)
         {
-            // Don't let logging failure affect the response
-            _logger.LogError(logEx,
-                "LogService failed to write exception log. Original exception: {OriginalMessage}",
-                exception.Message);
+            _logger.LogError(logEx, "Failed to write exception log");
         }
     }
 
     private static int GetUserId(HttpContext httpContext)
     {
-        var userIdClaim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier);
-        if (userIdClaim != null && int.TryParse(userIdClaim.Value, out var userId))
-        {
-            return userId;
-        }
-        return 0;
+        var claim = httpContext.User.FindFirst(ClaimTypes.NameIdentifier);
+        return claim != null && int.TryParse(claim.Value, out var id) ? id : 0;
     }
 }

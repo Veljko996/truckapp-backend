@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace WebApplication1.DataAccess.Models;
 public class Log
@@ -25,4 +25,14 @@ public class Log
     public string? IpAddress { get; set; }
 
     public int? EntityId { get; set; }
+
+    [MaxLength(1000)]
+    public string? RequestPath { get; set; }
+
+    [MaxLength(10)]
+    public string? RequestMethod { get; set; }
+
+    public bool? HasAccessTokenCookie { get; set; }
+
+    public bool? HasRefreshTokenCookie { get; set; }
 }

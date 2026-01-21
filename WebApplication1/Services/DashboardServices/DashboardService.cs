@@ -142,6 +142,14 @@ public class DashboardService : IDashboardService
     private async Task<List<LogDto>> GetNajnovijiLogoviAsync(CancellationToken cancellationToken)
     {
         var logovi = await _repository.GetNajnovijiLogoviAsync(RECENT_LOGS_COUNT, cancellationToken);
-        return logovi.Select(l => new LogDto { LogId = l.LogId, HappenedAtDate = l.HappenedAtDate, Process = l.Process, Activity = l.Activity, Message = l.Message, UserName = l.User?.Username }).ToList();
+        return logovi.Select(l => new LogDto 
+        { 
+            LogId = l.LogId, 
+            HappenedAtDate = l.HappenedAtDate, 
+            Process = l.Process, 
+            Activity = l.Activity, 
+            Message = l.Message, 
+            UserName = l.User?.Username
+        }).ToList();
     }
 }
