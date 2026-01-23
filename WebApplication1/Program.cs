@@ -22,8 +22,11 @@ builder.Services.AddCors(options =>
         var allowedOrigins = new[]
         {
             "http://localhost:5173",
-            "https://gray-mushroom-0a8684603.3.azurestaticapps.net"
-        };
+            "https://gray-mushroom-0a8684603.3.azurestaticapps.net",
+            "https://nalogflow.rs",
+			"https://www.nalogflow.rs"
+
+		};
 
         var additionalOrigins = builder.Configuration
             .GetSection("Cors:AllowedOrigins")
