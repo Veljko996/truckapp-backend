@@ -9,8 +9,6 @@ public class DashboardService : IDashboardService
     private readonly ILogger<DashboardService> _logger;
     private const int DAYS_THRESHOLD_DOCUMENTS = 7;
     private const int TOP_TURE_COUNT = 5;
-    private const int RECENT_LOGS_COUNT = 10;
-    private const int REVENUE_DAYS = 30;
 
     public DashboardService(IDashboardRepository repository, ILogger<DashboardService> logger)
     {
@@ -23,22 +21,20 @@ public class DashboardService : IDashboardService
         try
         {
             var kpi = await GetKPIDataAsync(cancellationToken);
-            var tureStatus = await GetTureStatusDistribucijaAsync(cancellationToken);
-            var naloziStatus = await GetNaloziStatusDistribucijaAsync(cancellationToken);
-            var prihod30Dana = await GetPrihod30DanaAsync(cancellationToken);
             var topTure = await GetTopTureAsync(cancellationToken);
             var kriticnaVozila = await GetKriticnaVozilaAsync(cancellationToken);
-            var logovi = await GetNajnovijiLogoviAsync(cancellationToken);
+            var topCarriers = await GetTop5CarriersAsync(cancellationToken);
+            var topClients = await GetTop5ClientsByProfitAsync(cancellationToken);
+            var lateUnloadNalogs = await GetLateUnloadNalogsAsync(cancellationToken);
 
             return new DashboardOverviewDto
             {
                 Kpi = kpi,
-                TureStatusDistribucija = tureStatus,
-                NaloziStatusDistribucija = naloziStatus,
-                Prihod30Dana = prihod30Dana,
                 TopTure = topTure,
                 KriticnaVozila = kriticnaVozila,
-                NajnovijiLogovi = logovi
+                TopCarriers = topCarriers,
+                TopClients = topClients,
+                LateUnloadNalogs = lateUnloadNalogs
             };
         }
         catch (Exception ex)
@@ -50,67 +46,57 @@ public class DashboardService : IDashboardService
 
     private async Task<KPIDto> GetKPIDataAsync(CancellationToken cancellationToken)
     {
-        var startDate = DateTime.UtcNow.AddDays(-REVENUE_DAYS).Date;
-        var endDate = DateTime.UtcNow.Date;
         var kriticnaVozila = await _repository.GetVozilaSaIsticucimDokumentimaAsync(DAYS_THRESHOLD_DOCUMENTS, cancellationToken);
+        var profit = await _repository.GetProfitLast30DaysAsync();
 
         return new KPIDto
         {
             UkupnoTura = await _repository.GetTotalTureCountAsync(),
             AktivneTure = await _repository.GetAktivneTureCountAsync(),
-            UkupnoNalozi = await _repository.GetTotalNaloziCountAsync(),
+            TotalNalogsCount = await _repository.GetTotalNaloziCountAsync(),
             AktivniNalozi = await _repository.GetAktivniNaloziCountAsync(),
-            DanasnjiPrihod = await _repository.GetPrihodZaDanasAsync(),
-            Prihod30Dana = await _repository.GetPrihodZaPeriodAsync(startDate, endDate),
             UkupnoVozila = await _repository.GetTotalVozilaCountAsync(),
             AktivnaVozila = await _repository.GetAktivnaVozilaCountAsync(),
             VozilaSaIsticucimDokumentima = kriticnaVozila.Count,
             AktivniKlijenti = await _repository.GetAktivniKlijentiCountAsync(),
-            AktivniPrevoznici = await _repository.GetAktivniPrevozniciCountAsync()
+            AktivniPrevoznici = await _repository.GetAktivniPrevozniciCountAsync(),
+            ActiveNalogsCount = await _repository.GetActiveNalogsCountAsync(),
+            LateUnloadNalogsCount = await _repository.GetLateUnloadNalogsCountAsync(),
+            ProfitLast30DaysEUR = profit.ProfitEUR,
+            ProfitLast30DaysRSD = profit.ProfitRSD
         };
     }
 
-    private async Task<List<StatusDistribucijaDto>> GetTureStatusDistribucijaAsync(CancellationToken cancellationToken)
-    {
-        var distribucija = await _repository.GetTureStatusDistribucijaAsync();
-        return distribucija.Select(d => new StatusDistribucijaDto { Status = d.Key, Broj = d.Value })
-            .OrderByDescending(d => d.Broj).ToList();
-    }
 
-    private async Task<List<StatusDistribucijaDto>> GetNaloziStatusDistribucijaAsync(CancellationToken cancellationToken)
+    private async Task<List<LateUnloadNalogDto>> GetLateUnloadNalogsAsync(CancellationToken cancellationToken)
     {
-        var distribucija = await _repository.GetNaloziStatusDistribucijaAsync();
-        return distribucija.Select(d => new StatusDistribucijaDto { Status = d.Key, Broj = d.Value })
-            .OrderByDescending(d => d.Broj).ToList();
-    }
-
-    private async Task<List<Prihod30DanaDto>> GetPrihod30DanaAsync(CancellationToken cancellationToken)
-    {
-        var startDate = DateTime.UtcNow.AddDays(-REVENUE_DAYS).Date;
-        var endDate = DateTime.UtcNow.Date;
-        var prihodByDate = await _repository.GetPrihodByDateAsync(startDate, endDate);
-        var prihodDict = prihodByDate.ToDictionary(p => p.Datum, p => p.Suma);
-        
-        var result = new List<Prihod30DanaDto>();
-        for (var datum = startDate; datum <= endDate; datum = datum.AddDays(1))
-            result.Add(new Prihod30DanaDto { Datum = datum, Suma = prihodDict.GetValueOrDefault(datum, 0) });
-        
-        return result;
+        var nalogs = await _repository.GetLateUnloadNalogsAsync(cancellationToken);
+        return nalogs.Select(n => new LateUnloadNalogDto
+        {
+            NalogId = n.NalogId,
+            NalogBroj = n.NalogBroj ?? $"Nalog-{n.NalogId}",
+            ClientName = n.Tura?.Klijent?.NazivFirme ?? "N/A",
+            PlannedUnloadDate = n.DatumIstovara,
+            Status = n.StatusNaloga ?? "Nepoznat"
+        }).ToList();
     }
 
     private async Task<List<TopTuraDto>> GetTopTureAsync(CancellationToken cancellationToken)
     {
-        var topTure = await _repository.GetTopTureByPriceAsync(TOP_TURE_COUNT, cancellationToken);
-        return topTure.Select(t => new TopTuraDto
+        var topTure = await _repository.GetTopTureByProfitAsync(TOP_TURE_COUNT, cancellationToken);
+        return topTure.Select(t =>
         {
-            TuraId = t.TuraId,
-            RedniBroj = t.RedniBroj ?? $"Tura-{t.TuraId}",
-            Relacija = $"{t.MestoUtovara} - {t.MestoIstovara}",
-            UlaznaCena = t.UlaznaCena ?? 0,
-            PrevoznikNaziv = t.Prevoznik?.Naziv ?? "N/A",
-            VoziloNaziv = t.Vozilo?.Naziv,
-            KlijentNaziv = t.Klijent?.NazivFirme,
-            StatusTure = t.StatusTure
+            var profit = (t.IzlaznaCena ?? 0) - (t.UlaznaCena ?? 0);
+            var valuta = t.Valuta ?? "RSD";
+
+            return new TopTuraDto
+            {
+                TuraId = t.TuraId,
+                RedniBroj = t.RedniBroj ?? $"Tura-{t.TuraId}",
+                Relacija = $"{t.MestoUtovara} - {t.MestoIstovara}",
+                ProfitEUR = valuta == "EUR" ? profit : null,
+                ProfitRSD = valuta == "RSD" || valuta == null ? profit : null
+            };
         }).ToList();
     }
 
@@ -139,17 +125,26 @@ public class DashboardService : IDashboardService
         return kriticna.OrderBy(k => k.DanaDoIsteka).ThenBy(k => k.VoziloId).ToList();
     }
 
-    private async Task<List<LogDto>> GetNajnovijiLogoviAsync(CancellationToken cancellationToken)
+    private async Task<List<TopCarrierDto>> GetTop5CarriersAsync(CancellationToken cancellationToken)
     {
-        var logovi = await _repository.GetNajnovijiLogoviAsync(RECENT_LOGS_COUNT, cancellationToken);
-        return logovi.Select(l => new LogDto 
-        { 
-            LogId = l.LogId, 
-            HappenedAtDate = l.HappenedAtDate, 
-            Process = l.Process, 
-            Activity = l.Activity, 
-            Message = l.Message, 
-            UserName = l.User?.Username
+        var carriers = await _repository.GetTop5CarriersLast30DaysAsync(cancellationToken);
+        return carriers.Select(c => new TopCarrierDto
+        {
+            CarrierId = c.PrevoznikId,
+            CarrierName = c.Naziv,
+            TotalToursCount = c.TotalToursCount
+        }).ToList();
+    }
+
+    private async Task<List<TopClientDto>> GetTop5ClientsByProfitAsync(CancellationToken cancellationToken)
+    {
+        var clients = await _repository.GetTop5ClientsByProfitLast30DaysAsync(cancellationToken);
+        return clients.Select(c => new TopClientDto
+        {
+            ClientId = c.KlijentId,
+            ClientName = c.NazivFirme,
+            TotalProfitEUR = c.ProfitEUR,
+            TotalProfitRSD = c.ProfitRSD
         }).ToList();
     }
 }

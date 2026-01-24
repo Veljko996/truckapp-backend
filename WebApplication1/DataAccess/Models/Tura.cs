@@ -46,7 +46,7 @@ public class Tura
     public decimal? IzlaznaCena { get; set; }
 
     [MaxLength(10)]
-    public string? Valuta { get; set; } = "EUR";
+    public string? Valuta { get; set; } = "RSD";
 
     [MaxLength(50)]
     public string StatusTure { get; set; } = "Kreirana";
