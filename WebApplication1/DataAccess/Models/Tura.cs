@@ -22,10 +22,10 @@ public class Tura
     public DateTime? DatumUtovara { get; set; }
     public DateTime? DatumIstovara { get; set; }
 
-    [MaxLength(100)]
+    [MaxLength(150)]
     public string? KolicinaRobe { get; set; }
 
-    [MaxLength(50)]
+    [MaxLength(150)]
     public string? Tezina { get; set; }
 
     [MaxLength(350)]
