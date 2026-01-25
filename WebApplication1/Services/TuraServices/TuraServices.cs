@@ -43,11 +43,42 @@ public class TuraService : ITuraService
         _repository.Add(tura);
         await _repository.SaveChangesAsync();
 
-        // 5) Re-query ako ti treba kompletan graf
         var created = await _repository.GetByIdAsync(tura.TuraId);
         return created!.Adapt<TuraReadDto>();
     }
+	public async Task<TuraReadDto> RecreateAsync(int sourceTuraId)
+	{
+		var source = await _repository.GetByIdAsync(sourceTuraId);
+		if (source is null)
+			throw new NotFoundException("Tura ne postoji");
 
+		var newRedniBroj = await _repository.GetNextTuraBrojAsync();
+
+		var newTura = new Tura
+		{
+			KlijentId = source.KlijentId,
+			PrevoznikId = source.PrevoznikId,
+			VrstaNadogradnjeId = source.VrstaNadogradnjeId,
+			VoziloId = source.VoziloId,
+
+			MestoUtovara = source.MestoUtovara,
+			MestoIstovara = source.MestoIstovara,
+
+			KolicinaRobe = source.KolicinaRobe,
+			Tezina = source.Tezina,
+
+			DatumUtovara = null,
+			DatumIstovara = null,
+
+			RedniBroj = newRedniBroj,
+			StatusTure = "Kreirana"
+		};
+
+		_repository.Add(newTura);
+		await _repository.SaveChangesAsync();
+
+		return newTura.Adapt<TuraReadDto>();
+	}
 
 	public async Task UpdateBasic(int id, UpdateTuraDto dto)
 	{

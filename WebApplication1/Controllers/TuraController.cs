@@ -34,6 +34,14 @@ public class TuraController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = created.TuraId }, created);
     }
 
+	[HttpPost("{id}/recreate")]
+	public async Task<ActionResult<TuraReadDto>> Recreate(int id)
+	{
+		var created = await _service.RecreateAsync(id);
+		return CreatedAtAction(nameof(GetById), new { id = created.TuraId }, created);
+	}
+
+
 	[HttpPatch("{id}/basic")]
 	public async Task<IActionResult> UpdateBasic(int id, UpdateTuraDto dto)
 	{

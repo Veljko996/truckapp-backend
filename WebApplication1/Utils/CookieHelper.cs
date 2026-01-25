@@ -13,7 +13,7 @@ public static class CookieHelper
 	{
 		var isDev = env.IsDevelopment();
 
-		var sameSite = isDev ? SameSiteMode.None : SameSiteMode.None;
+		var sameSite = isDev ? SameSiteMode.Lax : SameSiteMode.None;
 		var secure = !isDev;
 
 		response.Cookies.Append(
@@ -50,7 +50,7 @@ public static class CookieHelper
 		{
 			HttpOnly = true,
 			Secure = !isDev,
-			SameSite = isDev ? SameSiteMode.None : SameSiteMode.None,
+			SameSite = isDev ? SameSiteMode.Lax : SameSiteMode.None,
 			Path = "/",
 			Expires = DateTimeOffset.UtcNow.AddDays(-1)
 		});
@@ -59,7 +59,7 @@ public static class CookieHelper
 		{
 			HttpOnly = true,
 			Secure = !isDev,
-			SameSite = isDev ? SameSiteMode.None : SameSiteMode.None,
+			SameSite = isDev ? SameSiteMode.Lax : SameSiteMode.None,
 			Path = "/",
 			Expires = DateTimeOffset.UtcNow.AddDays(-1)
 		});

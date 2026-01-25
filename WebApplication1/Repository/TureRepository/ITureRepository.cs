@@ -4,7 +4,6 @@ public interface ITureRepository
 {
     IQueryable<Tura> GetAll();
     Task<Tura?> GetByIdAsync(int id);
-
     void Add(Tura tura);
     void Update(Tura tura); 
     void Delete(Tura tura);
