@@ -59,8 +59,8 @@ public class NalogService : INalogService
         nalog.Tezina = tura.Tezina;
 
         nalog.PrevoznikId = tura.PrevoznikId;
-        nalog.IzvoznoCarinjenje = tura.IzvoznoCarinjenje;
-        nalog.UvoznoCarinjenje = tura.UvoznoCarinjenje;
+        //nalog.IzvoznoCarinjenje = tura.IzvoznoCarinjenje;
+        //nalog.UvoznoCarinjenje = tura.UvoznoCarinjenje;
 
         // 4) Sistemsка polja
         nalog.CreatedAt = DateTime.UtcNow;
