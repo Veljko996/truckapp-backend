@@ -12,30 +12,29 @@ public class Tura
     public string? RedniBroj { get; set; }
 
     [Required]
-    [MaxLength(150)]
+    
     public string MestoUtovara { get; set; } = string.Empty;
 
     [Required]
-    [MaxLength(150)]
+    
     public string MestoIstovara { get; set; } = string.Empty;
 
     public DateTime? DatumUtovara { get; set; }
     public DateTime? DatumIstovara { get; set; }
 
-    [MaxLength(150)]
+
     public string? KolicinaRobe { get; set; }
 
-    [MaxLength(150)]
     public string? Tezina { get; set; }
 
     [MaxLength(350)]
     public string? NapomenaKlijenta { get; set; }
     public string? Napomena { get; set; }
     // Carinjenje – dodatno u detail fazi
-    [MaxLength(200)]
+
     public string? IzvoznoCarinjenje { get; set; }
 
-    [MaxLength(200)]
+
     public string? UvoznoCarinjenje { get; set; }
 
     // Finansije – detail faza
