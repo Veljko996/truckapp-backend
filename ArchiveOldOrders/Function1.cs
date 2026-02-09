@@ -34,11 +34,11 @@ public class ArchiveOldOrdersFunction
 
 			var cmd = conn.CreateCommand();
 			cmd.CommandText = @"
-                UPDATE Nalog
+                UPDATE Nalozi
                 SET IsArchived = 1,
                     ArchivedAt = SYSUTCDATETIME()
                 WHERE IsArchived = 0
-                  AND Status = N'Završen'
+                  AND StatusNaloga = N'Završen'
                   AND DatumIstovara < DATEADD(day, -30, SYSUTCDATETIME());
             ";
 
