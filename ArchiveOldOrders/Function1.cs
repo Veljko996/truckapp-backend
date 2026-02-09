@@ -1,5 +1,6 @@
 
 using Microsoft.Azure.Functions.Worker;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
 
 namespace ArchiveOldOrders;
@@ -29,7 +30,8 @@ public class ArchiveOldOrdersFunction
 
 		try
 		{
-			using var conn = new SqlConnectionString(connectionString);
+			using var conn = new SqlConnection(connectionString);
+
 			await conn.OpenAsync();
 
 			var cmd = conn.CreateCommand();
