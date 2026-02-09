@@ -8,6 +8,7 @@ public class Nalog
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int NalogId { get; set; }
     public string? NalogBroj { get; set; }
+    public bool? isArchived { get; set; } = false;
 
     #region polja koja se povlače iz ture i ne menjaju se 
     public int TuraId { get; set; }
