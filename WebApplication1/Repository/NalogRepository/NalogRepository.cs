@@ -39,7 +39,7 @@ public class NalogRepository : INalogRepository
             .AsNoTracking()
             .Include(n => n.Prevoznik)
             .Include(n => n.Tura)
-            .Where(n => n.Prevoznik != null && n.Prevoznik.Interni)
+            .Where(n => n.Prevoznik!.Interni)
             .OrderByDescending(n => n.NalogId);
     }
 
