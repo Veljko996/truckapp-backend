@@ -32,6 +32,17 @@ public class NalogRepository : INalogRepository
             .OrderByDescending(n => n.NalogId);
     }
 
+    public IQueryable<Nalog> GetInterni()
+    {
+        return _context
+            .Nalozi
+            .AsNoTracking()
+            .Include(n => n.Prevoznik)
+            .Include(n => n.Tura)
+            .Where(n => n.Prevoznik != null && n.Prevoznik.Interni)
+            .OrderByDescending(n => n.NalogId);
+    }
+
     public void Add(Nalog nalog)
     {
         _context.Nalozi.Add(nalog);

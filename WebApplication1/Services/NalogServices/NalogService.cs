@@ -28,6 +28,13 @@ public class NalogService : INalogService
             .ToListAsync();
     }
 
+    public async Task<IEnumerable<NalogReadDto>> GetInterniAsync()
+    {
+        return await _repository.GetInterni()
+            .Select(n => n.Adapt<NalogReadDto>())
+            .ToListAsync();
+    }
+
     public async Task<NalogReadDto?> GetById(int id)
     {
         var nalog = await _repository.GetByIdAsync(id);

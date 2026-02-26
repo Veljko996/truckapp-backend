@@ -25,7 +25,14 @@ public class NalogController : ControllerBase
         return Ok(result);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("interni")]
+    public async Task<ActionResult<IEnumerable<NalogReadDto>>> GetInterni()
+    {
+        var result = await _service.GetInterniAsync();
+        return Ok(result);
+    }
+
+    [HttpGet("{id:int}")]
     public async Task<ActionResult<NalogReadDto>> GetById(int id)
     {
         var result = await _service.GetById(id);
@@ -88,7 +95,7 @@ public class NalogController : ControllerBase
         return NoContent();
     }
 
-    [HttpGet("{id}/document")]
+    [HttpGet("{id:int}/document")]
     public async Task<IActionResult> GenerateDocument(
         int id,
         [FromQuery] string template = "mts"

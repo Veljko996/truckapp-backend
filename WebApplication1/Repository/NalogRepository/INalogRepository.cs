@@ -3,6 +3,7 @@ namespace WebApplication1.Repository.NalogRepository;
 public interface INalogRepository
 {
     IQueryable<Nalog> GetAll();
+    IQueryable<Nalog> GetInterni();
     Task<Nalog?> GetByIdAsync(int id);
     Task<string> GetNextNalogBrojAsync();
 

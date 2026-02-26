@@ -1,4 +1,4 @@
-﻿using System.Data;
+using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -56,13 +56,30 @@ public class TureRepository : ITureRepository
             Direction = ParameterDirection.Output
         };
 
-        await _context.Database.ExecuteSqlRawAsync(
-            "EXEC dbo.GetNextDocumentNumber @DocumentType, @Result OUTPUT",
-            new SqlParameter("@DocumentType", "TURA"),
-            output
-        );
+        try
+        {
+            await _context.Database.ExecuteSqlRawAsync(
+                "EXEC dbo.GetNextDocumentNumber @DocumentType, @Result OUTPUT",
+                new SqlParameter("@DocumentType", "TURA"),
+                output
+            );
+        }
+        catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Message.Contains("converting") && ex.Message.Contains("nvarchar"))
+        {
+            throw new InvalidOperationException(
+                "GetNextDocumentNumber u bazi verovatno uzrokuje grešku tipa (nvarchar→int). Proveri proceduru i tabelu brojača.",
+                ex
+            );
+        }
 
-        return (string)output.Value!;
+        var value = output.Value;
+        if (value == null || (value is string s && string.IsNullOrWhiteSpace(s)))
+        {
+            var fallback = "TURA-" + DateTime.UtcNow.Year + "-" + Guid.NewGuid().ToString("N")[..6];
+            return fallback;
+        }
+
+        return (string)value;
     }
 
     public async Task<bool> SaveChangesAsync()

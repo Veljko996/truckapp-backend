@@ -1,4 +1,4 @@
-﻿using WebApplication1.Utils.DTOs.NalogDTO;
+using WebApplication1.Utils.DTOs.NalogDTO;
 
 namespace WebApplication1.Utils.Mapping;
 
@@ -26,6 +26,7 @@ public static class MappingConfig
           .Ignore(dest => dest.Prevoznik)
           .Ignore(dest => dest.Vozilo)
           .Ignore(dest => dest.Klijent)
+          .Ignore(dest => dest.VrstaNadogradnje)
           .Ignore(dest => dest.KreiranPutniNalog);
 
 

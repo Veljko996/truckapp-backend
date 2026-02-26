@@ -1,4 +1,4 @@
-﻿
+
 namespace WebApplication1.DataAccess.Models;
 
 public class Tura

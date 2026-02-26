@@ -1,4 +1,4 @@
-﻿using WebApplication1.Utils.Helper;
+using WebApplication1.Utils.Helper;
 
 namespace WebApplication1.Services.TuraServices;
 
@@ -32,14 +32,18 @@ public class TuraService : ITuraService
         // 1) Uzmi sledeći broj iz baze (DB broji)
         var turaBroj = await _repository.GetNextTuraBrojAsync();
 
-        // 2) Mapiraj DTO → Entity
+        // 2) Mapiraj DTO → Entity (samo int/int? za FK – ne string)
         var tura = dto.Adapt<Tura>();
 
-        // 3) Sistemsка polja
+        // 3) Sistemska polja
         tura.RedniBroj = turaBroj;
-        tura.StatusTure = "Kreirana"; 
-        
-        // 4) Jedan insert, jedan SaveChanges
+        tura.StatusTure = "Kreirana";
+
+        // 4) Ako je VoziloId 0 (frontend ponekad šalje 0 umesto null), tretiraj kao null
+        if (tura.VoziloId == 0)
+            tura.VoziloId = null;
+
+        // 5) Jedan insert, jedan SaveChanges
         _repository.Add(tura);
         await _repository.SaveChangesAsync();
 

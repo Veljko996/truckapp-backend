@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication1.DataAccess.Models;
@@ -20,5 +20,7 @@ public class Prevoznik
     public string? Telefon { get; set; }
 
     [MaxLength(20)]
-    public string? PIB { get; set; }    
+    public string? PIB { get; set; }
+
+    public bool Interni { get; set; }
 }
