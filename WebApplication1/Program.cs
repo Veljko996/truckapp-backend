@@ -61,7 +61,6 @@ builder.Services
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(builder.Configuration["AppSettings:Token"]!)
             ),
-            ClockSkew = TimeSpan.Zero
         };
 
         //  Čitanje JWT-a iz HttpOnly cookie-ja

@@ -1,4 +1,4 @@
-﻿namespace WebApplication1.Services.AuthenticationServices;
+namespace WebApplication1.Services.AuthenticationServices;
 
     public interface IAuthService
     {
@@ -6,4 +6,6 @@
         Task<User?> RegisterAsync(RegisterUserDto request);
         Task<TokenResponseDto?> RefreshTokensAsync(RefreshTokenRequestDto? request = null);
         Task<bool> LogoutAsync(int? userId = null);
+        Task ChangePasswordAsync(int userId, ChangePasswordDto request);
+        Task AdminResetPasswordAsync(int userId, AdminResetPasswordDto request);
     }

@@ -28,6 +28,7 @@ public class NalogRepository : INalogRepository
             .Nalozi
             .AsNoTracking()
             .Include(n => n.Prevoznik)
+            .Where(n => n.Prevoznik!.Interni != true)
             .Include(n => n.Tura)
             .OrderByDescending(n => n.NalogId);
     }

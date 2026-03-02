@@ -4,7 +4,7 @@ public class NalogReadDto
 {
     public int NalogId { get; set; }
     public string? NalogBroj { get; set; }
-    
+    public string? FakturaBroj { get; set; }
     public int TuraId { get; set; }
     public string? TuraRedniBroj { get; set; }
     public string? Relacija { get; set; }

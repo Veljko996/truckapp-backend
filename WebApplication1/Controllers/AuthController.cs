@@ -1,6 +1,7 @@
-﻿using WebApplication1.Services.AuthenticationServices;
+using WebApplication1.Services.AuthenticationServices;
 using WebApplication1.Utils;
 using WebApplication1.Utils.DTOs.UserDTO;
+using System.Security.Claims;
 
 namespace WebApplication1.Controllers;
 
@@ -125,5 +126,17 @@ public class AuthController : ControllerBase
 			Username = User.Identity?.Name,
 			Role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
 		});
+	}
+
+	[HttpPost("change-password")]
+	[Authorize]
+	public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto request)
+	{
+		var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+		if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+			return Unauthorized(new { message = "Neispravan korisnički kontekst." });
+
+		await _service.ChangePasswordAsync(userId, request);
+		return Ok(new { message = "Lozinka je uspešno promenjena." });
 	}
 }

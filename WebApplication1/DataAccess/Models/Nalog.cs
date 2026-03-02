@@ -18,6 +18,7 @@ public class Nalog
     public DateTime? DatumIstovara { get; set; }
     public string? KolicinaRobe { get; set; }
     public string? Tezina { get; set; }
+    public string? FakturaBroj { get; set; } 
     #endregion
 
     #region new business fields

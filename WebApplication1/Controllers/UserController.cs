@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using WebApplication1.Services.AuthenticationServices;
 using WebApplication1.Services.UserServices;
 using WebApplication1.Utils.DTOs.UserDTO;
 
@@ -11,11 +12,13 @@ namespace WebApplication1.Controllers;
 public class UserController : ControllerBase
 {
     private readonly IUserService _userService;
+    private readonly IAuthService _authService;
     private readonly ILogger<UserController> _logger;
 
-    public UserController(IUserService userService, ILogger<UserController> logger)
+    public UserController(IUserService userService, IAuthService authService, ILogger<UserController> logger)
     {
         _userService = userService;
+        _authService = authService;
         _logger = logger;
     }
 
@@ -221,6 +224,14 @@ public class UserController : ControllerBase
             _logger.LogError(ex, "Greška pri deaktivaciji korisnika ID: {UserId}", id);
             throw;
         }
+    }
+
+    [HttpPost("/api/admin/users/{userId:int}/reset-password")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> ResetPasswordAsAdmin(int userId, [FromBody] AdminResetPasswordDto request)
+    {
+        await _authService.AdminResetPasswordAsync(userId, request);
+        return Ok(new { message = "Lozinka je uspešno resetovana." });
     }
 
     // ==================== EMPLOYEE ENDPOINTS ====================

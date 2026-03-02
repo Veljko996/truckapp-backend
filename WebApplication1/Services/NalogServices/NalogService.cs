@@ -1,6 +1,7 @@
 using WebApplication1.Repository.NalogRepository;
 using WebApplication1.Utils.DTOs.NalogDTO;
 using WebApplication1.Utils.Helper;
+using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
 
 namespace WebApplication1.Services.NalogServices;
 
@@ -119,28 +120,44 @@ public class NalogService : INalogService
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
     }
-    public async Task UpdateStatus(int id, UpdateStatusDto dto)
-    {
-        var nalog = await _repository.GetByIdAsync(id)
-            ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
+	public async Task UpdateStatus(int id, UpdateStatusDto dto)
+	{
+		var nalog = await _repository.GetByIdAsync(id)
+			?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
 
-        dto.Adapt(nalog);
-        _repository.Update(nalog);
-        await _repository.SaveChangesAsync();
-    }
-    public async Task MarkIstovaren(int id, MarkIstovarenDto dto)
-    {
-        var nalog = await _repository.GetByIdAsync(id)
-            ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
+		if (string.IsNullOrWhiteSpace(dto.StatusNaloga))
+			throw new ValidationException("Nalog","StatusNaloga je obavezan.");
 
-        nalog.StatusNaloga = "Završen";
+		// Ako se postavlja Završen, faktura mora postojati
+		if (dto.StatusNaloga == "Završen")
+		{
+			if (nalog.Istovar != true)
+				throw new ValidationException("Nalog", "Nalog mora prvo biti istovaren pre završavanja.");
 
-        dto.Adapt(nalog);
-        _repository.Update(nalog);
-        await _repository.SaveChangesAsync();
-    }
+			if (string.IsNullOrWhiteSpace(dto.FakturaBroj))
+				throw new ValidationException("Faktura","Broj fakture je obavezan za završavanje naloga.");
 
-    public async Task Storniraj(int id)
+			nalog.FakturaBroj = dto.FakturaBroj;
+		}
+
+		nalog.StatusNaloga = dto.StatusNaloga;
+
+		_repository.Update(nalog);
+		await _repository.SaveChangesAsync();
+	}
+	public async Task MarkIstovaren(int id, MarkIstovarenDto dto)
+	{
+		var nalog = await _repository.GetByIdAsync(id)
+			?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
+
+		nalog.Istovar = dto.Istovar ?? true; 
+		nalog.StatusNaloga = "Istovaren";
+
+		_repository.Update(nalog);
+		await _repository.SaveChangesAsync();
+	}
+
+	public async Task Storniraj(int id)
     {
         var nalog = await _repository.GetByIdAsync(id)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");

@@ -1,4 +1,4 @@
-﻿using WebApplication1.Utils;
+using WebApplication1.Utils;
 using WebApplication1.Utils.DTOs.UserDTO;
 using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
 
@@ -199,6 +199,53 @@ public class AuthService : IAuthService
         return true;
     }
 
+    public async Task ChangePasswordAsync(int userId, ChangePasswordDto request)
+    {
+        var user = await _authenticationRepository.GetByIdAsync(userId);
+        if (user is null)
+            throw new NotFoundException("UserNotFound", $"Korisnik sa ID {userId} nije pronađen.");
+
+        if (string.IsNullOrWhiteSpace(request.CurrentPassword))
+            throw new ValidationException("CurrentPasswordRequired", "Trenutna lozinka je obavezna.");
+
+        ValidateNewPassword(request.NewPassword);
+
+        var passwordHasher = new PasswordHasher<User>();
+        var verifyResult = passwordHasher.VerifyHashedPassword(user, user.PasswordHash, request.CurrentPassword);
+        if (verifyResult == PasswordVerificationResult.Failed)
+            throw new ValidationException("InvalidCurrentPassword", "Trenutna lozinka nije ispravna.");
+
+        user.PasswordHash = passwordHasher.HashPassword(user, request.NewPassword);
+        user.RefreshToken = null;
+        user.RefreshTokenExpiryTime = null;
+
+        await _authenticationRepository.UpdateAsync(user);
+        await _authenticationRepository.SaveChangesAsync();
+    }
+
+    public async Task AdminResetPasswordAsync(int userId, AdminResetPasswordDto request)
+    {
+        var user = await _authenticationRepository.GetByIdAsync(userId);
+        if (user is null)
+            throw new NotFoundException("UserNotFound", $"Korisnik sa ID {userId} nije pronađen.");
+
+        ValidateNewPassword(request.NewPassword);
+
+        var passwordHasher = new PasswordHasher<User>();
+        user.PasswordHash = passwordHasher.HashPassword(user, request.NewPassword);
+        user.RefreshToken = null;
+        user.RefreshTokenExpiryTime = null;
+
+        await _authenticationRepository.UpdateAsync(user);
+        await _authenticationRepository.SaveChangesAsync();
+    }
+
+    private static void ValidateNewPassword(string newPassword)
+    {
+        if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 8)
+            throw new ValidationException("InvalidNewPassword", "Nova lozinka mora imati najmanje 8 karaktera.");
+    }
+
 
     private async Task<User?> ValidateRefreshTokenAsync(int userId, string refreshToken)
     {
@@ -257,7 +304,7 @@ public class AuthService : IAuthService
             issuer: _configuration.GetValue<string>("AppSettings:Issuer"),
             audience: _configuration.GetValue<string>("AppSettings:Audience"),
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(30),
+            expires: DateTime.UtcNow.AddHours(4),
             signingCredentials: creds
         );
 

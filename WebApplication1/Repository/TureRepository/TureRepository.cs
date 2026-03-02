@@ -48,7 +48,8 @@ public class TureRepository : ITureRepository
 
     public async Task<string> GetNextTuraBrojAsync()
     {
-        var output = new SqlParameter
+		
+		var output = new SqlParameter
         {
             ParameterName = "@Result",
             SqlDbType = SqlDbType.NVarChar,

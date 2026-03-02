@@ -1,0 +1,12 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace WebApplication1.Utils.DTOs.UserDTO;
+
+public class ChangePasswordDto
+{
+    [Required]
+    public string CurrentPassword { get; set; } = string.Empty;
+
+    [Required]
+    public string NewPassword { get; set; } = string.Empty;
+}
