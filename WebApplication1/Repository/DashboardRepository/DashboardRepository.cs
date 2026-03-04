@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.DataAccess;
 using WebApplication1.DataAccess.Models;
+using WebApplication1.Utils.DTOs.DashboardDTO;
 
 namespace WebApplication1.Repository.DashboardRepository;
 
@@ -13,6 +14,25 @@ public class DashboardRepository : IDashboardRepository
     {
         _context = context;
         _logger = logger;
+    }
+
+    public async Task<DashboardStatsDto> GetDashboardStatsAsync(CancellationToken cancellationToken = default)
+    {
+        var stats = await _context.Set<DashboardStatsDto>()
+            .FromSqlRaw("EXEC dbo.GetDashboardStats")
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        return stats.FirstOrDefault() ?? new DashboardStatsDto();
+    }
+
+    public async Task<List<DashboardMonthlyProfitDto>> GetMonthlyProfitAsync(int monthsBack = 12, CancellationToken cancellationToken = default)
+    {
+        var monthsParam = new Microsoft.Data.SqlClient.SqlParameter("@MonthsBack", monthsBack);
+        return await _context.Set<DashboardMonthlyProfitDto>()
+            .FromSqlRaw("EXEC dbo.GetDashboardMonthlyProfit @MonthsBack", monthsParam)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<int> GetTotalTureCountAsync()
@@ -51,31 +71,53 @@ public class DashboardRepository : IDashboardRepository
 
     public async Task<decimal> GetPrihodZaDanasAsync()
     {
-        var danas = DateTime.UtcNow.Date;
-        return await _context.Ture
-            .Where(t => t.DatumUtovara.HasValue && t.DatumUtovara.Value.Date == danas && t.UlaznaCena.HasValue)
-            .SumAsync(t => t.UlaznaCena ?? 0);
+        var todayStart = DateTime.UtcNow.Date;
+        var tomorrowStart = todayStart.AddDays(1);
+        var zavrseniStatusi = new[] { "Završen", "Zavrsen" };
+
+        return await (
+            from n in _context.Nalozi
+            join t in _context.Ture on n.TuraId equals t.TuraId
+            where zavrseniStatusi.Contains(n.StatusNaloga ?? string.Empty)
+               && (n.FinishedAt ?? n.CreatedAt) >= todayStart
+               && (n.FinishedAt ?? n.CreatedAt) < tomorrowStart
+            select (decimal?)(t.IzlaznaCena ?? 0)
+        ).SumAsync() ?? 0;
     }
 
     public async Task<decimal> GetPrihodZaPeriodAsync(DateTime startDate, DateTime endDate)
     {
-        return await _context.Ture
-            .Where(t => t.DatumUtovara.HasValue && t.DatumUtovara.Value.Date >= startDate.Date && t.DatumUtovara.Value.Date <= endDate.Date && t.UlaznaCena.HasValue)
-            .SumAsync(t => t.UlaznaCena ?? 0);
+        var periodStart = startDate.Date;
+        var toExclusive = endDate.Date.AddDays(1);
+        var zavrseniStatusi = new[] { "Završen", "Zavrsen" };
+
+        return await (
+            from n in _context.Nalozi
+            join t in _context.Ture on n.TuraId equals t.TuraId
+            where zavrseniStatusi.Contains(n.StatusNaloga ?? string.Empty)
+               && (n.FinishedAt ?? n.CreatedAt) >= periodStart
+               && (n.FinishedAt ?? n.CreatedAt) < toExclusive
+            select (decimal?)(t.IzlaznaCena ?? 0)
+        ).SumAsync() ?? 0;
     }
 
     public async Task<List<(DateTime Datum, decimal Suma)>> GetPrihodByDateAsync(DateTime startDate, DateTime endDate)
     {
-        var prihod = await _context.Ture
-            .Where(t => t.DatumUtovara.HasValue
-                && t.DatumUtovara.Value.Date >= startDate.Date
-                && t.DatumUtovara.Value.Date <= endDate.Date
-                && t.UlaznaCena.HasValue)
-            .GroupBy(t => t.DatumUtovara!.Value.Date)
-            .Select(g => new { Datum = g.Key, Suma = g.Sum(t => t.UlaznaCena ?? 0) })
-            .OrderBy(x => x.Datum)
-            .AsNoTracking()
-            .ToListAsync();
+        var periodStart = startDate.Date;
+        var toExclusive = endDate.Date.AddDays(1);
+        var zavrseniStatusi = new[] { "Završen", "Zavrsen" };
+
+        var prihod = await (
+            from n in _context.Nalozi
+            join t in _context.Ture on n.TuraId equals t.TuraId
+            let effectiveDate = (n.FinishedAt ?? n.CreatedAt)
+            where zavrseniStatusi.Contains(n.StatusNaloga ?? string.Empty)
+               && effectiveDate >= periodStart
+               && effectiveDate < toExclusive
+            group (t.IzlaznaCena ?? 0) by effectiveDate.Date into g
+            orderby g.Key
+            select new { Datum = g.Key, Suma = g.Sum() }
+        ).ToListAsync();
 
         return prihod.Select(p => (p.Datum, p.Suma)).ToList();
     }
@@ -87,7 +129,7 @@ public class DashboardRepository : IDashboardRepository
 
     public async Task<int> GetAktivniNaloziCountAsync()
     {
-        var neaktivniStatusi = new[] { "Završen", "Ponisten", "Storniran" };
+        var neaktivniStatusi = new[] { "Završen", "Zavrsen", "Ponisten", "Storniran" };
         return await _context.Nalozi.CountAsync(n => n.StatusNaloga != null && !neaktivniStatusi.Contains(n.StatusNaloga));
     }
 
@@ -179,8 +221,9 @@ public class DashboardRepository : IDashboardRepository
 
     public async Task<int> GetActiveNalogsCountAsync()
     {
+        var neaktivniStatusi = new[] { "Završen", "Zavrsen", "Ponisten", "Storniran" };
         return await _context.Nalozi
-            .CountAsync(n => n.StatusNaloga == "U Toku");
+            .CountAsync(n => !neaktivniStatusi.Contains(n.StatusNaloga ?? string.Empty));
     }
 
     public async Task<int> GetLateUnloadNalogsCountAsync()
@@ -188,6 +231,7 @@ public class DashboardRepository : IDashboardRepository
         var today = DateTime.UtcNow.Date;
         return await _context.Nalozi
             .CountAsync(n => n.StatusNaloga != "Završen"
+                && n.StatusNaloga != "Zavrsen"
                 && (n.Istovar == false || n.Istovar == null)
                 && n.DatumIstovara.HasValue
                 && n.DatumIstovara.Value.Date < today);
@@ -195,23 +239,24 @@ public class DashboardRepository : IDashboardRepository
 
     public async Task<(decimal ProfitEUR, decimal ProfitRSD)> GetProfitLast30DaysAsync()
     {
-        var startDate = DateTime.UtcNow.AddDays(-30).Date;
-        var endDate = DateTime.UtcNow.Date;
+        var periodStart = DateTime.UtcNow.Date.AddDays(-30);
+        var toExclusive = DateTime.UtcNow.Date.AddDays(1);
+        var zavrseniStatusi = new[] { "Završen", "Zavrsen" };
 
-        var ture = await _context.Ture
-            .Where(t => t.DatumUtovara.HasValue
-                && t.DatumUtovara.Value.Date >= startDate
-                && t.DatumUtovara.Value.Date <= endDate
-                && t.UlaznaCena.HasValue
-                && t.IzlaznaCena.HasValue
-                && _context.Nalozi.Any(n => n.TuraId == t.TuraId && n.StatusNaloga == "Završen"))
-            .Select(t => new
+        var ture = await (
+            from n in _context.Nalozi
+            join t in _context.Ture on n.TuraId equals t.TuraId
+            where zavrseniStatusi.Contains(n.StatusNaloga ?? string.Empty)
+               && (n.FinishedAt ?? n.CreatedAt) >= periodStart
+               && (n.FinishedAt ?? n.CreatedAt) < toExclusive
+               && t.UlaznaCena.HasValue
+               && t.IzlaznaCena.HasValue
+            select new
             {
                 Valuta = t.Valuta ?? "RSD",
                 Profit = (t.IzlaznaCena ?? 0) - (t.UlaznaCena ?? 0)
-            })
-            .AsNoTracking()
-            .ToListAsync();
+            }
+        ).AsNoTracking().ToListAsync();
 
         var profitEUR = ture
             .Where(t => t.Valuta == "EUR")
@@ -226,15 +271,21 @@ public class DashboardRepository : IDashboardRepository
 
     public async Task<List<Tura>> GetTopTureByProfitAsync(int take, CancellationToken cancellationToken = default)
     {
+        var periodStart = DateTime.UtcNow.Date.AddDays(-30);
+        var toExclusive = DateTime.UtcNow.Date.AddDays(1);
+        var zavrseniStatusi = new[] { "Završen", "Zavrsen" };
+
         return await _context.Ture
             .Include(t => t.Prevoznik)
             .Include(t => t.Vozilo)
             .Include(t => t.Klijent)
             .Where(t => t.UlaznaCena.HasValue 
                 && t.IzlaznaCena.HasValue
-                && t.DatumUtovara.HasValue
-                && t.DatumUtovara.Value.Date >= DateTime.UtcNow.AddDays(-30).Date
-                && _context.Nalozi.Any(n => n.TuraId == t.TuraId && n.StatusNaloga == "Završen"))
+                && _context.Nalozi.Any(n =>
+                    n.TuraId == t.TuraId
+                    && zavrseniStatusi.Contains(n.StatusNaloga ?? string.Empty)
+                    && (n.FinishedAt ?? n.CreatedAt) >= periodStart
+                    && (n.FinishedAt ?? n.CreatedAt) < toExclusive))
             .OrderByDescending(t => Math.Abs((t.IzlaznaCena ?? 0) - (t.UlaznaCena ?? 0)))
             .Take(take)
             .AsNoTracking()
@@ -269,18 +320,20 @@ public class DashboardRepository : IDashboardRepository
 
     public async Task<List<(int KlijentId, string NazivFirme, decimal ProfitEUR, decimal ProfitRSD)>> GetTop5ClientsByProfitLast30DaysAsync(CancellationToken cancellationToken = default)
     {
-        var startDate = DateTime.UtcNow.AddDays(-30).Date;
-        var endDate = DateTime.UtcNow.Date;
+        var periodStart = DateTime.UtcNow.Date.AddDays(-30);
+        var toExclusive = DateTime.UtcNow.Date.AddDays(1);
+        var zavrseniStatusi = new[] { "Završen", "Zavrsen" };
 
         var ture = await _context.Ture
             .Include(t => t.Klijent)
             .Where(t => t.KlijentId.HasValue
-                && t.DatumUtovara.HasValue
-                && t.DatumUtovara.Value.Date >= startDate
-                && t.DatumUtovara.Value.Date <= endDate
                 && t.UlaznaCena.HasValue
                 && t.IzlaznaCena.HasValue
-                && _context.Nalozi.Any(n => n.TuraId == t.TuraId && n.StatusNaloga == "Završen"))
+                && _context.Nalozi.Any(n =>
+                    n.TuraId == t.TuraId
+                    && zavrseniStatusi.Contains(n.StatusNaloga ?? string.Empty)
+                    && (n.FinishedAt ?? n.CreatedAt) >= periodStart
+                    && (n.FinishedAt ?? n.CreatedAt) < toExclusive))
             .Select(t => new
             {
                 KlijentId = t.KlijentId!.Value,
@@ -322,6 +375,7 @@ public class DashboardRepository : IDashboardRepository
             .Include(n => n.Tura!)
                 .ThenInclude(t => t.Klijent)
             .Where(n => n.StatusNaloga != "Završen"
+                && n.StatusNaloga != "Zavrsen"
                 && (n.Istovar == false || n.Istovar == null)
                 && n.DatumIstovara.HasValue
                 && n.DatumIstovara.Value.Date < today)

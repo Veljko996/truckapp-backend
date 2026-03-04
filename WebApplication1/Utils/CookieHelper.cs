@@ -13,7 +13,7 @@ public static class CookieHelper
 	{
 		var isDev = env.IsDevelopment();
 
-		var sameSite = isDev ? SameSiteMode.None : SameSiteMode.None;
+		var sameSite = isDev ? SameSiteMode.Lax : SameSiteMode.None;
 		var secure = !isDev;
 
 		response.Cookies.Append(

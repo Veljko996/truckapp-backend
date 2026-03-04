@@ -21,6 +21,7 @@ public class NalogReadDto
     public string? GranicniPrelaz { get; set; }
     public string? Uvoznik { get; set; }
     public bool? Istovar { get; set; }
+    public DateTime? IstovarenAt { get; set; }
     
     public string? StatusNaloga { get; set; }
     public int? PrevoznikId { get; set; }

@@ -140,6 +140,21 @@ public class NalogService : INalogService
 			nalog.FakturaBroj = dto.FakturaBroj;
 		}
 
+		// Istovaren tracking: kada status prvi put pređe na "Istovaren", zapamti timestamp
+		if (dto.StatusNaloga == "Istovaren")
+		{
+			nalog.Istovar = true;
+			nalog.IstovarenAt ??= DateTime.UtcNow;
+		}
+
+		var wasFinished = nalog.StatusNaloga == "Završen";
+		var willBeFinished = dto.StatusNaloga == "Završen";
+
+		if (!wasFinished && willBeFinished)
+			nalog.FinishedAt = DateTime.UtcNow;
+		else if (wasFinished && !willBeFinished)
+			nalog.FinishedAt = null;
+
 		nalog.StatusNaloga = dto.StatusNaloga;
 
 		_repository.Update(nalog);
@@ -152,6 +167,7 @@ public class NalogService : INalogService
 
 		nalog.Istovar = dto.Istovar ?? true; 
 		nalog.StatusNaloga = "Istovaren";
+		nalog.IstovarenAt ??= DateTime.UtcNow;
 
 		_repository.Update(nalog);
 		await _repository.SaveChangesAsync();
@@ -163,6 +179,7 @@ public class NalogService : INalogService
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
 
         nalog.StatusNaloga = "Storniran";
+        nalog.FinishedAt = null;
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
     }
@@ -172,6 +189,7 @@ public class NalogService : INalogService
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {id} nije pronađen.");
 
         nalog.StatusNaloga = "Ponisten";
+        nalog.FinishedAt = null;
         _repository.Update(nalog);
         await _repository.SaveChangesAsync();
     }

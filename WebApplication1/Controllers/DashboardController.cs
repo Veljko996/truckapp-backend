@@ -1,4 +1,5 @@
 using WebApplication1.Services.DashboardServices;
+using WebApplication1.Utils.DTOs.DashboardDTO;
 
 namespace WebApplication1.Controllers;
 
@@ -18,6 +19,33 @@ public class DashboardController : ControllerBase
     {
         _dashboardService = dashboardService;
         _logger = logger;
+    }
+
+    [HttpGet]
+    [ProducesResponseType(typeof(DashboardStatsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<DashboardStatsDto>> GetDashboardStats(CancellationToken cancellationToken = default)
+    {
+        var stats = await _dashboardService.GetDashboardStatsAsync(cancellationToken);
+        return Ok(stats);
+    }
+
+    [HttpGet("profit-by-month")]
+    [ProducesResponseType(typeof(List<DashboardMonthlyProfitDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<List<DashboardMonthlyProfitDto>>> GetProfitByMonth(
+        [FromQuery] int monthsBack = 12,
+        CancellationToken cancellationToken = default)
+    {
+        if (monthsBack <= 0 || monthsBack > 60)
+            return BadRequest(new { message = "monthsBack mora biti između 1 i 60." });
+
+        var items = await _dashboardService.GetMonthlyProfitAsync(monthsBack, cancellationToken);
+        return Ok(items);
     }
 
     [HttpGet("overview")]

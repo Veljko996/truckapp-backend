@@ -31,11 +31,13 @@ public class Nalog
     public string? GranicniPrelaz { get; set; }
     public string? Uvoznik { get; set; }
     public bool? Istovar { get; set; } = false;
+    public DateTime? IstovarenAt { get; set; }
   
     #endregion
 
     #region polja koja se vuku iz ture ali mogu se menjati na nalogu
     public string? StatusNaloga { get; set; }
+    public DateTime? FinishedAt { get; set; }
     public int? PrevoznikId { get; set; }
     public Prevoznik? Prevoznik { get; set; }
     public string? IzvoznoCarinjenje { get; set; }

@@ -16,6 +16,16 @@ public class DashboardService : IDashboardService
         _logger = logger;
     }
 
+    public async Task<DashboardStatsDto> GetDashboardStatsAsync(CancellationToken cancellationToken = default)
+    {
+        return await _repository.GetDashboardStatsAsync(cancellationToken);
+    }
+
+    public async Task<List<DashboardMonthlyProfitDto>> GetMonthlyProfitAsync(int monthsBack = 12, CancellationToken cancellationToken = default)
+    {
+        return await _repository.GetMonthlyProfitAsync(monthsBack, cancellationToken);
+    }
+
     public async Task<DashboardOverviewDto> GetDashboardOverviewAsync(CancellationToken cancellationToken = default)
     {
         try
