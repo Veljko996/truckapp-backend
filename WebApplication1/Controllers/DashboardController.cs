@@ -3,7 +3,7 @@ using WebApplication1.Utils.DTOs.DashboardDTO;
 
 namespace WebApplication1.Controllers;
 
-/// Dashboard controller providing overview metrics and statistics.
+/// Dashboard controller for dashboard stats.
 
 [ApiController]
 [Route("api/[controller]")]
@@ -11,14 +11,11 @@ namespace WebApplication1.Controllers;
 public class DashboardController : ControllerBase
 {
     private readonly IDashboardService _dashboardService;
-    private readonly ILogger<DashboardController> _logger;
 
     public DashboardController(
-        IDashboardService dashboardService,
-        ILogger<DashboardController> logger)
+        IDashboardService dashboardService)
     {
         _dashboardService = dashboardService;
-        _logger = logger;
     }
 
     [HttpGet]
@@ -48,35 +45,19 @@ public class DashboardController : ControllerBase
         return Ok(items);
     }
 
-    [HttpGet("overview")]
-    [ProducesResponseType(typeof(Utils.DTOs.DashboardDTO.DashboardOverviewDto), StatusCodes.Status200OK)]
+    [HttpGet("kriticna-vozila")]
+    [ProducesResponseType(typeof(List<KriticnoVoziloDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<Utils.DTOs.DashboardDTO.DashboardOverviewDto>> GetDashboardOverview(
+    public async Task<ActionResult<List<KriticnoVoziloDto>>> GetKriticnaVozila(
+        [FromQuery] int daysThreshold = 7,
         CancellationToken cancellationToken = default)
     {
-        try
-        {
-            _logger.LogInformation("Fetching dashboard overview data");
+        if (daysThreshold < 0 || daysThreshold > 60)
+            return BadRequest(new { message = "daysThreshold mora biti između 0 i 60." });
 
-            var dashboard = await _dashboardService.GetDashboardOverviewAsync(cancellationToken);
-
-            _logger.LogInformation("Dashboard overview data fetched successfully");
-
-            return Ok(dashboard);
-        }
-        catch (OperationCanceledException)
-        {
-            _logger.LogWarning("Dashboard overview request was cancelled");
-            return StatusCode(StatusCodes.Status408RequestTimeout, new { message = "Request timeout" });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error fetching dashboard overview");
-            return StatusCode(
-                StatusCodes.Status500InternalServerError,
-                new { message = "Error fetching dashboard data. Please try again later." });
-        }
+        var items = await _dashboardService.GetKriticnaVozilaAsync(daysThreshold, cancellationToken);
+        return Ok(items);
     }
 }

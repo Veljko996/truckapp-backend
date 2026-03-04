@@ -7,34 +7,5 @@ public interface IDashboardRepository
 {
     Task<DashboardStatsDto> GetDashboardStatsAsync(CancellationToken cancellationToken = default);
     Task<List<DashboardMonthlyProfitDto>> GetMonthlyProfitAsync(int monthsBack = 12, CancellationToken cancellationToken = default);
-    Task<int> GetTotalTureCountAsync();
-    Task<int> GetAktivneTureCountAsync();
-    Task<Dictionary<string, int>> GetTureStatusDistribucijaAsync();
-    Task<List<Tura>> GetTopTureByPriceAsync(int take, CancellationToken cancellationToken = default);
-    Task<decimal> GetPrihodZaDanasAsync();
-    Task<decimal> GetPrihodZaPeriodAsync(DateTime startDate, DateTime endDate);
-    Task<List<(DateTime Datum, decimal Suma)>> GetPrihodByDateAsync(DateTime startDate, DateTime endDate);
-
-    Task<int> GetTotalNaloziCountAsync();
-    Task<int> GetAktivniNaloziCountAsync();
-    Task<Dictionary<string, int>> GetNaloziStatusDistribucijaAsync();
-
-    Task<int> GetTotalVozilaCountAsync();
-    Task<int> GetAktivnaVozilaCountAsync();
     Task<List<NasaVozila>> GetVozilaSaIsticucimDokumentimaAsync(int daysThreshold, CancellationToken cancellationToken = default);
-    Task<List<NasaVozila>> GetVozilaZaDashboardAsync(CancellationToken cancellationToken = default);
-
-    Task<int> GetIsticeVinjetaCountAsync(int daysThreshold);
-    Task<List<Log>> GetNajnovijiLogoviAsync(int count, CancellationToken cancellationToken = default);
-    Task<int> GetAktivniKlijentiCountAsync();
-    Task<int> GetAktivniPrevozniciCountAsync();
-
-    // New methods for extended dashboard
-    Task<int> GetActiveNalogsCountAsync();
-    Task<int> GetLateUnloadNalogsCountAsync();
-    Task<(decimal ProfitEUR, decimal ProfitRSD)> GetProfitLast30DaysAsync();
-    Task<List<Tura>> GetTopTureByProfitAsync(int take, CancellationToken cancellationToken = default);
-    Task<List<(int PrevoznikId, string Naziv, int TotalToursCount)>> GetTop5CarriersLast30DaysAsync(CancellationToken cancellationToken = default);
-    Task<List<(int KlijentId, string NazivFirme, decimal ProfitEUR, decimal ProfitRSD)>> GetTop5ClientsByProfitLast30DaysAsync(CancellationToken cancellationToken = default);
-    Task<List<Nalog>> GetLateUnloadNalogsAsync(CancellationToken cancellationToken = default);
 }

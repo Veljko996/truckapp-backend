@@ -1,5 +1,6 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace WebApplication1.Repository.NalogRepository;
 
@@ -42,6 +43,23 @@ public class NalogRepository : INalogRepository
             .Include(n => n.Tura)
             .Where(n => n.Prevoznik!.Interni)
             .OrderByDescending(n => n.NalogId);
+    }
+
+    public async Task<List<Nalog>> GetNaloziSaIstovaromUKasnjenjuAsync()
+    {
+        var sada = DateTime.UtcNow;
+        return await _context.Nalozi
+            .AsNoTracking()
+            .Include(n => n.Prevoznik)
+            .Include(n => n.Tura)
+            .Where(n =>
+                n.DatumIstovara.HasValue
+                && n.DatumIstovara.Value < sada
+                && n.Istovar != true
+                && n.StatusNaloga != "Storniran"
+                && n.StatusNaloga != "Ponisten")
+            .OrderBy(n => n.DatumIstovara)
+            .ToListAsync();
     }
 
     public void Add(Nalog nalog)

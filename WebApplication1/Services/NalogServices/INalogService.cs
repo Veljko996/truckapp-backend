@@ -6,6 +6,7 @@ public interface INalogService
 {
     Task<IEnumerable<NalogReadDto>> GetAllAsync();
     Task<IEnumerable<NalogReadDto>> GetInterniAsync();
+    Task<IEnumerable<NalogReadDto>> GetNaloziSaIstovaromUKasnjenjuAsync();
     Task<NalogReadDto?> GetById(int id);
     Task<NalogReadDto> Create(int turaId, CreateNalogDto dto);
     Task AssignPrevoznik(int id, AssignPrevoznikDto dto);

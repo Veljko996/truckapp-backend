@@ -4,6 +4,7 @@ public interface INalogRepository
 {
     IQueryable<Nalog> GetAll();
     IQueryable<Nalog> GetInterni();
+    Task<List<Nalog>> GetNaloziSaIstovaromUKasnjenjuAsync();
     Task<Nalog?> GetByIdAsync(int id);
     Task<string> GetNextNalogBrojAsync();
 

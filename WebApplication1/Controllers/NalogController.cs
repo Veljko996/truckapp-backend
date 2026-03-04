@@ -32,6 +32,13 @@ public class NalogController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("kasnjenja-istovara")]
+    public async Task<ActionResult<IEnumerable<NalogReadDto>>> GetKasnjenjaIstovara()
+    {
+        var result = await _service.GetNaloziSaIstovaromUKasnjenjuAsync();
+        return Ok(result);
+    }
+
     [HttpGet("{id:int}")]
     public async Task<ActionResult<NalogReadDto>> GetById(int id)
     {
