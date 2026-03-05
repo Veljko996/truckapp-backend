@@ -102,4 +102,15 @@ public class TureRepository : ITureRepository
     {
         return await _context.Klijenti.AnyAsync(c => c.KlijentId == klijentId);
     }
+
+    public async Task<bool> IsVoziloZauzetoNaNaloguAsync(int voziloId, int? excludeTuraId = null)
+    {
+        var activeStatuses = new[] { "Istovaren", "Završen", "Storniran", "Ponisten" };
+        return await _context.Nalozi
+            .AnyAsync(n =>
+                n.Tura != null
+                && n.Tura.VoziloId == voziloId
+                && !activeStatuses.Contains(n.StatusNaloga ?? "")
+                && (excludeTuraId == null || n.TuraId != excludeTuraId.Value));
+    }
 }

@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using WebApplication1.DataAccess;
 using WebApplication1.DataAccess.Models;
@@ -59,4 +59,24 @@ public class NasaVozilaRepository : INasaVozilaRepository
         }
     }
 
+    public async Task<List<NasaVozila>> GetAvailableForTuraAsync(int? excludeTuraId = null)
+    {
+        var activeStatuses = new[] { "Istovaren", "Završen", "Storniran", "Ponisten" };
+        var zauzetaVozilaIds = await _context.Nalozi
+            .Where(n =>
+                n.Tura != null
+                && n.Tura.VoziloId != null
+                && !activeStatuses.Contains(n.StatusNaloga ?? "")
+                && (excludeTuraId == null || n.TuraId != excludeTuraId.Value))
+            .Select(n => n.Tura!.VoziloId!.Value)
+            .Distinct()
+            .ToListAsync();
+
+        return await _context.NasaVozila!
+            .Include(x => x.Vinjete)
+            .Where(v => !zauzetaVozilaIds.Contains(v.VoziloId))
+            .OrderBy(v => v.Naziv)
+            .AsNoTracking()
+            .ToListAsync();
+    }
 }

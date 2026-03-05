@@ -1,4 +1,6 @@
 using WebApplication1.Utils.DTOs.NalogDTO;
+using WebApplication1.Utils.DTOs.NalogPrihodiDTO;
+using WebApplication1.Utils.DTOs.NalogTroskoviDTO;
 
 namespace WebApplication1.Utils.Mapping;
 
@@ -199,5 +201,41 @@ public static class MappingConfig
             .Ignore(dest => dest.Tura);
 
         #endregion Nalog
+
+        #region NalogTroskovi
+
+        TypeAdapterConfig<NalogTrosak, NalogTrosakDto>
+            .NewConfig()
+            .Map(dest => dest.TipNaziv,
+                 src => src.TipTroska != null ? src.TipTroska.Naziv : null);
+
+        TypeAdapterConfig<CreateNalogTrosakDto, NalogTrosak>
+            .NewConfig()
+            .Ignore(dest => dest.TrosakId)
+            .Ignore(dest => dest.NalogId)
+            .Ignore(dest => dest.Nalog)
+            .Ignore(dest => dest.TipTroska)
+            .Ignore(dest => dest.CreatedAt)
+            .Ignore(dest => dest.CreatedBy);
+
+        TypeAdapterConfig<TipTroska, TipTroskaDto>
+            .NewConfig();
+
+        #endregion NalogTroskovi
+
+        #region NalogPrihodi
+
+        TypeAdapterConfig<NalogPrihod, NalogPrihodDto>
+            .NewConfig();
+
+        TypeAdapterConfig<CreateNalogPrihodDto, NalogPrihod>
+            .NewConfig()
+            .Ignore(dest => dest.PrihodId)
+            .Ignore(dest => dest.NalogId)
+            .Ignore(dest => dest.Nalog)
+            .Ignore(dest => dest.CreatedAt)
+            .Ignore(dest => dest.CreatedBy);
+
+        #endregion NalogPrihodi
     }
 }

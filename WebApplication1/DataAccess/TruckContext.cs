@@ -19,6 +19,13 @@ public class TruckContext : DbContext
     public DbSet<Klijent> Klijenti { get; set; } = null!;
     public DbSet<VrstaNadogradnje> VrsteNadogradnje { get; set; } = null!;
 
+    // === Troškovi ===
+    public DbSet<TipTroska> TipoviTroskova { get; set; } = null!;
+    public DbSet<NalogTrosak> NalogTroskovi { get; set; } = null!;
+
+    // === Prihodi ===
+    public DbSet<NalogPrihod> NalogPrihodi { get; set; } = null!;
+
     // === Auth / Users ===
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Employee> Employees { get; set; } = null!;
@@ -96,6 +103,34 @@ public class TruckContext : DbContext
         modelBuilder.Entity<Tura>()
             .HasIndex(t => t.RedniBroj)
             .IsUnique();
+
+        // NALOG PRIHODI
+
+        modelBuilder.Entity<NalogPrihod>()
+            .HasOne(p => p.Nalog)
+            .WithMany(n => n.Prihodi)
+            .HasForeignKey(p => p.NalogId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<NalogPrihod>()
+            .HasIndex(p => p.NalogId);
+
+        // NALOG TROSKOVI
+
+        modelBuilder.Entity<NalogTrosak>()
+            .HasOne(t => t.Nalog)
+            .WithMany(n => n.Troskovi)
+            .HasForeignKey(t => t.NalogId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<NalogTrosak>()
+            .HasOne(t => t.TipTroska)
+            .WithMany(tp => tp.NalogTroskovi)
+            .HasForeignKey(t => t.TipTroskaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<NalogTrosak>()
+            .HasIndex(t => t.NalogId);
 
         // VINJETA
 

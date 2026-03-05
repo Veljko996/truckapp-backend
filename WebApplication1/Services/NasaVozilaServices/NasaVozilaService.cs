@@ -20,6 +20,12 @@ public class NasaVozilaService : INasaVozilaService
         return vozila.Adapt<IEnumerable<NasaVozilaReadDto>>();
     }
 
+    public async Task<IEnumerable<NasaVozilaReadDto>> GetAvailableForTuraAsync(int? currentTuraId = null)
+    {
+        var vozila = await _repository.GetAvailableForTuraAsync(currentTuraId);
+        return vozila.Adapt<IEnumerable<NasaVozilaReadDto>>();
+    }
+
     public async Task<NasaVozilaReadDto> GetById(int voziloId)
     {
         var vozilo = await _repository.GetById(voziloId);

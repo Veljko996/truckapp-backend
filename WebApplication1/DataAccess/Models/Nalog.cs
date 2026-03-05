@@ -49,5 +49,8 @@ public class Nalog
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public string? CreatedBy { get; set; }
     #endregion
+
+    public ICollection<NalogTrosak> Troskovi { get; set; } = new List<NalogTrosak>();
+    public ICollection<NalogPrihod> Prihodi { get; set; } = new List<NalogPrihod>();
 }
 

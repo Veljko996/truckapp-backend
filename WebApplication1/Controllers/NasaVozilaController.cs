@@ -24,6 +24,17 @@ public class NasaVozilaController: ControllerBase
         return Ok(vozila);
     }
 
+    /// <summary>
+    /// Vozila koja mogu biti izabrana na turi (nisu na aktivnom nalogu).
+    /// currentTuraId: pri izmeni ture prosledi njen ID da se njeno trenutno vozilo i dalje prikaže kao moguće.
+    /// </summary>
+    [HttpGet("available-for-tura")]
+    public async Task<ActionResult<IEnumerable<NasaVozilaReadDto>>> GetAvailableForTura([FromQuery] int? currentTuraId = null)
+    {
+        var vozila = await _service.GetAvailableForTuraAsync(currentTuraId);
+        return Ok(vozila);
+    }
+
     [HttpGet("{voziloId}")]
     public async Task<ActionResult<NasaVozilaReadDto>> GetById(int voziloId)
     {

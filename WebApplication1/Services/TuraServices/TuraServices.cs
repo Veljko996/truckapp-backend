@@ -1,4 +1,5 @@
 using WebApplication1.Utils.Helper;
+using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
 
 namespace WebApplication1.Services.TuraServices;
 
@@ -43,7 +44,11 @@ public class TuraService : ITuraService
         if (tura.VoziloId == 0)
             tura.VoziloId = null;
 
-        // 5) Jedan insert, jedan SaveChanges
+        // 5) Jedno vozilo samo na jednom aktivnom nalogu
+        if (tura.VoziloId.HasValue && await _repository.IsVoziloZauzetoNaNaloguAsync(tura.VoziloId.Value, null))
+            throw new ValidationException("Vozilo", "Ovo vozilo je već dodeljeno aktivnom nalogu. Jedno vozilo može biti samo na jednom nalogu.");
+
+        // 6) Jedan insert, jedan SaveChanges
         _repository.Add(tura);
         await _repository.SaveChangesAsync();
 
@@ -54,7 +59,7 @@ public class TuraService : ITuraService
 	{
 		var source = await _repository.GetByIdAsync(sourceTuraId);
 		if (source is null)
-			throw new NotFoundException("Tura ne postoji");
+			throw new NotFoundException("Tura", $"Tura sa ID {sourceTuraId} nije pronađena.");
 
 		var newRedniBroj = await _repository.GetNextTuraBrojAsync();
 
@@ -63,7 +68,7 @@ public class TuraService : ITuraService
 			KlijentId = source.KlijentId,
 			PrevoznikId = source.PrevoznikId,
 			VrstaNadogradnjeId = source.VrstaNadogradnjeId,
-			VoziloId = source.VoziloId,
+			VoziloId = null,
 
 			MestoUtovara = source.MestoUtovara,
 			MestoIstovara = source.MestoIstovara,
@@ -101,6 +106,10 @@ public class TuraService : ITuraService
 
 		dto.Adapt(tura);
 		tura.StatusTure = "Dodeljena";
+
+		// Jedno vozilo samo na jednom aktivnom nalogu; pri izmeni ove ture njeno vozilo ne smatra se zauzetim
+		if (tura.VoziloId.HasValue && await _repository.IsVoziloZauzetoNaNaloguAsync(tura.VoziloId.Value, id))
+			throw new ValidationException("Vozilo", "Ovo vozilo je već dodeljeno drugom aktivnom nalogu. Jedno vozilo može biti samo na jednom nalogu.");
 
 		await _repository.SaveChangesAsync();
 	}

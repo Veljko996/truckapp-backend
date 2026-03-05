@@ -73,6 +73,10 @@ public class NalogService : INalogService
         nalog.Tezina = tura.Tezina;
 
         nalog.PrevoznikId = tura.PrevoznikId;
+
+        // Ako je na turi izabrano naše vozilo i prevoznik je interni, automatski popuni registraciju (Naziv vozila) na nalogu
+        if (tura.VoziloId.HasValue && tura.Vozilo != null && tura.Prevoznik?.Interni == true)
+            nalog.RegistarskiBrojVozilaExt = tura.Vozilo.Naziv;
         //nalog.IzvoznoCarinjenje = tura.IzvoznoCarinjenje;
         //nalog.UvoznoCarinjenje = tura.UvoznoCarinjenje;
 
