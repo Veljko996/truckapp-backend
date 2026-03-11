@@ -53,5 +53,6 @@ public class Nalog
 
     public ICollection<NalogTrosak> Troskovi { get; set; } = new List<NalogTrosak>();
     public ICollection<NalogPrihod> Prihodi { get; set; } = new List<NalogPrihod>();
+    public ICollection<NalogDokument> Dokumenti { get; set; } = new List<NalogDokument>();
 }
 

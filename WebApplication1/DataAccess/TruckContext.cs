@@ -26,6 +26,10 @@ public class TruckContext : DbContext
     // === Prihodi ===
     public DbSet<NalogPrihod> NalogPrihodi { get; set; } = null!;
 
+    // === Dokumenti ===
+    public DbSet<TipDokumenta> TipoviDokumenata { get; set; } = null!;
+    public DbSet<NalogDokument> NalogDokumenti { get; set; } = null!;
+
     // === Auth / Users ===
     public DbSet<User> Users { get; set; } = null!;
     public DbSet<Employee> Employees { get; set; } = null!;
@@ -144,6 +148,24 @@ public class TruckContext : DbContext
 
         modelBuilder.Entity<NalogTrosak>()
             .HasIndex(t => t.NalogId);
+
+        // NALOG DOKUMENTI
+
+        modelBuilder.Entity<NalogDokument>()
+            .HasOne(d => d.Nalog)
+            .WithMany(n => n.Dokumenti)
+            .HasForeignKey(d => d.NalogId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<NalogDokument>()
+            .HasOne(d => d.TipDokumenta)
+            .WithMany(tp => tp.NalogDokumenti)
+            .HasForeignKey(d => d.TipDokumentaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<NalogDokument>()
+            .HasIndex(d => d.NalogId)
+            .HasFilter("[IsDeleted] = 0");
 
         // VINJETA
 

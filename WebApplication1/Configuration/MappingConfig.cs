@@ -1,4 +1,5 @@
 using WebApplication1.Utils.DTOs.NalogDTO;
+using WebApplication1.Utils.DTOs.NalogDokumentiDTO;
 using WebApplication1.Utils.DTOs.NalogPrihodiDTO;
 using WebApplication1.Utils.DTOs.NalogTroskoviDTO;
 
@@ -239,5 +240,17 @@ public static class MappingConfig
             .Ignore(dest => dest.CreatedBy);
 
         #endregion NalogPrihodi
+
+        #region NalogDokumenti
+
+        TypeAdapterConfig<NalogDokument, NalogDokumentDto>
+            .NewConfig()
+            .Map(dest => dest.TipDokumentaNaziv,
+                 src => src.TipDokumenta != null ? src.TipDokumenta.Naziv : null);
+
+        TypeAdapterConfig<TipDokumenta, TipDokumentaDto>
+            .NewConfig();
+
+        #endregion NalogDokumenti
     }
 }

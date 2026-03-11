@@ -21,6 +21,9 @@ using WebApplication1.Services.NalogTroskoviServices;
 using WebApplication1.Repository.NalogTroskoviRepository;
 using WebApplication1.Services.NalogPrihodiServices;
 using WebApplication1.Repository.NalogPrihodiRepository;
+using WebApplication1.Services.NalogDokumentiServices;
+using WebApplication1.Repository.NalogDokumentiRepository;
+using WebApplication1.Services.FileStorage;
 using WebApplication1.Services.QuestPdfServices;
 
 namespace WebApplication1.Configuration;
@@ -59,6 +62,14 @@ public static class ApiConfig
 
         builder.Services.AddScoped<INalogPrihodiRepository, NalogPrihodiRepository>();
         builder.Services.AddScoped<INalogPrihodiService, NalogPrihodiService>();
+
+        builder.Services.AddScoped<INalogDokumentiRepository, NalogDokumentiRepository>();
+        builder.Services.AddScoped<INalogDokumentiService, NalogDokumentiService>();
+
+        if (!string.IsNullOrWhiteSpace(builder.Configuration["AppSettings:Blob"]))
+            builder.Services.AddScoped<IFileStorageService, AzureBlobStorageService>();
+        else
+            builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
         
         // EKSPERIMENTALNO: QuestPDF servis za direktno PDF generisanje
         builder.Services.AddScoped<IQuestPdfNalogGenerator, QuestPdfNalogGenerator>();
