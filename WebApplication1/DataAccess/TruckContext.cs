@@ -37,6 +37,7 @@ public class TruckContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.Entity<DashboardStatsDto>().HasNoKey();
+        modelBuilder.Entity<ExternalDashboardStatsRawDto>().HasNoKey();
         modelBuilder.Entity<DashboardMonthlyProfitDto>().HasNoKey();
 
         // USER / AUTH

@@ -9,7 +9,7 @@ public class Nalog
     public int NalogId { get; set; }
     public string? NalogBroj { get; set; }
     public bool? isArchived { get; set; } = false;
-    public bool AutoCreatedFromTuraAssignment { get; set; } = false;
+    public bool? AutoCreatedFromTuraAssignment { get; set; } = false;
 
     #region polja koja se povlače iz ture i ne menjaju se 
     public int TuraId { get; set; }

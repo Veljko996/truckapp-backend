@@ -16,12 +16,30 @@ public class DashboardRepository : IDashboardRepository
 
     public async Task<DashboardStatsDto> GetExternalDashboardStatsAsync(CancellationToken cancellationToken = default)
     {
-        var stats = await _context.Set<DashboardStatsDto>()
+        var list = await _context.Set<ExternalDashboardStatsRawDto>()
             .FromSqlRaw("EXEC dbo.GetExternalDashboardStats")
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
-        return stats.FirstOrDefault() ?? new DashboardStatsDto();
+        var raw = list.FirstOrDefault();
+        if (raw == null)
+            return new DashboardStatsDto();
+
+        return new DashboardStatsDto
+        {
+            UkupanBrojNaloga = raw.UkupanBrojNaloga ?? 0,
+            UkupanBrojIzvrsenihNaloga = raw.UkupanBrojIzvrsenihNaloga ?? 0,
+            BrojAktivnihNaloga = raw.BrojAktivnihNaloga ?? 0,
+            BrojNalogaDanas = raw.BrojNalogaDanas ?? 0,
+            BrojNalogaNedelja = raw.BrojNalogaNedelja ?? 0,
+            BrojNalogaMesec = raw.BrojNalogaMesec ?? 0,
+            ProfitDanasEUR = raw.ProfitDanasEUR ?? 0m,
+            ProfitDanasRSD = raw.ProfitDanasRSD ?? 0m,
+            ProfitNedeljaEUR = raw.ProfitNedeljaEUR ?? 0m,
+            ProfitNedeljaRSD = raw.ProfitNedeljaRSD ?? 0m,
+            ProfitMesecEUR = raw.ProfitMesecEUR ?? 0m,
+            ProfitMesecRSD = raw.ProfitMesecRSD ?? 0m
+        };
     }
 
     public async Task<List<DashboardMonthlyProfitDto>> GetMonthlyProfitAsync(int monthsBack = 12, CancellationToken cancellationToken = default)
