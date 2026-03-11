@@ -50,7 +50,7 @@ public static class CookieHelper
 		{
 			HttpOnly = true,
 			Secure = !isDev,
-			SameSite = isDev ? SameSiteMode.None : SameSiteMode.None,
+			SameSite = isDev ? SameSiteMode.Lax : SameSiteMode.None,
 			Path = "/",
 			Expires = DateTimeOffset.UtcNow.AddDays(-1)
 		});
@@ -59,7 +59,7 @@ public static class CookieHelper
 		{
 			HttpOnly = true,
 			Secure = !isDev,
-			SameSite = isDev ? SameSiteMode.None : SameSiteMode.None,
+			SameSite = isDev ? SameSiteMode.Lax : SameSiteMode.None,
 			Path = "/",
 			Expires = DateTimeOffset.UtcNow.AddDays(-1)
 		});

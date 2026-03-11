@@ -115,6 +115,18 @@ public class TruckContext : DbContext
         modelBuilder.Entity<NalogPrihod>()
             .HasIndex(p => p.NalogId);
 
+        modelBuilder.Entity<NalogPrihod>()
+            .HasIndex(p => new { p.NalogId, p.IsSeededInitial })
+            .IsUnique()
+            .HasFilter("[IsSeededInitial] = 1");
+
+        // NALOG
+
+        modelBuilder.Entity<Nalog>()
+            .HasIndex(n => n.TuraId)
+            .IsUnique()
+            .HasFilter("[StatusNaloga] <> 'Storniran' AND [StatusNaloga] <> 'Ponisten'");
+
         // NALOG TROSKOVI
 
         modelBuilder.Entity<NalogTrosak>()

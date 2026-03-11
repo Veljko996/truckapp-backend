@@ -19,6 +19,9 @@ public class NalogTrosak
     [Column(TypeName = "decimal(18,2)")]
     public decimal Iznos { get; set; }
 
+    [Required, MaxLength(10)]
+    public string Valuta { get; set; } = "RSD";
+
     [MaxLength(500)]
     public string? Napomena { get; set; }
 

@@ -8,11 +8,10 @@ public class DashboardStatsDto
     public int BrojNalogaDanas { get; set; }
     public int BrojNalogaNedelja { get; set; }
     public int BrojNalogaMesec { get; set; }
-    public decimal PrihodDanas { get; set; }
-    public decimal PrihodNedelja { get; set; }
-    public decimal PrihodMesec { get; set; }
+    public decimal ProfitDanasEUR { get; set; }
+    public decimal ProfitDanasRSD { get; set; }
     public decimal ProfitNedeljaEUR { get; set; }
-    public decimal ProfitMesecEUR { get; set; }
     public decimal ProfitNedeljaRSD { get; set; }
+    public decimal ProfitMesecEUR { get; set; }
     public decimal ProfitMesecRSD { get; set; }
 }

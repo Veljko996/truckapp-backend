@@ -22,6 +22,9 @@ public class NalogPrihod
     [Required, MaxLength(10)]
     public string Valuta { get; set; } = "RSD";
 
+    public bool IsSeededInitial { get; set; } = false;
+    public bool IsAutoSyncEnabled { get; set; } = false;
+
     [MaxLength(500)]
     public string? Napomena { get; set; }
 

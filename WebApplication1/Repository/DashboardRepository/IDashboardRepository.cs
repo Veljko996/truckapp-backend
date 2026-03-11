@@ -5,7 +5,7 @@ namespace WebApplication1.Repository.DashboardRepository;
 
 public interface IDashboardRepository
 {
-    Task<DashboardStatsDto> GetDashboardStatsAsync(CancellationToken cancellationToken = default);
+    Task<DashboardStatsDto> GetExternalDashboardStatsAsync(CancellationToken cancellationToken = default);
     Task<List<DashboardMonthlyProfitDto>> GetMonthlyProfitAsync(int monthsBack = 12, CancellationToken cancellationToken = default);
     Task<List<NasaVozila>> GetVozilaSaIsticucimDokumentimaAsync(int daysThreshold, CancellationToken cancellationToken = default);
 }

@@ -56,48 +56,43 @@ public class NalogService : INalogService
         if (tura == null)
             throw new NotFoundException("Tura", $"Tura sa ID {turaId} nije pronađena.");
 
-        var username = _httpContextAccessor.HttpContext?.User?.Identity?.Name;
-
-        // 1) Uzmi broj iz baze (DB je autoritet)
-        var nalogBroj = await _repository.GetNextNalogBrojAsync();
-
-        // 2) Mapiraj DTO -> Entity
-        var nalog = dto.Adapt<Nalog>();
-
-        // 3) Popuni iz ture
-        nalog.TuraId = turaId;
-        nalog.Relacija = $"{tura.MestoUtovara} - {tura.MestoIstovara}";
-        nalog.DatumUtovara = tura.DatumUtovara;
-        nalog.DatumIstovara = tura.DatumIstovara;
-        nalog.KolicinaRobe = tura.KolicinaRobe;
-        nalog.Tezina = tura.Tezina;
-
-        nalog.PrevoznikId = tura.PrevoznikId;
-
-        // Ako je na turi izabrano naše vozilo i prevoznik je interni, automatski popuni registraciju (Naziv vozila) na nalogu
-        if (tura.VoziloId.HasValue && tura.Vozilo != null && tura.Prevoznik?.Interni == true)
-            nalog.RegistarskiBrojVozilaExt = tura.Vozilo.Naziv;
-        //nalog.IzvoznoCarinjenje = tura.IzvoznoCarinjenje;
-        //nalog.UvoznoCarinjenje = tura.UvoznoCarinjenje;
-
-        // 4) Sistemsка polja
-        nalog.CreatedAt = DateTime.UtcNow;
-        nalog.CreatedBy = username;
-
-        // 5) Broj + status
-        nalog.NalogBroj = nalogBroj;
-        nalog.StatusNaloga = "U Toku";
-
-        // 6) Promeni status ture (ako je ovo pravilo)
+        var nalog = await CreateNalogEntityFromTuraAsync(tura, dto.Adapt<Nalog>(), autoCreatedFromTuraAssignment: false);
         tura.StatusTure = "Kreiran Nalog";
-
-        // 7) Save jednom
         _repository.Add(nalog);
         await _repository.SaveChangesAsync();
-
-        // 8) Re-query (ako ti treba navigacija)
         var created = await _repository.GetByIdAsync(nalog.NalogId);
         return created!.Adapt<NalogReadDto>();
+    }
+
+    public async Task<(Nalog nalog, bool created)> EnsureInternalForTuraAsync(Tura tura)
+    {
+        var existing = await _repository.GetActiveByTuraIdAsync(tura.TuraId);
+        if (existing != null)
+        {
+            SyncAssignmentFieldsFromTura(existing, tura);
+            _repository.Update(existing);
+            return (existing, false);
+        }
+
+        var nalog = await CreateNalogEntityFromTuraAsync(
+            tura,
+            new Nalog(),
+            autoCreatedFromTuraAssignment: true);
+
+        _repository.Add(nalog);
+        return (nalog, true);
+    }
+
+    public async Task<bool> CancelActiveInternalForTuraAsync(int turaId)
+    {
+        var existing = await _repository.GetActiveByTuraIdAsync(turaId);
+        if (existing == null || existing.Prevoznik?.Interni != true)
+            return false;
+
+        existing.StatusNaloga = "Storniran";
+        existing.FinishedAt = null;
+        _repository.Update(existing);
+        return true;
     }
 
 
@@ -309,6 +304,43 @@ public class NalogService : INalogService
             .Replace("{{NAPOMENA_NALOGA}}", nalog.NapomenaNalog ?? "");
 
         return Encoding.UTF8.GetBytes(html);
+    }
+
+    private async Task<Nalog> CreateNalogEntityFromTuraAsync(
+        Tura tura,
+        Nalog nalog,
+        bool autoCreatedFromTuraAssignment)
+    {
+        var username = _httpContextAccessor.HttpContext?.User?.Identity?.Name;
+        var nalogBroj = await _repository.GetNextNalogBrojAsync();
+
+        nalog.TuraId = tura.TuraId;
+        nalog.Relacija = $"{tura.MestoUtovara} - {tura.MestoIstovara}";
+        nalog.DatumUtovara = tura.DatumUtovara;
+        nalog.DatumIstovara = tura.DatumIstovara;
+        nalog.KolicinaRobe = tura.KolicinaRobe;
+        nalog.Tezina = tura.Tezina;
+        nalog.PrevoznikId = tura.PrevoznikId;
+        nalog.IzvoznoCarinjenje ??= tura.IzvoznoCarinjenje;
+        nalog.UvoznoCarinjenje ??= tura.UvoznoCarinjenje;
+        nalog.CreatedAt = DateTime.UtcNow;
+        nalog.CreatedBy = username;
+        nalog.NalogBroj = nalogBroj;
+        nalog.StatusNaloga = "U Toku";
+        nalog.AutoCreatedFromTuraAssignment = autoCreatedFromTuraAssignment;
+
+        SyncAssignmentFieldsFromTura(nalog, tura);
+        return nalog;
+    }
+
+    private static void SyncAssignmentFieldsFromTura(Nalog nalog, Tura tura)
+    {
+        nalog.PrevoznikId = tura.PrevoznikId;
+
+        if (tura.Prevoznik?.Interni == true && tura.VoziloId.HasValue && tura.Vozilo != null)
+            nalog.RegistarskiBrojVozilaExt = tura.Vozilo.Naziv;
+        else if (tura.Prevoznik?.Interni == true)
+            nalog.RegistarskiBrojVozilaExt = null;
     }
 
     private async Task<string> GetLogoBase64Async()

@@ -1,4 +1,4 @@
-﻿public class TuraReadDto
+public class TuraReadDto
 {
     public int TuraId { get; set; }
     public string? RedniBroj { get; set; }
@@ -32,6 +32,7 @@
 
     // sve lookup nazive nullable
     public string? PrevoznikNaziv { get; set; }
+    public bool? PrevoznikInterni { get; set; }
     public string? VoziloNaziv { get; set; }
     public string? KlijentNaziv { get; set; }
     public string? VrstaNadogradnjeNaziv { get; set; }

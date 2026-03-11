@@ -1,15 +1,28 @@
 using WebApplication1.Utils.Helper;
 using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
+using WebApplication1.DataAccess;
+using WebApplication1.Services.NalogServices;
+using WebApplication1.Services.NalogPrihodiServices;
 
 namespace WebApplication1.Services.TuraServices;
 
 public class TuraService : ITuraService
 {
     private readonly ITureRepository _repository;
+    private readonly INalogService _nalogService;
+    private readonly INalogPrihodiService _nalogPrihodiService;
+    private readonly TruckContext _context;
 
-    public TuraService(ITureRepository repository)
+    public TuraService(
+        ITureRepository repository,
+        INalogService nalogService,
+        INalogPrihodiService nalogPrihodiService,
+        TruckContext context)
     {
         _repository = repository;
+        _nalogService = nalogService;
+        _nalogPrihodiService = nalogPrihodiService;
+        _context = context;
     }
 
     public async Task<IEnumerable<TuraReadDto>> GetAll()
@@ -99,19 +112,47 @@ public class TuraService : ITuraService
 	}
 
 
-	public async Task UpdateBusiness(int id, UpdateTureBusinessDto dto)
+	public async Task<UpdateTuraBusinessResultDto> UpdateBusiness(int id, UpdateTureBusinessDto dto)
 	{
 		var tura = await _repository.GetByIdAsync(id)
 			?? throw new NotFoundException("Tura", $"Tura sa ID {id} nije pronađena.");
 
 		dto.Adapt(tura);
-		tura.StatusTure = "Dodeljena";
+		await SyncAssignmentReferencesAsync(tura);
 
 		// Jedno vozilo samo na jednom aktivnom nalogu; pri izmeni ove ture njeno vozilo ne smatra se zauzetim
 		if (tura.VoziloId.HasValue && await _repository.IsVoziloZauzetoNaNaloguAsync(tura.VoziloId.Value, id))
 			throw new ValidationException("Vozilo", "Ovo vozilo je već dodeljeno drugom aktivnom nalogu. Jedno vozilo može biti samo na jednom nalogu.");
 
+		var isInternalAssignment = tura.Prevoznik?.Interni == true;
+		Nalog? nalog = null;
+		var nalogCreatedNow = false;
+		var seededPrihodCreatedNow = false;
+
+		if (isInternalAssignment)
+		{
+			ValidateInternalAssignmentSeedData(tura);
+
+			(nalog, nalogCreatedNow) = await _nalogService.EnsureInternalForTuraAsync(tura);
+			(_, seededPrihodCreatedNow) = await _nalogPrihodiService.EnsureSeededInitialPrihodAsync(nalog, tura);
+			tura.StatusTure = "Kreiran Nalog";
+		}
+		else
+		{
+			await _nalogService.CancelActiveInternalForTuraAsync(tura.TuraId);
+			tura.StatusTure = "Dodeljena";
+		}
+
 		await _repository.SaveChangesAsync();
+
+		return new UpdateTuraBusinessResultDto
+		{
+			TuraId = tura.TuraId,
+			IsInternalAssignment = isInternalAssignment,
+			NalogId = nalog?.NalogId,
+			NalogCreatedNow = nalogCreatedNow,
+			SeededPrihodCreatedNow = seededPrihodCreatedNow
+		};
 	}
 
 
@@ -145,6 +186,37 @@ public class TuraService : ITuraService
 
         return true;
     }
+
+	private async Task SyncAssignmentReferencesAsync(Tura tura)
+	{
+		if (!tura.PrevoznikId.HasValue)
+			throw new ValidationException("Prevoznik", "Prevoznik je obavezan.");
+
+		tura.Prevoznik = await _context.Prevoznici.FindAsync(tura.PrevoznikId.Value)
+			?? throw new ValidationException("Prevoznik", $"Prevoznik sa ID {tura.PrevoznikId.Value} ne postoji.");
+
+		if (tura.VoziloId.HasValue)
+		{
+			tura.Vozilo = await _context.NasaVozila.FindAsync(tura.VoziloId.Value)
+				?? throw new ValidationException("Vozilo", $"Vozilo sa ID {tura.VoziloId.Value} ne postoji.");
+		}
+		else
+		{
+			tura.Vozilo = null;
+		}
+	}
+
+	private static void ValidateInternalAssignmentSeedData(Tura tura)
+	{
+		if (!tura.VoziloId.HasValue)
+			throw new ValidationException("Vozilo", "Vozilo je obavezno za interni nalog.");
+
+		if (!tura.IzlaznaCena.HasValue)
+			throw new ValidationException("IzlaznaCena", "Izlazna cena je obavezna za interni nalog.");
+
+		if (string.IsNullOrWhiteSpace(tura.Valuta))
+			throw new ValidationException("Valuta", "Valuta je obavezna za interni nalog.");
+	}
 
 
 }

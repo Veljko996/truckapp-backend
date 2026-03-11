@@ -6,6 +6,7 @@ public interface INalogRepository
     IQueryable<Nalog> GetInterni();
     Task<List<Nalog>> GetNaloziSaIstovaromUKasnjenjuAsync();
     Task<Nalog?> GetByIdAsync(int id);
+    Task<Nalog?> GetActiveByTuraIdAsync(int turaId);
     Task<string> GetNextNalogBrojAsync();
 
     void Add(Nalog nalog);

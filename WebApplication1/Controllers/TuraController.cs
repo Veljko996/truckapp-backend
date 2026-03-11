@@ -51,10 +51,10 @@ public class TuraController : ControllerBase
 
 	// PATCH 2 – BUSINESS (komercijalni)
 	[HttpPatch("{id}/business")]
-    public async Task<IActionResult> UpdateBusiness(int id, [FromBody] UpdateTureBusinessDto dto)
+    public async Task<ActionResult<UpdateTuraBusinessResultDto>> UpdateBusiness(int id, [FromBody] UpdateTureBusinessDto dto)
     {
-		await _service.UpdateBusiness(id, dto);
-		return NoContent();
+		var result = await _service.UpdateBusiness(id, dto);
+		return Ok(result);
 	}
 
     // PATCH 3 – NOTES (napomene/carinjenje)

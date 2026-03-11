@@ -9,6 +9,8 @@ public interface INalogService
     Task<IEnumerable<NalogReadDto>> GetNaloziSaIstovaromUKasnjenjuAsync();
     Task<NalogReadDto?> GetById(int id);
     Task<NalogReadDto> Create(int turaId, CreateNalogDto dto);
+    Task<(Nalog nalog, bool created)> EnsureInternalForTuraAsync(Tura tura);
+    Task<bool> CancelActiveInternalForTuraAsync(int turaId);
     Task AssignPrevoznik(int id, AssignPrevoznikDto dto);
     Task UpdateBusiness(int id, UpdateBusinessFieldsDto dto);
     Task UpdateNotes(int id, UpdateNotesDto dto);

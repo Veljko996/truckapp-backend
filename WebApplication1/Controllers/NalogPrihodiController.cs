@@ -39,7 +39,6 @@ public class NalogPrihodiController : ControllerBase
     }
 
     [HttpGet("{nalogId:int}/obracun")]
-    [Authorize(Roles = "Admin")]
     public async Task<ActionResult<NalogObracunDto>> GetObracun(int nalogId)
     {
         var result = await _service.GetObracunAsync(nalogId);

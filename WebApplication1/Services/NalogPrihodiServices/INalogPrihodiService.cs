@@ -8,4 +8,5 @@ public interface INalogPrihodiService
     Task CreateAsync(int nalogId, CreateNalogPrihodDto dto);
     Task DeleteAsync(int prihodId);
     Task<NalogObracunDto> GetObracunAsync(int nalogId);
+    Task<(NalogPrihod? prihod, bool created)> EnsureSeededInitialPrihodAsync(Nalog nalog, Tura tura);
 }

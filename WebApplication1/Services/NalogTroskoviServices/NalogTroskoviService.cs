@@ -31,7 +31,11 @@ public class NalogTroskoviService : INalogTroskoviService
         ValidateInterniPrevoznik(nalog);
 
         var troskovi = await _repository.GetByNalogIdAsync(nalogId);
-        return troskovi.Select(t => t.Adapt<NalogTrosakDto>()).ToList();
+        return troskovi
+            .Select(MapTrosakDto)
+            .OrderByDescending(t => t.CreatedAt)
+            .ThenByDescending(t => t.TrosakId)
+            .ToList();
     }
 
     public async Task CreateAsync(int nalogId, CreateNalogTrosakDto dto)
@@ -45,6 +49,7 @@ public class NalogTroskoviService : INalogTroskoviService
 
         var entity = dto.Adapt<NalogTrosak>();
         entity.NalogId = nalogId;
+        entity.Valuta = NormalizeCurrency(entity.Valuta);
         entity.CreatedAt = DateTime.UtcNow;
         entity.CreatedBy = username;
 
@@ -71,5 +76,17 @@ public class NalogTroskoviService : INalogTroskoviService
     {
         if (nalog.Prevoznik == null || !nalog.Prevoznik.Interni)
             throw new ValidationException("Nalog", "Troškovi se mogu unositi samo za naše vozilo (interni prevoznik).");
+    }
+
+    private static NalogTrosakDto MapTrosakDto(NalogTrosak trosak)
+    {
+        var dto = trosak.Adapt<NalogTrosakDto>();
+        dto.Valuta = NormalizeCurrency(trosak.Valuta);
+        return dto;
+    }
+
+    private static string NormalizeCurrency(string? currency)
+    {
+        return string.IsNullOrWhiteSpace(currency) ? "RSD" : currency.Trim().ToUpperInvariant();
     }
 }

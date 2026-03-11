@@ -3,7 +3,7 @@ using WebApplication1.Utils.DTOs.DashboardDTO;
 
 namespace WebApplication1.Controllers;
 
-/// Dashboard controller for dashboard stats.
+/// Dashboard controller for external dashboard stats.
 
 [ApiController]
 [Route("api/[controller]")]
@@ -23,9 +23,9 @@ public class DashboardController : ControllerBase
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<DashboardStatsDto>> GetDashboardStats(CancellationToken cancellationToken = default)
+    public async Task<ActionResult<DashboardStatsDto>> GetExternalDashboardStats(CancellationToken cancellationToken = default)
     {
-        var stats = await _dashboardService.GetDashboardStatsAsync(cancellationToken);
+        var stats = await _dashboardService.GetExternalDashboardStatsAsync(cancellationToken);
         return Ok(stats);
     }
 

@@ -14,6 +14,8 @@ public static class MappingConfig
              .IgnoreNullValues(true)
              .Map(dest => dest.PrevoznikNaziv,
                   src => src.Prevoznik != null ? src.Prevoznik.Naziv : null)
+             .Map(dest => dest.PrevoznikInterni,
+                  src => src.Prevoznik != null ? src.Prevoznik.Interni : (bool?)null)
              .Map(dest => dest.VoziloNaziv,
                   src => src.Vozilo != null ? src.Vozilo.Naziv : null)
              .Map(dest => dest.KlijentNaziv,

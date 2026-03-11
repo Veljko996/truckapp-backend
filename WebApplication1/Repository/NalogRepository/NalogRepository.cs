@@ -7,6 +7,7 @@ namespace WebApplication1.Repository.NalogRepository;
 public class NalogRepository : INalogRepository
 {
     private readonly TruckContext _context;
+    private static readonly string[] InactiveStatuses = ["Storniran", "Ponisten"];
 
     public NalogRepository(TruckContext context)
     {
@@ -21,6 +22,18 @@ public class NalogRepository : INalogRepository
             .Include(n => n.Tura!)
                 .ThenInclude(t => t.Vozilo)
             .FirstOrDefaultAsync(n => n.NalogId == id);
+    }
+
+    public async Task<Nalog?> GetActiveByTuraIdAsync(int turaId)
+    {
+        return await _context
+            .Nalozi
+            .Include(n => n.Prevoznik)
+            .Include(n => n.Tura!)
+                .ThenInclude(t => t.Vozilo)
+            .FirstOrDefaultAsync(n =>
+                n.TuraId == turaId
+                && !InactiveStatuses.Contains(n.StatusNaloga ?? string.Empty));
     }
 
     public IQueryable<Nalog> GetAll()

@@ -12,9 +12,9 @@ public class DashboardService : IDashboardService
         _repository = repository;
     }
 
-    public async Task<DashboardStatsDto> GetDashboardStatsAsync(CancellationToken cancellationToken = default)
+    public async Task<DashboardStatsDto> GetExternalDashboardStatsAsync(CancellationToken cancellationToken = default)
     {
-        return await _repository.GetDashboardStatsAsync(cancellationToken);
+        return await _repository.GetExternalDashboardStatsAsync(cancellationToken);
     }
 
     public async Task<List<DashboardMonthlyProfitDto>> GetMonthlyProfitAsync(int monthsBack = 12, CancellationToken cancellationToken = default)

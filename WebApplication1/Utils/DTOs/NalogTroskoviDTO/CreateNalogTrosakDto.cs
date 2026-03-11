@@ -10,6 +10,10 @@ public class CreateNalogTrosakDto
     [Required]
     public decimal Iznos { get; set; }
 
+    [Required]
+    [MaxLength(10)]
+    public string Valuta { get; set; } = "RSD";
+
     [MaxLength(500)]
     public string? Napomena { get; set; }
 }

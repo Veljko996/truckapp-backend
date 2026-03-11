@@ -7,7 +7,7 @@ namespace WebApplication1.Controllers;
 
 [ApiController]
 [Route("api/nalozi")]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,Korisnik")]
 public class NalogTroskoviController : ControllerBase
 {
     private readonly INalogTroskoviService _service;

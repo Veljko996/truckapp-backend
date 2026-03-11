@@ -14,10 +14,10 @@ public class DashboardRepository : IDashboardRepository
         _context = context;
     }
 
-    public async Task<DashboardStatsDto> GetDashboardStatsAsync(CancellationToken cancellationToken = default)
+    public async Task<DashboardStatsDto> GetExternalDashboardStatsAsync(CancellationToken cancellationToken = default)
     {
         var stats = await _context.Set<DashboardStatsDto>()
-            .FromSqlRaw("EXEC dbo.GetDashboardStats")
+            .FromSqlRaw("EXEC dbo.GetExternalDashboardStats")
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 

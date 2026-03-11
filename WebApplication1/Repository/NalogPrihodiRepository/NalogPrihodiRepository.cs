@@ -28,9 +28,26 @@ public class NalogPrihodiRepository : INalogPrihodiRepository
             .FirstOrDefaultAsync(p => p.PrihodId == prihodId);
     }
 
+    public async Task<NalogPrihod?> GetSeededInitialByNalogIdAsync(int nalogId)
+    {
+        return await _context.NalogPrihodi
+            .FirstOrDefaultAsync(p => p.NalogId == nalogId && p.IsSeededInitial);
+    }
+
+    public async Task<bool> HasAnyByNalogIdAsync(int nalogId)
+    {
+        return await _context.NalogPrihodi
+            .AnyAsync(p => p.NalogId == nalogId);
+    }
+
     public void Add(NalogPrihod entity)
     {
         _context.NalogPrihodi.Add(entity);
+    }
+
+    public void Update(NalogPrihod entity)
+    {
+        _context.NalogPrihodi.Update(entity);
     }
 
     public void Delete(NalogPrihod entity)
