@@ -87,7 +87,7 @@ public class NalogRepository : INalogRepository
             .Update(nalog);
     }
 
-    public async Task<string> GetNextNalogBrojAsync()
+    public async Task<string> GetNextDocumentNumberAsync(string documentType)
     {
         var output = new SqlParameter
         {
@@ -99,7 +99,7 @@ public class NalogRepository : INalogRepository
 
         await _context.Database.ExecuteSqlRawAsync(
             "EXEC dbo.GetNextDocumentNumber @DocumentType, @Result OUTPUT",
-            new SqlParameter("@DocumentType", "NALOG"),
+            new SqlParameter("@DocumentType", documentType),
             output
         );
 

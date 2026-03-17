@@ -7,7 +7,7 @@ public interface INalogRepository
     Task<List<Nalog>> GetNaloziSaIstovaromUKasnjenjuAsync();
     Task<Nalog?> GetByIdAsync(int id);
     Task<Nalog?> GetActiveByTuraIdAsync(int turaId);
-    Task<string> GetNextNalogBrojAsync();
+    Task<string> GetNextDocumentNumberAsync(string documentType);
 
     void Add(Nalog nalog);
     void Update(Nalog nalog);

@@ -1,6 +1,5 @@
 using WebApplication1.Repository.NalogRepository;
 using WebApplication1.Utils.DTOs.NalogDTO;
-using WebApplication1.Utils.Helper;
 using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
 
 namespace WebApplication1.Services.NalogServices;
@@ -314,7 +313,10 @@ public class NalogService : INalogService
         bool autoCreatedFromTuraAssignment)
     {
         var username = _httpContextAccessor.HttpContext?.User?.Identity?.Name;
-        var nalogBroj = await _repository.GetNextNalogBrojAsync();
+        var isInterni = IsInterniNalog(tura);
+        var documentType = GetNalogDocumentType(isInterni);
+        var raw = await _repository.GetNextDocumentNumberAsync(documentType);
+        var nalogBroj = FormatNalogBroj(raw, isInterni);
 
         nalog.TuraId = tura.TuraId;
         nalog.Relacija = $"{tura.MestoUtovara} - {tura.MestoIstovara}";
@@ -333,6 +335,27 @@ public class NalogService : INalogService
 
         SyncAssignmentFieldsFromTura(nalog, tura);
         return nalog;
+    }
+
+    private static bool IsInterniNalog(Tura tura) => tura.Prevoznik?.Interni == true;
+
+    private static string GetNalogDocumentType(bool isInterni) => isInterni ? "NALOG_INT" : "NALOG";
+
+    private static string FormatNalogBroj(string raw, bool isInterni)
+    {
+        if (!isInterni)
+            return raw;
+
+        // raw format from dbo.GetNextDocumentNumber: "{number}/{yy}" e.g. "1/26"
+        var parts = raw.Split('/', 2);
+        if (parts.Length != 2)
+            return "I" + raw;
+
+        if (!int.TryParse(parts[0], out var n))
+            return "I" + raw;
+
+        var yy = parts[1];
+        return $"INT-{n}/{yy}";
     }
 
     private static void SyncAssignmentFieldsFromTura(Nalog nalog, Tura tura)
