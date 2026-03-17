@@ -48,8 +48,12 @@ public class TureRepository : ITureRepository
 
     public async Task<string> GetNextTuraBrojAsync()
     {
-		
-		var output = new SqlParameter
+        return await GetNextDocumentNumberAsync("TURA");
+    }
+
+    public async Task<string> GetNextDocumentNumberAsync(string documentType)
+    {
+        var output = new SqlParameter
         {
             ParameterName = "@Result",
             SqlDbType = SqlDbType.NVarChar,
@@ -57,30 +61,13 @@ public class TureRepository : ITureRepository
             Direction = ParameterDirection.Output
         };
 
-        try
-        {
-            await _context.Database.ExecuteSqlRawAsync(
-                "EXEC dbo.GetNextDocumentNumber @DocumentType, @Result OUTPUT",
-                new SqlParameter("@DocumentType", "TURA"),
-                output
-            );
-        }
-        catch (Microsoft.Data.SqlClient.SqlException ex) when (ex.Message.Contains("converting") && ex.Message.Contains("nvarchar"))
-        {
-            throw new InvalidOperationException(
-                "GetNextDocumentNumber u bazi verovatno uzrokuje grešku tipa (nvarchar→int). Proveri proceduru i tabelu brojača.",
-                ex
-            );
-        }
+        await _context.Database.ExecuteSqlRawAsync(
+            "EXEC dbo.GetNextDocumentNumber @DocumentType, @Result OUTPUT",
+            new SqlParameter("@DocumentType", documentType),
+            output
+        );
 
-        var value = output.Value;
-        if (value == null || (value is string s && string.IsNullOrWhiteSpace(s)))
-        {
-            var fallback = "TURA-" + DateTime.UtcNow.Year + "-" + Guid.NewGuid().ToString("N")[..6];
-            return fallback;
-        }
-
-        return (string)value;
+        return (string)output.Value!;
     }
 
     public async Task<bool> SaveChangesAsync()
