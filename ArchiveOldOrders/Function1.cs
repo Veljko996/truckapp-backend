@@ -1,4 +1,3 @@
-
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Logging;
@@ -27,7 +26,6 @@ public class ArchiveOldOrdersFunction
 			_logger.LogError("SqlConnectionString is not configured!");
 			return;
 		}
-
 		try
 		{
 			using var conn = new SqlConnection(connectionString);
@@ -41,7 +39,7 @@ public class ArchiveOldOrdersFunction
                     ArchivedAt = SYSUTCDATETIME()
                 WHERE IsArchived = 0
                   AND StatusNaloga = N'Završen'
-                  AND DatumIstovara < DATEADD(day, -30, SYSUTCDATETIME());
+                  AND DatumIstovara < DATEADD(day, -60, SYSUTCDATETIME());
             ";
 
 			int affectedRows = await cmd.ExecuteNonQueryAsync();
