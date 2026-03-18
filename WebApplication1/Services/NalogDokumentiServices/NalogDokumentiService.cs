@@ -3,6 +3,7 @@ using WebApplication1.DataAccess.Models;
 using WebApplication1.Repository.NalogDokumentiRepository;
 using WebApplication1.Repository.NalogRepository;
 using WebApplication1.Services.FileStorage;
+using WebApplication1.Services.QueuePublisher;
 using WebApplication1.Utils.DTOs.NalogDokumentiDTO;
 using WebApplication1.Utils.Exceptions;
 using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
@@ -31,7 +32,7 @@ public class NalogDokumentiService : INalogDokumentiService
     private readonly INalogRepository _nalogRepository;
     private readonly IFileStorageService _fileStorage;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IDocumentProcessingQueuePublisher _queuePublisher;
+    private readonly IQueuePublisher _queuePublisher;
     private readonly long _maxFileSizeBytes;
 
     public NalogDokumentiService(
@@ -112,7 +113,7 @@ public class NalogDokumentiService : INalogDokumentiService
         _repository.Add(entity);
         await _repository.SaveChangesAsync();
 
-        await _queuePublisher.PublishAsync(entity.DokumentId);
+        await _queuePublisher.EnqueueDocumentProcessingAsync(entity.DokumentId);
 
         var saved = await _repository.GetByIdAsync(entity.DokumentId);
         return saved!.Adapt<NalogDokumentDto>();

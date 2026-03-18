@@ -23,6 +23,7 @@ using WebApplication1.Services.NalogPrihodiServices;
 using WebApplication1.Repository.NalogPrihodiRepository;
 using WebApplication1.Services.NalogDokumentiServices;
 using WebApplication1.Repository.NalogDokumentiRepository;
+using WebApplication1.Services.QueuePublisher;
 using WebApplication1.Services.FileStorage;
 using WebApplication1.Services.QuestPdfServices;
 using WebApplication1.Services.GorivoServices;
