@@ -5,10 +5,25 @@ namespace WebApplication1.Services.NasaVozilaServices;
 public class NasaVozilaService : INasaVozilaService
 {
     private readonly INasaVozilaRepository _repository;
+    private static readonly HashSet<string> ManualOverrideStatuses =
+        new(StringComparer.OrdinalIgnoreCase) { "U servisu", "Neaktivno" };
 
     public NasaVozilaService(INasaVozilaRepository repository)
     {
         _repository = repository;
+    }
+
+    private static string? NormalizeManualStatus(string? raspolozivost)
+    {
+        if (string.IsNullOrWhiteSpace(raspolozivost)) return null;
+        return ManualOverrideStatuses.Contains(raspolozivost.Trim()) ? raspolozivost.Trim() : null;
+    }
+
+    private static string ComputeEffectiveStatus(string? manualStatus, bool isBusy)
+    {
+        var manual = NormalizeManualStatus(manualStatus);
+        if (manual != null) return manual;
+        return isBusy ? "Na turi" : "Slobodno";
     }
 
     public async Task<IEnumerable<NasaVozilaReadDto>> GetAll()
@@ -16,8 +31,16 @@ public class NasaVozilaService : INasaVozilaService
         // Repository already includes Vinjete and uses AsNoTracking
         var vozila = await _repository.GetAll()
             .ToListAsync();
-        
-        return vozila.Adapt<IEnumerable<NasaVozilaReadDto>>();
+
+        var busyIds = await _repository.GetBusyVoziloIdsAsync();
+        var dtos = vozila.Adapt<List<NasaVozilaReadDto>>();
+
+        foreach (var dto in dtos)
+        {
+            dto.Raspolozivost = ComputeEffectiveStatus(dto.Raspolozivost, busyIds.Contains(dto.VoziloId));
+        }
+
+        return dtos;
     }
 
     public async Task<IEnumerable<NasaVozilaReadDto>> GetAvailableForTuraAsync(int? currentTuraId = null)
@@ -33,7 +56,10 @@ public class NasaVozilaService : INasaVozilaService
         if (vozilo == null)
             throw new NotFoundException("Vozilo", $"Vozilo sa ID {voziloId} nije pronađeno.");
 
-        return vozilo.Adapt<NasaVozilaReadDto>();
+        var dto = vozilo.Adapt<NasaVozilaReadDto>();
+        var isBusy = await _repository.IsVoziloBusyAsync(voziloId);
+        dto.Raspolozivost = ComputeEffectiveStatus(dto.Raspolozivost, isBusy);
+        return dto;
     }
 
     public async Task<NasaVozilaReadDto> Create(NasaVozilaCreateDto dto)

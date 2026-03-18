@@ -15,4 +15,14 @@ public interface INasaVozilaRepository
     /// excludeTuraId: pri izmeni ture, njena vozila ne smatraju se zauzetim.
     /// </summary>
     Task<List<NasaVozila>> GetAvailableForTuraAsync(int? excludeTuraId = null);
+
+    /// <summary>
+    /// Vozila koja su zauzeta zbog aktivnih naloga (nalog nije Istovaren/Završen/Storniran/Ponisten).
+    /// </summary>
+    Task<HashSet<int>> GetBusyVoziloIdsAsync();
+
+    /// <summary>
+    /// Da li je vozilo zauzeto zbog aktivnog naloga.
+    /// </summary>
+    Task<bool> IsVoziloBusyAsync(int voziloId);
 }

@@ -49,5 +49,7 @@ public class Employee
     public DateTime? UpdatedAt { get; set; }
     
     public bool IsActive { get; set; } = true;
+
+    public ICollection<NasaVoziloVozacAssignment> VoziloAssignments { get; set; } = new List<NasaVoziloVozacAssignment>();
 }
 

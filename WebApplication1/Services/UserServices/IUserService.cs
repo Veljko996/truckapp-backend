@@ -15,14 +15,5 @@ public interface IUserService
     Task<bool> ChangePasswordAsync(int userId, UserChangePasswordDto changePasswordDto);
     Task<bool> ActivateUserAsync(int userId);
     Task<bool> DeactivateUserAsync(int userId);
-    
-    // Employee operations
-    Task<EmployeeReadDto?> GetEmployeeByIdAsync(int employeeId);
-    Task<EmployeeReadDto?> GetEmployeeByUserIdAsync(int userId);
-    Task<IEnumerable<EmployeeReadDto>> GetAllEmployeesAsync(bool includeInactive = false);
-    Task<IEnumerable<EmployeeReadDto>> GetEmployeesByPoslovnicaIdAsync(int poslovnicaId);
-    Task<EmployeeReadDto> CreateEmployeeAsync(EmployeeCreateDto createDto);
-    Task UpdateEmployeeAsync(EmployeeUpdateDto updateDto);
-    Task<bool> DeleteEmployeeAsync(int employeeId);
 }
 

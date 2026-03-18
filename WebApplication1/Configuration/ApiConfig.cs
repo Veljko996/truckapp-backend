@@ -25,6 +25,12 @@ using WebApplication1.Services.NalogDokumentiServices;
 using WebApplication1.Repository.NalogDokumentiRepository;
 using WebApplication1.Services.FileStorage;
 using WebApplication1.Services.QuestPdfServices;
+using WebApplication1.Services.GorivoServices;
+using WebApplication1.Repository.GorivoRepository;
+using WebApplication1.Services.EmployeeServices;
+using WebApplication1.Repository.EmployeeRepository;
+using WebApplication1.Services.DriverAssignmentServices;
+using WebApplication1.Repository.DriverAssignmentRepository;
 
 namespace WebApplication1.Configuration;
 
@@ -54,6 +60,12 @@ public static class ApiConfig
         builder.Services.AddScoped<IUserRepository, UserRepository>();
         builder.Services.AddScoped<IUserService, UserService>();
 
+        builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+        builder.Services.AddScoped<IEmployeeService, EmployeeService>();
+
+        builder.Services.AddScoped<IDriverAssignmentRepository, DriverAssignmentRepository>();
+        builder.Services.AddScoped<IDriverAssignmentService, DriverAssignmentService>();
+
         builder.Services.AddScoped<INalogRepository, NalogRepository>();
         builder.Services.AddScoped<INalogService, NalogService>();
 
@@ -65,6 +77,9 @@ public static class ApiConfig
 
         builder.Services.AddScoped<INalogDokumentiRepository, NalogDokumentiRepository>();
         builder.Services.AddScoped<INalogDokumentiService, NalogDokumentiService>();
+
+        builder.Services.AddScoped<IGorivoRepository, GorivoRepository>();
+        builder.Services.AddScoped<IGorivoService, GorivoService>();
 
         if (!string.IsNullOrWhiteSpace(builder.Configuration["AppSettings:Blob"]))
             builder.Services.AddScoped<IFileStorageService, AzureBlobStorageService>();
@@ -93,6 +108,9 @@ public static class ApiConfig
         // Dashboard services
         builder.Services.AddScoped<IDashboardRepository, DashboardRepository>();
         builder.Services.AddScoped<IDashboardService, DashboardService>();
+
+        // Queue publisher service
+        builder.Services.AddScoped<IQueuePublisher, QueuePublisher>();
 
         return builder;
     }

@@ -20,17 +20,5 @@ public interface IUserRepository
     Task UpdateAsync(User user);
     Task DeleteAsync(User user);
     Task<bool> SaveChangesAsync();
-    
-    // Employee CRUD
-    Task<Employee?> GetEmployeeByIdAsync(int employeeId);
-    Task<Employee?> GetEmployeeByUserIdAsync(int userId);
-    Task<IEnumerable<Employee>> GetAllEmployeesAsync();
-    Task<IEnumerable<Employee>> GetActiveEmployeesAsync();
-    Task<IEnumerable<Employee>> GetEmployeesByPoslovnicaIdAsync(int poslovnicaId);
-    Task<bool> EmployeeNumberExistsAsync(string employeeNumber);
-    Task<bool> EmployeeNumberExistsForOtherEmployeeAsync(string employeeNumber, int excludeEmployeeId);
-    Task AddEmployeeAsync(Employee employee);
-    Task UpdateEmployeeAsync(Employee employee);
-    Task DeleteEmployeeAsync(Employee employee);
 }
 

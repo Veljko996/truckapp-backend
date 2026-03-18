@@ -26,6 +26,12 @@ public class TruckContext : DbContext
     // === Prihodi ===
     public DbSet<NalogPrihod> NalogPrihodi { get; set; } = null!;
 
+    // === Gorivo ===
+    public DbSet<GorivoZapis> GorivoZapisi { get; set; } = null!;
+
+    // === Dodele vozača ===
+    public DbSet<NasaVoziloVozacAssignment> NasaVoziloVozacAssignments { get; set; } = null!;
+
     // === Dokumenti ===
     public DbSet<TipDokumenta> TipoviDokumenata { get; set; } = null!;
     public DbSet<NalogDokument> NalogDokumenti { get; set; } = null!;
@@ -166,6 +172,59 @@ public class TruckContext : DbContext
         modelBuilder.Entity<NalogDokument>()
             .HasIndex(d => d.NalogId)
             .HasFilter("[IsDeleted] = 0");
+
+        // GORIVO ZAPISI
+
+        modelBuilder.Entity<GorivoZapis>()
+            .HasOne(g => g.Vozilo)
+            .WithMany(v => v.GorivoZapisi)
+            .HasForeignKey(g => g.VoziloId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<GorivoZapis>()
+            .HasOne(g => g.Nalog)
+            .WithMany(n => n.GorivoZapisi)
+            .HasForeignKey(g => g.NalogId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<GorivoZapis>()
+            .HasIndex(g => g.VoziloId);
+
+        modelBuilder.Entity<GorivoZapis>()
+            .HasIndex(g => g.NalogId)
+            .HasFilter("[NalogId] IS NOT NULL");
+
+        // DODELE VOZAČA
+
+        modelBuilder.Entity<NasaVoziloVozacAssignment>()
+            .HasOne(a => a.Vozilo)
+            .WithMany(v => v.VozacAssignments)
+            .HasForeignKey(a => a.VoziloId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<NasaVoziloVozacAssignment>()
+            .HasOne(a => a.Employee)
+            .WithMany(e => e.VoziloAssignments)
+            .HasForeignKey(a => a.EmployeeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<NasaVoziloVozacAssignment>()
+            .HasCheckConstraint("CK_NasaVoziloVozacAssignment_Slot", "[SlotNumber] IN (1, 2)");
+
+        // Jedan aktivan vozač po slotu (1 ili 2) na jednom vozilu
+        modelBuilder.Entity<NasaVoziloVozacAssignment>()
+            .HasIndex(a => new { a.VoziloId, a.SlotNumber })
+            .IsUnique()
+            .HasFilter("[UnassignedAt] IS NULL");
+
+        // Jedan vozač može biti aktivan na najviše jednom vozilu u isto vreme
+        modelBuilder.Entity<NasaVoziloVozacAssignment>()
+            .HasIndex(a => a.EmployeeId)
+            .IsUnique()
+            .HasFilter("[UnassignedAt] IS NULL");
+
+        modelBuilder.Entity<NasaVoziloVozacAssignment>()
+            .HasIndex(a => a.VoziloId);
 
         // VINJETA
 

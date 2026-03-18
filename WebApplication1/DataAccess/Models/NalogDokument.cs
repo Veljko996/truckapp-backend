@@ -37,4 +37,9 @@ public class NalogDokument
 
     [MaxLength(200)]
     public string? CreatedBy { get; set; }
+
+    public string? ProcessingStatus { get; set; }
+    public string? ProcessingError { get; set; }
+    public DateTime? ProcessedAt { get; set; }
+    
 }

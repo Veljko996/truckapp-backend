@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication1.DataAccess.Models;
@@ -33,6 +33,8 @@ public class NasaVozila
     // Navigacije
     public ICollection<Vinjeta> Vinjete { get; set; } = new List<Vinjeta>();
     public ICollection<Tura> Ture { get; set; } = new List<Tura>();
+    public ICollection<GorivoZapis> GorivoZapisi { get; set; } = new List<GorivoZapis>();
+    public ICollection<NasaVoziloVozacAssignment> VozacAssignments { get; set; } = new List<NasaVoziloVozacAssignment>();
 
     /// <summary>
     /// Auto-updates registration status based on expiration date.

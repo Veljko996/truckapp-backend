@@ -2,6 +2,7 @@ using WebApplication1.Utils.DTOs.NalogDTO;
 using WebApplication1.Utils.DTOs.NalogDokumentiDTO;
 using WebApplication1.Utils.DTOs.NalogPrihodiDTO;
 using WebApplication1.Utils.DTOs.NalogTroskoviDTO;
+using WebApplication1.Utils.DTOs.GorivoDTO;
 
 namespace WebApplication1.Utils.Mapping;
 
@@ -145,7 +146,11 @@ public static class MappingConfig
             .Map(dest => dest.PrevoznikNaziv,
                  src => src.Prevoznik != null ? src.Prevoznik.Naziv : null)
             .Map(dest => dest.TuraRedniBroj,
-                 src => src.Tura != null ? src.Tura.RedniBroj : null);
+                 src => src.Tura != null ? src.Tura.RedniBroj : null)
+            .Map(dest => dest.VoziloId,
+                 src => src.Tura != null ? src.Tura.VoziloId : null)
+            .Map(dest => dest.VoziloNaziv,
+                 src => src.Tura != null && src.Tura.Vozilo != null ? src.Tura.Vozilo.Naziv : null);
 
         TypeAdapterConfig<CreateNalogDto, Nalog>
             .NewConfig()
@@ -252,5 +257,25 @@ public static class MappingConfig
             .NewConfig();
 
         #endregion NalogDokumenti
+
+        #region Gorivo
+
+        TypeAdapterConfig<GorivoZapis, GorivoZapisDto>
+            .NewConfig()
+            .Map(dest => dest.VoziloNaziv,
+                 src => src.Vozilo != null ? src.Vozilo.Naziv : null)
+            .Map(dest => dest.NalogBroj,
+                 src => src.Nalog != null ? src.Nalog.NalogBroj : null);
+
+        TypeAdapterConfig<CreateGorivoZapisDto, GorivoZapis>
+            .NewConfig()
+            .Ignore(dest => dest.GorivoZapisId)
+            .Ignore(dest => dest.VoziloId)
+            .Ignore(dest => dest.Vozilo)
+            .Ignore(dest => dest.Nalog)
+            .Ignore(dest => dest.CreatedAt)
+            .Ignore(dest => dest.CreatedBy);
+
+        #endregion Gorivo
     }
 }

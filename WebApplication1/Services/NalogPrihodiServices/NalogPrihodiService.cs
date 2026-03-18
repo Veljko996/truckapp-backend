@@ -7,6 +7,7 @@ using WebApplication1.Repository.NalogRepository;
 using WebApplication1.Repository.NalogTroskoviRepository;
 using WebApplication1.Utils.DTOs.NalogPrihodiDTO;
 using WebApplication1.Utils.DTOs.NalogTroskoviDTO;
+using WebApplication1.Utils.DTOs.GorivoDTO;
 using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
 
 namespace WebApplication1.Services.NalogPrihodiServices;
@@ -126,11 +127,22 @@ public class NalogPrihodiService : INalogPrihodiService
 
         var prihodi = await _repository.GetByNalogIdAsync(nalogId);
         var troskovi = await _troskoviRepository.GetByNalogIdAsync(nalogId);
+        var gorivo = await _context.GorivoZapisi
+            .AsNoTracking()
+            .Where(g => g.NalogId == nalogId)
+            .OrderByDescending(g => g.DatumTocenja)
+            .ThenByDescending(g => g.CreatedAt)
+            .ToListAsync();
+
         var ukupniPrihodiPoValuti = BuildTotalsByCurrency(
             prihodi.Select(p => (Currency: (string?)p.Valuta, Amount: p.Iznos)));
+        var ukupnoGorivoPoValuti = BuildTotalsByCurrency(
+            gorivo.Select(g => (Currency: (string?)g.Valuta, Amount: g.Iznos)));
         var ukupniTroskoviPoValuti = BuildTotalsByCurrency(
-            troskovi.Select(t => (Currency: (string?)t.Valuta, Amount: t.Iznos)));
-        // Profit po valuti = prihod - trošak (eksplicitno, da uvek bude ispravno)
+            troskovi.Select(t => (Currency: (string?)t.Valuta, Amount: t.Iznos))
+                .Concat(gorivo.Select(g => (Currency: (string?)g.Valuta, Amount: g.Iznos))));
+
+        // Profit po valuti = prihod - (trošak + gorivo) (eksplicitno, da uvek bude ispravno)
         var profitPoValuti = new List<AmountByCurrencyDto>();
         var sveValute = ukupniPrihodiPoValuti.Select(x => NormalizeCurrency(x.Currency))
             .Concat(ukupniTroskoviPoValuti.Select(x => NormalizeCurrency(x.Currency)))
@@ -157,7 +169,13 @@ public class NalogPrihodiService : INalogPrihodiService
                 .OrderByDescending(t => t.CreatedAt)
                 .ThenByDescending(t => t.TrosakId)
                 .ToList(),
+            Gorivo = gorivo
+                .Select(MapGorivoDto)
+                .OrderByDescending(g => g.DatumTocenja)
+                .ThenByDescending(g => g.GorivoZapisId)
+                .ToList(),
             UkupniPrihodiPoValuti = ukupniPrihodiPoValuti,
+            UkupnoGorivoPoValuti = ukupnoGorivoPoValuti,
             UkupniTroskoviPoValuti = ukupniTroskoviPoValuti,
             ProfitPoValuti = profitPoValuti
         };
@@ -185,6 +203,13 @@ public class NalogPrihodiService : INalogPrihodiService
     {
         var dto = trosak.Adapt<NalogTrosakDto>();
         dto.Valuta = NormalizeCurrency(trosak.Valuta);
+        return dto;
+    }
+
+    private static GorivoZapisDto MapGorivoDto(GorivoZapis entity)
+    {
+        var dto = entity.Adapt<GorivoZapisDto>();
+        dto.Valuta = NormalizeCurrency(entity.Valuta);
         return dto;
     }
 

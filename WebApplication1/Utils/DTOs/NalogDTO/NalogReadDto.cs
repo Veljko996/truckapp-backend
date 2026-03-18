@@ -34,5 +34,7 @@ public class NalogReadDto
     
     // Lookup names
     public string? PrevoznikNaziv { get; set; }
+    public int? VoziloId { get; set; }
+    public string? VoziloNaziv { get; set; }
 }
 

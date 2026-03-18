@@ -8,6 +8,8 @@ namespace WebApplication1.Repository.NasaVozilaRepository;
 public class NasaVozilaRepository : INasaVozilaRepository
 {
     private readonly TruckContext _context;
+    private static readonly string[] TerminalNalogStatuses = new[] { "Istovaren", "Završen", "Storniran", "Ponisten" };
+
     public NasaVozilaRepository(TruckContext context)
     {
         _context = context;
@@ -61,12 +63,11 @@ public class NasaVozilaRepository : INasaVozilaRepository
 
     public async Task<List<NasaVozila>> GetAvailableForTuraAsync(int? excludeTuraId = null)
     {
-        var activeStatuses = new[] { "Istovaren", "Završen", "Storniran", "Ponisten" };
         var zauzetaVozilaIds = await _context.Nalozi
             .Where(n =>
                 n.Tura != null
                 && n.Tura.VoziloId != null
-                && !activeStatuses.Contains(n.StatusNaloga ?? "")
+                && !TerminalNalogStatuses.Contains(n.StatusNaloga ?? "")
                 && (excludeTuraId == null || n.TuraId != excludeTuraId.Value))
             .Select(n => n.Tura!.VoziloId!.Value)
             .Distinct()
@@ -78,5 +79,28 @@ public class NasaVozilaRepository : INasaVozilaRepository
             .OrderBy(v => v.Naziv)
             .AsNoTracking()
             .ToListAsync();
+    }
+
+    public async Task<HashSet<int>> GetBusyVoziloIdsAsync()
+    {
+        var ids = await _context.Nalozi
+            .Where(n =>
+                n.Tura != null
+                && n.Tura.VoziloId != null
+                && !TerminalNalogStatuses.Contains(n.StatusNaloga ?? ""))
+            .Select(n => n.Tura!.VoziloId!.Value)
+            .Distinct()
+            .ToListAsync();
+
+        return ids.ToHashSet();
+    }
+
+    public async Task<bool> IsVoziloBusyAsync(int voziloId)
+    {
+        return await _context.Nalozi
+            .AnyAsync(n =>
+                n.Tura != null
+                && n.Tura.VoziloId == voziloId
+                && !TerminalNalogStatuses.Contains(n.StatusNaloga ?? ""));
     }
 }

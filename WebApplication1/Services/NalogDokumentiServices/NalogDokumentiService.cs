@@ -31,6 +31,7 @@ public class NalogDokumentiService : INalogDokumentiService
     private readonly INalogRepository _nalogRepository;
     private readonly IFileStorageService _fileStorage;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IDocumentProcessingQueuePublisher _queuePublisher;
     private readonly long _maxFileSizeBytes;
 
     public NalogDokumentiService(
@@ -38,12 +39,14 @@ public class NalogDokumentiService : INalogDokumentiService
         INalogRepository nalogRepository,
         IFileStorageService fileStorage,
         IHttpContextAccessor httpContextAccessor,
-        IConfiguration configuration)
+        IConfiguration configuration,
+        IQueuePublisher queuePublisher)
     {
         _repository = repository;
         _nalogRepository = nalogRepository;
         _fileStorage = fileStorage;
         _httpContextAccessor = httpContextAccessor;
+        _queuePublisher = queuePublisher;
 
         var maxMb = configuration.GetValue<int>("FileStorage:MaxFileSizeMB", 25);
         _maxFileSizeBytes = maxMb * 1024L * 1024L;
@@ -108,6 +111,8 @@ public class NalogDokumentiService : INalogDokumentiService
 
         _repository.Add(entity);
         await _repository.SaveChangesAsync();
+
+        await _queuePublisher.PublishAsync(entity.DokumentId);
 
         var saved = await _repository.GetByIdAsync(entity.DokumentId);
         return saved!.Adapt<NalogDokumentDto>();
