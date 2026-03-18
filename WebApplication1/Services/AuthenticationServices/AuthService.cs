@@ -243,7 +243,7 @@ public class AuthService : IAuthService
     private static void ValidateNewPassword(string newPassword)
     {
         if (string.IsNullOrWhiteSpace(newPassword) || newPassword.Length < 8)
-            throw new ValidationException("InvalidNewPassword", "Nova lozinka mora imati najmanje 8 karaktera.");
+            throw new ValidationException("InvalidNewPassword", "Nova lozinka mora imati najmanje 8 karaktera");
     }
 
 
