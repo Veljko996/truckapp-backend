@@ -15,15 +15,14 @@ public class DocumentProcessingFunction
 	}
 
 	[Function(nameof(DocumentProcessingFunction))]
-	public async Task Run(
-		[QueueTrigger("document-processing", Connection = "AzureWebJobsStorage")]
-		QueueMessage message)
+	public async Task Run([QueueTrigger("document-processing", Connection = "AzureWebJobsStorage")]
+		string message)
 	{
-		_logger.LogInformation("Document processing message received: {messageText}", message.MessageText);
+		_logger.LogInformation("Document processing message received: {messageText}", message);
 
 		try
 		{
-			var payload = JsonSerializer.Deserialize<DocumentProcessingMessage>(message.MessageText);
+			var payload = JsonSerializer.Deserialize<DocumentProcessingMessage>(message);
 
 			if (payload is null)
 			{
@@ -31,7 +30,7 @@ public class DocumentProcessingFunction
 				return;
 			}
 
-			_logger.LogInformation("Processing document with DokumentId: {dokumentId}", payload.DokumentId);
+			_logger.LogInformation("Processing documents with DokumentId: {dokumentId}", payload.DokumentId);
 
 			await Task.CompletedTask;
 		}

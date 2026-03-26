@@ -36,6 +36,10 @@ appsettings.json
 appsettings.Development.json
 appsettings.Production.json
 
+# publish profiles
+Properties/PublishProfiles/*.pubxml
+Properties/PublishProfiles/*.pubxml.user
+
 # User-specific files
 *.rsuser
 *.user
