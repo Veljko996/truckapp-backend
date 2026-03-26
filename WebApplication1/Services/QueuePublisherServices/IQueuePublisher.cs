@@ -1,4 +1,4 @@
-namespace WebApplication1.Services.QueuePublisher;
+namespace WebApplication1.Services.QueuePublisherServices;
 
 //service for publishing messages to the document processing queue
 public interface IQueuePublisher

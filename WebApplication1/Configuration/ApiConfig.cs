@@ -23,7 +23,6 @@ using WebApplication1.Services.NalogPrihodiServices;
 using WebApplication1.Repository.NalogPrihodiRepository;
 using WebApplication1.Services.NalogDokumentiServices;
 using WebApplication1.Repository.NalogDokumentiRepository;
-using WebApplication1.Services.QueuePublisher;
 using WebApplication1.Services.FileStorage;
 using WebApplication1.Services.QuestPdfServices;
 using WebApplication1.Services.GorivoServices;
@@ -32,6 +31,7 @@ using WebApplication1.Services.EmployeeServices;
 using WebApplication1.Repository.EmployeeRepository;
 using WebApplication1.Services.DriverAssignmentServices;
 using WebApplication1.Repository.DriverAssignmentRepository;
+using WebApplication1.Services.QueuePublisherServices;
 
 namespace WebApplication1.Configuration;
 
