@@ -3,7 +3,7 @@ using WebApplication1.DataAccess.Models;
 using WebApplication1.Repository.NalogDokumentiRepository;
 using WebApplication1.Repository.NalogRepository;
 using WebApplication1.Services.FileStorage;
-using WebApplication1.Services.QueuePublisher;
+using WebApplication1.Services.QueuePublisherServices;
 using WebApplication1.Utils.DTOs.NalogDokumentiDTO;
 using WebApplication1.Utils.Exceptions;
 using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;

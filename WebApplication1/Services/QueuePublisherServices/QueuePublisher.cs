@@ -1,8 +1,7 @@
-using System.Text.Json;
 using Azure.Storage.Queues;
 using WebApplication1.Utils.DTOs.QueueDTO;
 
-namespace WebApplication1.Services.QueuePublisher;
+namespace WebApplication1.Services.QueuePublisherServices;
 
 public sealed class QueuePublisher : IQueuePublisher
 {
@@ -16,7 +15,11 @@ public sealed class QueuePublisher : IQueuePublisher
         var queueName = configuration["AppSettings:DocumentProcessingQueueName"]
             ?? throw new InvalidOperationException("AppSettings:DocumentProcessingQueueName is missing.");
 
-        _queueClient = new QueueClient(connectionString, queueName);
+        //_queueClient = new QueueClient(connectionString, queueName); stari kod
+        _queueClient = new QueueClient(connectionString, queueName, new QueueClientOptions()
+        {
+            MessageEncoding = QueueMessageEncoding.Base64
+            });
     }
 
     public async Task EnqueueDocumentProcessingAsync(int DokumentId, CancellationToken cancellationToken = default)
