@@ -1,5 +1,3 @@
-using WebApplication1.Utils.DTOs.DashboardDTO;
-
 namespace WebApplication1.DataAccess;
 
 public class TruckContext : DbContext
@@ -45,10 +43,6 @@ public class TruckContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
-
-        modelBuilder.Entity<DashboardStatsDto>().HasNoKey();
-        modelBuilder.Entity<ExternalDashboardStatsRawDto>().HasNoKey();
-        modelBuilder.Entity<DashboardMonthlyProfitDto>().HasNoKey();
 
         // USER / AUTH
 
@@ -116,7 +110,6 @@ public class TruckContext : DbContext
             .IsUnique();
 
         // NALOG PRIHODI
-
         modelBuilder.Entity<NalogPrihod>()
             .HasOne(p => p.Nalog)
             .WithMany(n => n.Prihodi)

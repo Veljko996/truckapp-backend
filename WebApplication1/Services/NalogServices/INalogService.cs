@@ -1,4 +1,4 @@
-using WebApplication1.Utils.DTOs.NalogDTO;
+﻿using WebApplication1.Utils.DTOs.NalogDTO;
 
 namespace WebApplication1.Services.NalogServices;
 
@@ -18,6 +18,5 @@ public interface INalogService
     Task MarkIstovaren(int id, MarkIstovarenDto dto);
     Task Storniraj(int id);
     Task Ponisti(int id);
-    Task<byte[]> GenerateHtmlAsync(int id, string templateKey);
 }
 

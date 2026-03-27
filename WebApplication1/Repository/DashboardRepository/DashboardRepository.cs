@@ -16,8 +16,8 @@ public class DashboardRepository : IDashboardRepository
 
     public async Task<DashboardStatsDto> GetExternalDashboardStatsAsync(CancellationToken cancellationToken = default)
     {
-        var list = await _context.Set<ExternalDashboardStatsRawDto>()
-            .FromSqlRaw("EXEC dbo.GetExternalDashboardStats")
+        var list = await _context.Database
+            .SqlQueryRaw<ExternalDashboardStatsRawDto>("EXEC dbo.GetExternalDashboardStats")
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
@@ -45,8 +45,8 @@ public class DashboardRepository : IDashboardRepository
     public async Task<List<DashboardMonthlyProfitDto>> GetMonthlyProfitAsync(int monthsBack = 12, CancellationToken cancellationToken = default)
     {
         var monthsParam = new Microsoft.Data.SqlClient.SqlParameter("@MonthsBack", monthsBack);
-        return await _context.Set<DashboardMonthlyProfitDto>()
-            .FromSqlRaw("EXEC dbo.GetDashboardMonthlyProfit @MonthsBack", monthsParam)
+        return await _context.Database
+            .SqlQueryRaw<DashboardMonthlyProfitDto>("EXEC dbo.GetDashboardMonthlyProfit @MonthsBack", monthsParam)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
