@@ -35,6 +35,7 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
             "mts"      => BuildMtsDocument(nalog, logoBytes),
             "suins"    => BuildSuinsDocument(nalog, logoBytes),
             "timnalog" => BuildTallTeamDocument(nalog, logoBytes),
+            _ => throw new ArgumentException($"Nepoznat template '{templateKey}'.", nameof(templateKey)),
         };
 
         return document.GeneratePdf();
