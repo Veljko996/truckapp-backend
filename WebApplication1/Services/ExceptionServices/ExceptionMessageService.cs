@@ -1,12 +1,8 @@
 using System.Collections.Concurrent;
-using System.Text.Json;
-using WebApplication1.Utils.Exceptions;
 
 namespace WebApplication1.Services.ExceptionServices;
 
-/// <summary>
-/// Cached exception message service that loads messages once and serves from memory
-/// </summary>
+// Cached exception message service that loads messages once and serves from memory
 public class ExceptionMessageService : IExceptionMessageService
 {
     private readonly IWebHostEnvironment _env;

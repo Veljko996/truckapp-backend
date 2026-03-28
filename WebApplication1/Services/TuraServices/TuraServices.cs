@@ -1,5 +1,4 @@
 using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
-using WebApplication1.DataAccess;
 using WebApplication1.Services.NalogServices;
 using WebApplication1.Services.NalogPrihodiServices;
 
@@ -10,18 +9,15 @@ public class TuraService : ITuraService
     private readonly ITureRepository _repository;
     private readonly INalogService _nalogService;
     private readonly INalogPrihodiService _nalogPrihodiService;
-    private readonly TruckContext _context;
 
     public TuraService(
         ITureRepository repository,
         INalogService nalogService,
-        INalogPrihodiService nalogPrihodiService,
-        TruckContext context)
+        INalogPrihodiService nalogPrihodiService)
     {
         _repository = repository;
         _nalogService = nalogService;
         _nalogPrihodiService = nalogPrihodiService;
-        _context = context;
     }
 
     public async Task<IEnumerable<TuraReadDto>> GetAll()
@@ -52,7 +48,6 @@ public class TuraService : ITuraService
         tura.RedniBroj = turaBroj;
         tura.StatusTure = "Kreirana";
 
-        // 4) Ako je VoziloId 0 (frontend ponekad šalje 0 umesto null), tretiraj kao null
         if (tura.VoziloId == 0)
             tura.VoziloId = null;
 
@@ -191,12 +186,12 @@ public class TuraService : ITuraService
 		if (!tura.PrevoznikId.HasValue)
 			throw new ValidationException("Prevoznik", "Prevoznik je obavezan.");
 
-		tura.Prevoznik = await _context.Prevoznici.FindAsync(tura.PrevoznikId.Value)
+		tura.Prevoznik = await _repository.GetPrevoznikByIdAsync(tura.PrevoznikId.Value)
 			?? throw new ValidationException("Prevoznik", $"Prevoznik sa ID {tura.PrevoznikId.Value} ne postoji.");
 
 		if (tura.VoziloId.HasValue)
 		{
-			tura.Vozilo = await _context.NasaVozila.FindAsync(tura.VoziloId.Value)
+			tura.Vozilo = await _repository.GetVoziloByIdAsync(tura.VoziloId.Value)
 				?? throw new ValidationException("Vozilo", $"Vozilo sa ID {tura.VoziloId.Value} ne postoji.");
 		}
 		else

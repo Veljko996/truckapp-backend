@@ -5,9 +5,7 @@ namespace WebApplication1.Services.ExceptionServices;
 /// </summary>
 public interface IExceptionMessageService
 {
-    /// <summary>
     /// Gets a localized exception message by key and subkey
-    /// </summary>
     /// <param name="key">Exception type key (e.g., "NotFoundException")</param>
     /// <param name="subKey">Specific sub-key for the exception (e.g., "Tura")</param>
     /// <param name="preferredLanguage">Preferred language code (default: "sr-Latn")</param>

@@ -90,6 +90,16 @@ public class TureRepository : ITureRepository
         return await _context.Klijenti.AnyAsync(c => c.KlijentId == klijentId);
     }
 
+    public async Task<Prevoznik?> GetPrevoznikByIdAsync(int id)
+    {
+        return await _context.Prevoznici.FindAsync(id);
+    }
+
+    public async Task<NasaVozila?> GetVoziloByIdAsync(int id)
+    {
+        return await _context.NasaVozila.FindAsync(id);
+    }
+
     public async Task<bool> IsVoziloZauzetoNaNaloguAsync(int voziloId, int? excludeTuraId = null)
     {
         var activeStatuses = new[] { "Istovaren", "Završen", "Storniran", "Ponisten" };
