@@ -83,9 +83,15 @@ jobs:
         with:
           name: .net-functions
 
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_8AA5F14456D74556A4AD4BBDD8AE4A72 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_E09D39F9B3E64A9DB6D44926B8BC1DB7 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_AB1119F54BE146C29806244BBD2FE030 }}
+
       - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
         with:
           app-name: 'truckapp-archive-func'
-          publish-profile: ${{ secrets.AZURE_FUNCTIONS_PUBLISH_PROFILE }}
           package: .
