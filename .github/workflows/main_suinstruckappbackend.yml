@@ -31,7 +31,7 @@ jobs:
         run: dotnet publish WebApplication1/WebApplication1.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Publish Functions
-        run: dotnet publish ArchiveOldOrders/ArchiveOldOrders.csproj -c Release -o ${{env.DOTNET_ROOT}}/functions
+        run: dotnet publish ArchiveOldOrders/ArchiveOldOrders.csproj -c Release -o ${{env.DOTNET_ROOT}}/functions --no-self-contained
 
       - name: Upload API artifact
         uses: actions/upload-artifact@v4
