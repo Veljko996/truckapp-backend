@@ -3,9 +3,6 @@ namespace WebApplication1.Services.QueuePublisherServices;
 //service for publishing messages to the document processing queue
 public interface IQueuePublisher
 {
-    //enqueues a message to the document processing queue
-    //nalogDokumentId: the id of the nalog document to process
-    //documentType: the type of the document to process
-    //cancellationToken: a cancellation token to cancel the operation
-    Task EnqueueDocumentProcessingAsync(int DokumentId,  CancellationToken cancellationToken = default);
+    /// <summary>Enqueues a message with dokument id and tip dokumenta (e.g. faktura = 2 for DI extraction).</summary>
+    Task EnqueueDocumentProcessingAsync(int dokumentId, int tipDokumentaId, CancellationToken cancellationToken = default);
 }

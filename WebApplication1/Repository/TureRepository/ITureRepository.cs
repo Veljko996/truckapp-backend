@@ -15,6 +15,10 @@ public interface ITureRepository
     Task<bool> VoziloExistsAsync(int voziloId);
     Task<bool> PrevoznikExistsAsync(int prevoznikId);
     Task<bool> KlijentExistsAsync(int klijentId);
+
+    Task<Prevoznik?> GetPrevoznikByIdAsync(int id);
+    Task<NasaVozila?> GetVoziloByIdAsync(int id);
+
     /// <summary>
     /// True if vehicle is assigned to a tura that has a nalog in active status (not Istovaren/Završen/Storniran/Ponisten).
     /// When excludeTuraId is set, that tura's nalog is ignored (for editing that tura).

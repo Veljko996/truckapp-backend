@@ -27,9 +27,9 @@ public class NalogDokumentiController : ControllerBase
     [HttpPost("{nalogId:int}/dokumenti")]
     [Consumes("multipart/form-data")]
     [RequestSizeLimit(26_214_400)] // 25 MB
-    public async Task<ActionResult<NalogDokumentDto>> Upload(int nalogId, [FromForm] UploadNalogDokumentDto dto)
+    public async Task<ActionResult<NalogDokumentDto>> Upload(int nalogId, [FromForm] UploadNalogDokumentDto dto, CancellationToken cancellationToken)
     {
-        var result = await _service.UploadAsync(nalogId, dto);
+        var result = await _service.UploadAsync(nalogId, dto, cancellationToken);
         return Ok(result);
     }
 
