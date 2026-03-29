@@ -22,13 +22,14 @@ public sealed class QueuePublisher : IQueuePublisher
             });
     }
 
-    public async Task EnqueueDocumentProcessingAsync(int DokumentId, CancellationToken cancellationToken = default)
+    public async Task EnqueueDocumentProcessingAsync(int dokumentId, int tipDokumentaId, CancellationToken cancellationToken = default)
     {
         await _queueClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
 
         var message = new DocumentProcessingMessage
         {
-            DokumentId = DokumentId
+            DokumentId = dokumentId,
+            TipDokumentaId = tipDokumentaId
         };
 
         var json = JsonSerializer.Serialize(message);

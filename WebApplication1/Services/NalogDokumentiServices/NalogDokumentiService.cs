@@ -62,7 +62,7 @@ public class NalogDokumentiService : INalogDokumentiService
         return list.Select(d => d.Adapt<NalogDokumentDto>()).ToList();
     }
 
-    public async Task<NalogDokumentDto> UploadAsync(int nalogId, UploadNalogDokumentDto dto)
+    public async Task<NalogDokumentDto> UploadAsync(int nalogId, UploadNalogDokumentDto dto, CancellationToken cancellationToken = default)
     {
         var nalog = await _nalogRepository.GetByIdAsync(nalogId)
             ?? throw new NotFoundException("Nalog", $"Nalog sa ID {nalogId} nije pronađen.");
@@ -113,7 +113,10 @@ public class NalogDokumentiService : INalogDokumentiService
         _repository.Add(entity);
         await _repository.SaveChangesAsync();
 
-        await _queuePublisher.EnqueueDocumentProcessingAsync(entity.DokumentId);
+        await _queuePublisher.EnqueueDocumentProcessingAsync(
+            entity.DokumentId,
+            dto.TipDokumentaId,
+            cancellationToken);
 
         var saved = await _repository.GetByIdAsync(entity.DokumentId);
         return saved!.Adapt<NalogDokumentDto>();
