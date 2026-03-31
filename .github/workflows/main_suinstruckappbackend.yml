@@ -28,22 +28,22 @@ jobs:
         run: dotnet build --configuration Release
 
       - name: Publish API
-        run: dotnet publish WebApplication1/WebApplication1.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish WebApplication1/WebApplication1.csproj -c Release -o ${{ env.DOTNET_ROOT }}/myapp
 
       - name: Publish Functions
-        run: dotnet publish ArchiveOldOrders/ArchiveOldOrders.csproj -c Release -o ${{env.DOTNET_ROOT}}/functions
+        run: dotnet publish ArchiveOldOrders/ArchiveOldOrders.csproj -c Release -o ${{ env.DOTNET_ROOT }}/functions
 
       - name: Upload API artifact
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
+          path: ${{ env.DOTNET_ROOT }}/myapp
 
       - name: Upload Functions artifact
         uses: actions/upload-artifact@v4
         with:
           name: .net-functions
-          path: ${{env.DOTNET_ROOT}}/functions
+          path: ${{ env.DOTNET_ROOT }}/functions
 
   deploy:
     runs-on: ubuntu-latest
@@ -82,6 +82,12 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: .net-functions
+          path: ./functions-package
+
+      - name: Inspect functions package
+        run: |
+          find ./functions-package -maxdepth 3 -type f | sort
+          cat ./functions-package/functions.metadata || true
 
       - name: Login to Azure
         uses: azure/login@v2
@@ -93,6 +99,6 @@ jobs:
       - name: Deploy to Azure Functions
         uses: Azure/functions-action@v1
         with:
-          app-name: 'truckapp-archive-func'
-          package: .
+          app-name: 'truckapp-functions'
+          package: ./functions-package
           scm-do-build-during-deployment: false
