@@ -90,7 +90,7 @@ public class TruckContext : DbContext
             .HasForeignKey(t => t.VrstaNadogradnjeId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        // INDEXI – SAMO REALNI
+ 
 
         modelBuilder.Entity<Tura>()
             .HasIndex(t => t.PrevoznikId);
@@ -277,4 +277,8 @@ public class TruckContext : DbContext
             .HasForeignKey(l => l.UserId)
             .OnDelete(DeleteBehavior.SetNull);
     }
+
+
+
 }
+
