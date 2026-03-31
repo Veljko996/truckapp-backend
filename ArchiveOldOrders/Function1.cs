@@ -41,7 +41,7 @@ public class ArchiveOldOrdersFunction
                   AND StatusNaloga = N'Završen'
                   AND DatumIstovara < DATEADD(day, -60, SYSUTCDATETIME());
             ";
-			//test2
+			
 			int affectedRows = await cmd.ExecuteNonQueryAsync();
 
 			_logger.LogInformation("Archiving completed. {count} nalog(s) archived.", affectedRows);
