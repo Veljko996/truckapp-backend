@@ -1,10 +1,13 @@
 
 namespace WebApplication1.DataAccess.Models;
 
-public class Employee
+public class Employee : ITenantEntity
 {
     [Key]
     public int EmployeeId { get; set; }
+
+    public int TenantId { get; set; }
+    public Tenant Tenant { get; set; } = null!;
     
     // 1:1 relationship with User
     [Required]

@@ -1,17 +1,20 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using WebApplication1.Utils.Tenant;
 
 namespace WebApplication1.Repository.NalogRepository;
 
 public class NalogRepository : INalogRepository
 {
     private readonly TruckContext _context;
+    private readonly ITenantProvider _tenantProvider;
     private static readonly string[] InactiveStatuses = ["Storniran", "Ponisten"];
 
-    public NalogRepository(TruckContext context)
+    public NalogRepository(TruckContext context, ITenantProvider tenantProvider)
     {
         _context = context;
+        _tenantProvider = tenantProvider;
     }
 
     public async Task<Nalog?> GetByIdAsync(int id)
@@ -98,8 +101,9 @@ public class NalogRepository : INalogRepository
         };
 
         await _context.Database.ExecuteSqlRawAsync(
-            "EXEC dbo.GetNextDocumentNumber @DocumentType, @Result OUTPUT",
+            "EXEC dbo.GetNextDocumentNumber @DocumentType, @TenantId, @Result OUTPUT",
             new SqlParameter("@DocumentType", documentType),
+            new SqlParameter("@TenantId", _tenantProvider.CurrentTenantId),
             output
         );
 

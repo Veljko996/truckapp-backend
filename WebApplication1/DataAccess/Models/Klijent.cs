@@ -1,10 +1,13 @@
 ﻿namespace WebApplication1.DataAccess.Models;
 
-public class Klijent
+public class Klijent : ITenantEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int KlijentId { get; set; }
+
+    public int TenantId { get; set; }
+    public Tenant Tenant { get; set; } = null!;
 
     [Required]
     [MaxLength(200)]

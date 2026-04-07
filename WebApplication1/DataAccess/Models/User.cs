@@ -3,10 +3,13 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication1.DataAccess.Models;
 
-public class User
+public class User : ITenantEntity
 {
     [Key]
     public int UserId { get; set; }
+
+    public int TenantId { get; set; }
+    public Tenant Tenant { get; set; } = null!;
 
     [Required]
     [MaxLength(50)]

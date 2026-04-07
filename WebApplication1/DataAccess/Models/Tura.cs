@@ -1,11 +1,14 @@
 
 namespace WebApplication1.DataAccess.Models;
 
-public class Tura
+public class Tura : ITenantEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int TuraId { get; set; }
+
+    public int TenantId { get; set; }
+    public Tenant Tenant { get; set; } = null!;
 
     // Automatski dodeljuje backend nakon insert-a
     [MaxLength(50)]

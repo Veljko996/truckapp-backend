@@ -4,11 +4,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace WebApplication1.DataAccess.Models;
 
 [Table("GorivoZapisi")]
-public class GorivoZapis
+public class GorivoZapis : ITenantEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int GorivoZapisId { get; set; }
+
+    public int TenantId { get; set; }
+    public Tenant Tenant { get; set; } = null!;
 
     public int VoziloId { get; set; }
     public NasaVozila? Vozilo { get; set; }

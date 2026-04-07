@@ -1,11 +1,14 @@
 namespace WebApplication1.DataAccess.Models;
 
 [Table("NalogDokumenti")]
-public class NalogDokument
+public class NalogDokument : ITenantEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int DokumentId { get; set; }
+
+    public int TenantId { get; set; }
+    public Tenant Tenant { get; set; } = null!;
 
     public int NalogId { get; set; }
     public Nalog? Nalog { get; set; }

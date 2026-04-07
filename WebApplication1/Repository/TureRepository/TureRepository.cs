@@ -1,14 +1,17 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Storage;
+using WebApplication1.Utils.Tenant;
 
 public class TureRepository : ITureRepository
 {
     private readonly TruckContext _context;
+    private readonly ITenantProvider _tenantProvider;
 
-    public TureRepository(TruckContext context)
+    public TureRepository(TruckContext context, ITenantProvider tenantProvider)
     {
         _context = context;
+        _tenantProvider = tenantProvider;
     }
 
     public IQueryable<Tura> GetAll()
@@ -62,8 +65,9 @@ public class TureRepository : ITureRepository
         };
 
         await _context.Database.ExecuteSqlRawAsync(
-            "EXEC dbo.GetNextDocumentNumber @DocumentType, @Result OUTPUT",
+            "EXEC dbo.GetNextDocumentNumber @DocumentType, @TenantId, @Result OUTPUT",
             new SqlParameter("@DocumentType", documentType),
+            new SqlParameter("@TenantId", _tenantProvider.CurrentTenantId),
             output
         );
 
@@ -92,12 +96,12 @@ public class TureRepository : ITureRepository
 
     public async Task<Prevoznik?> GetPrevoznikByIdAsync(int id)
     {
-        return await _context.Prevoznici.FindAsync(id);
+        return await _context.Prevoznici.FirstOrDefaultAsync(p => p.PrevoznikId == id);
     }
 
     public async Task<NasaVozila?> GetVoziloByIdAsync(int id)
     {
-        return await _context.NasaVozila.FindAsync(id);
+        return await _context.NasaVozila.FirstOrDefaultAsync(v => v.VoziloId == id);
     }
 
     public async Task<bool> IsVoziloZauzetoNaNaloguAsync(int voziloId, int? excludeTuraId = null)

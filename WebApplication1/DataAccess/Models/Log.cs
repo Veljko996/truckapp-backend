@@ -1,10 +1,13 @@
 using System.ComponentModel.DataAnnotations;
 
 namespace WebApplication1.DataAccess.Models;
-public class Log
+public class Log : ITenantEntity
 {
     [Key]
     public int LogId { get; set; }
+
+    public int TenantId { get; set; }
+    public Tenant Tenant { get; set; } = null!;
 
     [Required]
     public DateTime HappenedAtDate { get; set; } = DateTime.Now;

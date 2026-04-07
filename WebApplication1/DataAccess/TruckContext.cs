@@ -1,10 +1,15 @@
+using WebApplication1.Utils.Tenant;
+
 namespace WebApplication1.DataAccess;
 
 public class TruckContext : DbContext
 {
-    public TruckContext(DbContextOptions<TruckContext> options)
+    private readonly ITenantProvider? _tenantProvider;
+
+    public TruckContext(DbContextOptions<TruckContext> options, ITenantProvider? tenantProvider = null)
         : base(options)
     {
+        _tenantProvider = tenantProvider;
     }
 
     // === Glavni entiteti ===
@@ -40,11 +45,47 @@ public class TruckContext : DbContext
     public DbSet<Roles> Roles { get; set; } = null!;
     public DbSet<Log> Logs { get; set; } = null!;
 
+    // === Tenant ===
+    public DbSet<Tenant> Tenants { get; set; } = null!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // USER / AUTH
+        // ===================== TENANT FK (all tenant-scoped entities) =====================
+
+        modelBuilder.Entity<User>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Employee>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Tura>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Nalog>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<NasaVozila>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Prevoznik>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Klijent>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Poslovnica>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Vinjeta>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<NalogTrosak>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<NalogPrihod>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<NalogDokument>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<GorivoZapis>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<NasaVoziloVozacAssignment>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Log>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+
+        // ===================== USER / AUTH =====================
 
         modelBuilder.Entity<User>()
             .HasOne(u => u.Roles)
@@ -64,7 +105,7 @@ public class TruckContext : DbContext
             .HasForeignKey(e => e.PoslovnicaId)
             .OnDelete(DeleteBehavior.SetNull);
 
-        // TURA
+        // ===================== TURA =====================
 
         modelBuilder.Entity<Tura>()
             .HasOne(t => t.Prevoznik)
@@ -90,8 +131,6 @@ public class TruckContext : DbContext
             .HasForeignKey(t => t.VrstaNadogradnjeId)
             .OnDelete(DeleteBehavior.Restrict);
 
- 
-
         modelBuilder.Entity<Tura>()
             .HasIndex(t => t.PrevoznikId);
 
@@ -106,10 +145,18 @@ public class TruckContext : DbContext
             .HasIndex(t => t.StatusTure);
 
         modelBuilder.Entity<Tura>()
-            .HasIndex(t => t.RedniBroj)
+            .HasIndex(t => new { t.TenantId, t.RedniBroj })
             .IsUnique();
 
-        // NALOG PRIHODI
+        // ===================== NALOG =====================
+
+        modelBuilder.Entity<Nalog>()
+            .HasIndex(n => new { n.TenantId, n.TuraId })
+            .IsUnique()
+            .HasFilter("[StatusNaloga] <> 'Storniran' AND [StatusNaloga] <> 'Ponisten'");
+
+        // ===================== NALOG PRIHODI =====================
+
         modelBuilder.Entity<NalogPrihod>()
             .HasOne(p => p.Nalog)
             .WithMany(n => n.Prihodi)
@@ -124,14 +171,7 @@ public class TruckContext : DbContext
             .IsUnique()
             .HasFilter("[IsSeededInitial] = 1");
 
-        // NALOG
-
-        modelBuilder.Entity<Nalog>()
-            .HasIndex(n => n.TuraId)
-            .IsUnique()
-            .HasFilter("[StatusNaloga] <> 'Storniran' AND [StatusNaloga] <> 'Ponisten'");
-
-        // NALOG TROSKOVI
+        // ===================== NALOG TROSKOVI =====================
 
         modelBuilder.Entity<NalogTrosak>()
             .HasOne(t => t.Nalog)
@@ -148,7 +188,7 @@ public class TruckContext : DbContext
         modelBuilder.Entity<NalogTrosak>()
             .HasIndex(t => t.NalogId);
 
-        // NALOG DOKUMENTI
+        // ===================== NALOG DOKUMENTI =====================
 
         modelBuilder.Entity<NalogDokument>()
             .HasOne(d => d.Nalog)
@@ -166,7 +206,7 @@ public class TruckContext : DbContext
             .HasIndex(d => d.NalogId)
             .HasFilter("[IsDeleted] = 0");
 
-        // GORIVO ZAPISI
+        // ===================== GORIVO ZAPISI =====================
 
         modelBuilder.Entity<GorivoZapis>()
             .HasOne(g => g.Vozilo)
@@ -187,7 +227,7 @@ public class TruckContext : DbContext
             .HasIndex(g => g.NalogId)
             .HasFilter("[NalogId] IS NOT NULL");
 
-        // DODELE VOZAČA
+        // ===================== DODELE VOZACA =====================
 
         modelBuilder.Entity<NasaVoziloVozacAssignment>()
             .HasOne(a => a.Vozilo)
@@ -204,13 +244,11 @@ public class TruckContext : DbContext
         modelBuilder.Entity<NasaVoziloVozacAssignment>()
             .HasCheckConstraint("CK_NasaVoziloVozacAssignment_Slot", "[SlotNumber] IN (1, 2)");
 
-        // Jedan aktivan vozač po slotu (1 ili 2) na jednom vozilu
         modelBuilder.Entity<NasaVoziloVozacAssignment>()
             .HasIndex(a => new { a.VoziloId, a.SlotNumber })
             .IsUnique()
             .HasFilter("[UnassignedAt] IS NULL");
 
-        // Jedan vozač može biti aktivan na najviše jednom vozilu u isto vreme
         modelBuilder.Entity<NasaVoziloVozacAssignment>()
             .HasIndex(a => a.EmployeeId)
             .IsUnique()
@@ -219,7 +257,7 @@ public class TruckContext : DbContext
         modelBuilder.Entity<NasaVoziloVozacAssignment>()
             .HasIndex(a => a.VoziloId);
 
-        // VINJETA
+        // ===================== VINJETA =====================
 
         modelBuilder.Entity<Vinjeta>()
             .HasOne(v => v.Vozilo)
@@ -243,7 +281,13 @@ public class TruckContext : DbContext
                 "[DatumIsteka] > [DatumPocetka]"
             );
 
-        // OSTALO
+        // ===================== TENANT =====================
+
+        modelBuilder.Entity<Tenant>()
+            .HasIndex(t => t.Slug)
+            .IsUnique();
+
+        // ===================== OSTALO =====================
 
         modelBuilder.Entity<NasaVozila>()
             .HasIndex(v => v.Naziv);
@@ -252,7 +296,7 @@ public class TruckContext : DbContext
             .HasIndex(p => p.Naziv);
 
         modelBuilder.Entity<User>()
-            .HasIndex(u => u.Username)
+            .HasIndex(u => new { u.TenantId, u.Username })
             .IsUnique();
 
         modelBuilder.Entity<User>()
@@ -264,7 +308,8 @@ public class TruckContext : DbContext
             .IsUnique();
 
         modelBuilder.Entity<Employee>()
-            .HasIndex(e => e.EmployeeNumber)
+            .HasIndex(e => new { e.TenantId, e.EmployeeNumber })
+            .IsUnique()
             .HasFilter("[EmployeeNumber] IS NOT NULL");
 
         modelBuilder.Entity<Employee>()
@@ -276,9 +321,56 @@ public class TruckContext : DbContext
             .WithMany()
             .HasForeignKey(l => l.UserId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        // ===================== GLOBAL QUERY FILTERS (tenant isolation) =====================
+
+        modelBuilder.Entity<User>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
+        modelBuilder.Entity<Employee>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
+        modelBuilder.Entity<Tura>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
+        modelBuilder.Entity<Nalog>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
+        modelBuilder.Entity<NasaVozila>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
+        modelBuilder.Entity<Prevoznik>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
+        modelBuilder.Entity<Klijent>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
+        modelBuilder.Entity<Poslovnica>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
+        modelBuilder.Entity<Vinjeta>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
+        modelBuilder.Entity<NalogTrosak>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
+        modelBuilder.Entity<NalogPrihod>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
+        modelBuilder.Entity<NalogDokument>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
+        modelBuilder.Entity<GorivoZapis>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
+        modelBuilder.Entity<NasaVoziloVozacAssignment>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
+        modelBuilder.Entity<Log>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
     }
 
+    public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        ApplyTenantId();
+        return await base.SaveChangesAsync(cancellationToken);
+    }
 
+    public override int SaveChanges()
+    {
+        ApplyTenantId();
+        return base.SaveChanges();
+    }
 
+    private void ApplyTenantId()
+    {
+        if (_tenantProvider is null) return;
+
+        var tenantId = _tenantProvider.CurrentTenantId;
+
+        foreach (var entry in ChangeTracker.Entries<ITenantEntity>())
+        {
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    entry.Entity.TenantId = tenantId;
+                    break;
+                case EntityState.Modified:
+                    entry.Property(nameof(ITenantEntity.TenantId)).IsModified = false;
+                    break;
+            }
+        }
+    }
 }
 
