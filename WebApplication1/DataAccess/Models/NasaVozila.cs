@@ -4,11 +4,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace WebApplication1.DataAccess.Models;
 
 [Table("NasaVozila")]
-public class NasaVozila
+public class NasaVozila : ITenantEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int VoziloId { get; set; }
+
+    public int TenantId { get; set; }
+    public Tenant Tenant { get; set; } = null!;
 
     [Required, MaxLength(100)]
     public string Naziv { get; set; } = string.Empty; // npr. Scania R500

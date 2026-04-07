@@ -2,11 +2,15 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApplication1.DataAccess.Models;
-public class Nalog
+public class Nalog : ITenantEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int NalogId { get; set; }
+
+    public int TenantId { get; set; }
+    public Tenant Tenant { get; set; } = null!;
+
     public string? NalogBroj { get; set; }
     public bool? isArchived { get; set; } = false;
     public bool? AutoCreatedFromTuraAssignment { get; set; } = false;

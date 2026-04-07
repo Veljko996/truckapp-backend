@@ -8,18 +8,26 @@ public class AuthenticationRepository : IAuthenticationRepository
     {
         _context = context;
     }
-    public async Task<User?> GetByUsernameAsync(string username)
+    public async Task<User?> GetByUsernameAndTenantAsync(string username, int tenantId)
     {
-        return await _context.
-            Users
+        return await _context.Users
+            .IgnoreQueryFilters()
             .Include(u => u.Roles)
-            .FirstOrDefaultAsync(u => u.Username == username);
+            .FirstOrDefaultAsync(u => u.Username == username && u.TenantId == tenantId);
+    }
+
+    public async Task<Tenant?> GetTenantBySlugAsync(string slug)
+    {
+        return await _context.Tenants
+            .AsNoTracking()
+            .FirstOrDefaultAsync(t => t.Slug == slug && t.IsActive);
     }
 
     public async Task<User?> GetByIdAsync(int userId)
     {
         return await _context
             .Users
+            .IgnoreQueryFilters()
             .Include(u => u.Roles)
             .FirstOrDefaultAsync(u => u.UserId == userId);
     }
@@ -41,6 +49,7 @@ public class AuthenticationRepository : IAuthenticationRepository
     public async Task<User?> GetUserByRefreshTokenAsync(string refreshToken)
     {
         return await _context.Users
+            .IgnoreQueryFilters()
             .Include(u => u.Roles)
             .FirstOrDefaultAsync(u =>
                 u.RefreshToken == refreshToken &&

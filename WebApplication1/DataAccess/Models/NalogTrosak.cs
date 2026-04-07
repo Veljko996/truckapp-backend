@@ -4,11 +4,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace WebApplication1.DataAccess.Models;
 
 [Table("NalogTroskovi")]
-public class NalogTrosak
+public class NalogTrosak : ITenantEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int TrosakId { get; set; }
+
+    public int TenantId { get; set; }
+    public Tenant Tenant { get; set; } = null!;
 
     public int NalogId { get; set; }
     public Nalog? Nalog { get; set; }

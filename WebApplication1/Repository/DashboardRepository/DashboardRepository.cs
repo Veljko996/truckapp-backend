@@ -1,23 +1,29 @@
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using WebApplication1.DataAccess;
 using WebApplication1.DataAccess.Models;
 using WebApplication1.Utils.DTOs.DashboardDTO;
+using WebApplication1.Utils.Tenant;
 
 namespace WebApplication1.Repository.DashboardRepository;
 
 public class DashboardRepository : IDashboardRepository
 {
     private readonly TruckContext _context;
+    private readonly ITenantProvider _tenantProvider;
 
-    public DashboardRepository(TruckContext context)
+    public DashboardRepository(TruckContext context, ITenantProvider tenantProvider)
     {
         _context = context;
+        _tenantProvider = tenantProvider;
     }
 
     public async Task<DashboardStatsDto> GetExternalDashboardStatsAsync(CancellationToken cancellationToken = default)
     {
+        var tenantParam = new SqlParameter("@TenantId", _tenantProvider.CurrentTenantId);
+
         var list = await _context.Database
-            .SqlQueryRaw<ExternalDashboardStatsRawDto>("EXEC dbo.GetExternalDashboardStats")
+            .SqlQueryRaw<ExternalDashboardStatsRawDto>("EXEC dbo.GetExternalDashboardStats @TenantId", tenantParam)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
 
@@ -44,9 +50,11 @@ public class DashboardRepository : IDashboardRepository
 
     public async Task<List<DashboardMonthlyProfitDto>> GetMonthlyProfitAsync(int monthsBack = 12, CancellationToken cancellationToken = default)
     {
-        var monthsParam = new Microsoft.Data.SqlClient.SqlParameter("@MonthsBack", monthsBack);
+        var monthsParam = new SqlParameter("@MonthsBack", monthsBack);
+        var tenantParam = new SqlParameter("@TenantId", _tenantProvider.CurrentTenantId);
+
         return await _context.Database
-            .SqlQueryRaw<DashboardMonthlyProfitDto>("EXEC dbo.GetDashboardMonthlyProfit @MonthsBack", monthsParam)
+            .SqlQueryRaw<DashboardMonthlyProfitDto>("EXEC dbo.GetDashboardMonthlyProfit @MonthsBack, @TenantId", monthsParam, tenantParam)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }

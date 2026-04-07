@@ -4,11 +4,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace WebApplication1.DataAccess.Models;
 
 [Table("Vinjete")]
-public class Vinjeta
+public class Vinjeta : ITenantEntity
 {
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public int VinjetaId { get; set; }
+
+    public int TenantId { get; set; }
+    public Tenant Tenant { get; set; } = null!;
 
     [Required, MaxLength(100)]
     public string DrzavaKod { get; set; } = string.Empty;

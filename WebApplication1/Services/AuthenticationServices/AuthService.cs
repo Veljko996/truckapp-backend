@@ -19,13 +19,22 @@ public class AuthService : IAuthService
 
     public async Task<LoginResultDto?> LoginAsync(LoginUserDto request)
     {
+        if (string.IsNullOrWhiteSpace(request.TenantSlug))
+            throw new ValidationException("EmptyTenantSlug", "Kod firme je obavezan.");
+
         if (string.IsNullOrWhiteSpace(request.Username))
             throw new ValidationException("EmptyUsername", "Korisničko ime je obavezno.");
 
         if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length <= 4)
             throw new ValidationException("InvalidPassword", "Lozinka mora imati najmanje 4 karaktera.");
 
-        var user = await _authenticationRepository.GetByUsernameAsync(request.Username);
+        var slug = request.TenantSlug.Trim().ToLowerInvariant();
+
+        var tenant = await _authenticationRepository.GetTenantBySlugAsync(slug);
+        if (tenant is null)
+            throw new NotFoundException("TenantNotFound", "Firma sa unetim kodom nije pronađena.");
+
+        var user = await _authenticationRepository.GetByUsernameAndTenantAsync(request.Username, tenant.TenantId);
         if (user is null)
             throw new NotFoundException("UserNotFound", $"Korisnik sa korisničkim imenom '{request.Username}' nije pronađen.");
 
@@ -34,16 +43,13 @@ public class AuthService : IAuthService
 
         if (passwordResult == PasswordVerificationResult.Failed)
         {
-            // uvedi brojac pokušaja logina
             throw new ValidationException("InvalidPassword", "Pogrešna lozinka. Pokušajte ponovo.");
         }
 
-        // Ažuriraj poslednji login
         user.LastLoginAt = DateTime.UtcNow;
         await _authenticationRepository.UpdateAsync(user);
         await _authenticationRepository.SaveChangesAsync();
 
-        // Generiši tokene i kreiraj user DTO
         var tokens = await CreateTokenResponse(user);
         var userDto = new AuthUserDto
         {
@@ -292,7 +298,8 @@ public class AuthService : IAuthService
             {
                 new Claim(ClaimTypes.Name, user.Username),
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Role, user.Roles.Name)
+                new Claim(ClaimTypes.Role, user.Roles.Name),
+                new Claim("tenant_id", user.TenantId.ToString())
             };
 
         var key = new SymmetricSecurityKey(

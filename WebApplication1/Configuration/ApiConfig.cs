@@ -32,6 +32,7 @@ using WebApplication1.Repository.EmployeeRepository;
 using WebApplication1.Services.DriverAssignmentServices;
 using WebApplication1.Repository.DriverAssignmentRepository;
 using WebApplication1.Services.QueuePublisherServices;
+using WebApplication1.Utils.Tenant;
 
 namespace WebApplication1.Configuration;
 
@@ -39,6 +40,9 @@ public static class ApiConfig
 {
     public static WebApplicationBuilder AddApiConfiguration(this WebApplicationBuilder builder)
     {
+        // Tenant
+        builder.Services.AddScoped<ITenantProvider, HttpTenantProvider>();
+
         builder.Services.AddScoped<INasaVozilaService,NasaVozilaService>();
         builder.Services.AddScoped<INasaVozilaRepository, NasaVozilaRepository>();
 
