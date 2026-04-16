@@ -118,13 +118,30 @@ public class AuthController : ControllerBase
 
 	[HttpGet("me")]
 	[Authorize]
-	public IActionResult Me()
+	public async Task<IActionResult> Me()
 	{
+		var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+		if (string.IsNullOrWhiteSpace(userIdClaim) || !int.TryParse(userIdClaim, out var userId))
+			return Unauthorized();
+
+		var user = await _service.GetUserByIdForMeAsync(userId);
+		if (user is null)
+			return Unauthorized();
+
 		return Ok(new
 		{
-			UserId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value,
-			Username = User.Identity?.Name,
-			Role = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value
+			user.UserId,
+			user.Username,
+			user.FullName,
+			user.Email,
+			user.Phone,
+			RoleId = user.RoleId,
+			RoleName = user.Roles?.Name,
+			Role = user.Roles?.Name,
+			user.IsActive,
+			user.CreatedAt,
+			user.UpdatedAt,
+			user.LastLoginAt,
 		});
 	}
 

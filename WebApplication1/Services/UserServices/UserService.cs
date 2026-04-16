@@ -88,8 +88,11 @@ public class UserService : IUserService
         return MapToUserReadDto(user);
     }
 
-    public async Task UpdateUserAsync(UserUpdateDto updateDto)
+    public async Task UpdateUserAsync(UserUpdateDto updateDto, bool isAdmin)
     {
+        if (!isAdmin && (updateDto.RoleId.HasValue || updateDto.IsActive.HasValue))
+            throw new ValidationException("ForbiddenUserUpdateFields", "Nemate dozvolu za izmenu uloge ili statusa korisnika.");
+
         var user = await _userRepository.GetByIdAsync(updateDto.UserId);
         if (user is null)
             throw new NotFoundException("UserNotFound", $"Korisnik sa ID {updateDto.UserId} nije pronađen.");

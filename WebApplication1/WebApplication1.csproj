@@ -8,10 +8,6 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Remove="Resources\logo.png" />
-	</ItemGroup>
-
-	<ItemGroup>
 		<PackageReference Include="Azure.Storage.Blobs" Version="12.27.0" />
 		<PackageReference Include="Azure.Storage.Queues" Version="12.25.0" />
 		<PackageReference Include="Mapster" Version="7.4.0" />
@@ -25,8 +21,11 @@
 	</ItemGroup>
 	
 	<ItemGroup>
-		<Content Include="Resources\logo.png">
-		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		<Content Include="Resources\logos\logo-suins.png">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="Resources\logos\logo-fetico.png">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
 

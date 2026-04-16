@@ -56,6 +56,8 @@ public class AuthService : IAuthService
             UserId = user.UserId,
             Username = user.Username,
             FullName = user.FullName,
+            RoleId = user.RoleId,
+            RoleName = user.Roles.Name,
             Role = user.Roles.Name
         };
 
@@ -325,5 +327,10 @@ public class AuthService : IAuthService
             AccessToken = CreateToken(user),
             RefreshToken = await GenerateAndSaveRefreshTokenAsync(user)
         };
+    }
+
+    public Task<User?> GetUserByIdForMeAsync(int userId)
+    {
+        return _authenticationRepository.GetByIdAsync(userId);
     }
 }

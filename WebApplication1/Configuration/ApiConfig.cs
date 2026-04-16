@@ -31,6 +31,7 @@ using WebApplication1.Services.EmployeeServices;
 using WebApplication1.Repository.EmployeeRepository;
 using WebApplication1.Services.DriverAssignmentServices;
 using WebApplication1.Repository.DriverAssignmentRepository;
+using WebApplication1.Services.NalogVozacAccessServices;
 using WebApplication1.Services.QueuePublisherServices;
 using WebApplication1.Utils.Tenant;
 
@@ -71,6 +72,8 @@ public static class ApiConfig
         builder.Services.AddScoped<IDriverAssignmentRepository, DriverAssignmentRepository>();
         builder.Services.AddScoped<IDriverAssignmentService, DriverAssignmentService>();
 
+        builder.Services.AddScoped<INalogVozacAccessService, NalogVozacAccessService>();
+
         builder.Services.AddScoped<INalogRepository, NalogRepository>();
         builder.Services.AddScoped<INalogService, NalogService>();
 
@@ -91,6 +94,8 @@ public static class ApiConfig
         else
             builder.Services.AddScoped<IFileStorageService, LocalFileStorageService>();
         
+        builder.Services.AddSingleton<IPdfTemplatePolicy, PdfTemplatePolicy>();
+
         // EKSPERIMENTALNO: QuestPDF servis za direktno PDF generisanje
         builder.Services.AddScoped<IQuestPdfNalogGenerator, QuestPdfNalogGenerator>();
 
