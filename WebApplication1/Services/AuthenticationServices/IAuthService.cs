@@ -8,4 +8,5 @@ namespace WebApplication1.Services.AuthenticationServices;
         Task<bool> LogoutAsync(int? userId = null);
         Task ChangePasswordAsync(int userId, ChangePasswordDto request);
         Task AdminResetPasswordAsync(int userId, AdminResetPasswordDto request);
+        Task<User?> GetUserByIdForMeAsync(int userId);
     }

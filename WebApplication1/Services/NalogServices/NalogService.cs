@@ -1,4 +1,5 @@
 using WebApplication1.Repository.NalogRepository;
+using WebApplication1.Services.NalogVozacAccessServices;
 using WebApplication1.Utils.DTOs.NalogDTO;
 using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
 
@@ -9,24 +10,38 @@ public class NalogService : INalogService
     private readonly INalogRepository _repository;
     private readonly ITureRepository _turaRepository;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly INalogVozacAccessService _vozacAccess;
 
-    public NalogService(INalogRepository repository, ITureRepository turaRepository, IHttpContextAccessor httpContextAccessor)
+    public NalogService(
+        INalogRepository repository,
+        ITureRepository turaRepository,
+        IHttpContextAccessor httpContextAccessor,
+        INalogVozacAccessService vozacAccess)
     {
         _repository = repository;
         _turaRepository = turaRepository;
         _httpContextAccessor = httpContextAccessor;
+        _vozacAccess = vozacAccess;
     }
 
-    public async Task<IEnumerable<NalogReadDto>> GetAllAsync()
+    public async Task<IEnumerable<NalogReadDto>> GetAllAsync(int? vozacUserId = null)
     {
-        return await _repository.GetAll()
+        IQueryable<Nalog> query = _repository.GetAll();
+        if (vozacUserId.HasValue)
+            query = _vozacAccess.ApplyVozacFilter(query, vozacUserId.Value);
+
+        return await query
             .Select(n => n.Adapt<NalogReadDto>())
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<NalogReadDto>> GetInterniAsync()
+    public async Task<IEnumerable<NalogReadDto>> GetInterniAsync(int? vozacUserId = null)
     {
-        return await _repository.GetInterni()
+        IQueryable<Nalog> query = _repository.GetInterni();
+        if (vozacUserId.HasValue)
+            query = _vozacAccess.ApplyVozacFilter(query, vozacUserId.Value);
+
+        return await query
             .Select(n => n.Adapt<NalogReadDto>())
             .ToListAsync();
     }

@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -5,13 +6,13 @@ using WebApplication1.Repository.NalogRepository;
 
 namespace WebApplication1.Services.QuestPdfServices;
 
-public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
+public partial class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
 {
     private readonly INalogRepository _nalogRepository;
     private readonly IWebHostEnvironment _env;
     private readonly ILogger<QuestPdfNalogGenerator> _logger;
-    private static byte[]? _logoCache;
-    private static readonly object _logoLock = new();
+    private static readonly ConcurrentDictionary<string, byte[]?> LogoCache = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly object LogoLock = new();
 
     public QuestPdfNalogGenerator(
         INalogRepository nalogRepository,
@@ -28,45 +29,63 @@ public class QuestPdfNalogGenerator : IQuestPdfNalogGenerator
         var nalog = await _nalogRepository.GetByIdAsync(nalogId)
             ?? throw new NotFoundException("Nalog", nalogId);
 
-        var logoBytes = await LoadLogoAsync();
+        var key = templateKey.Trim().ToLowerInvariant();
+        var logoProfile = key == "fetico" ? "fetico" : "suins";
+        var logoBytes = LoadLogoBytes(logoProfile);
 
-        var document = templateKey.ToLowerInvariant() switch
+        var document = key switch
         {
             "mts"      => BuildMtsDocument(nalog, logoBytes),
             "suins"    => BuildSuinsDocument(nalog, logoBytes),
             "timnalog" => BuildTallTeamDocument(nalog, logoBytes),
+            "fetico"   => BuildFeticoDocument(nalog, logoBytes),
             _ => throw new ArgumentException($"Nepoznat template '{templateKey}'.", nameof(templateKey)),
         };
 
         return document.GeneratePdf();
     }
 
-    private async Task<byte[]?> LoadLogoAsync()
+    /// <summary>Suins (MTS / Suins / Tim): Resources/logos/logo-suins.png; Fetico: Resources/logos/logo-fetico.png. Fallback: Resources/logo.png samo za Suins profil.</summary>
+    private byte[]? LoadLogoBytes(string profile)
     {
-        if (_logoCache != null)
-            return _logoCache;
+        if (LogoCache.TryGetValue(profile, out var cached))
+            return cached;
 
-        lock (_logoLock)
+        lock (LogoLock)
         {
-            if (_logoCache != null)
-                return _logoCache;
+            if (LogoCache.TryGetValue(profile, out cached))
+                return cached;
 
             try
             {
-                var logoPath = Path.Combine(_env.ContentRootPath, "Resources", "logo.png");
-                if (File.Exists(logoPath))
+                var relative = profile.Equals("fetico", StringComparison.OrdinalIgnoreCase)
+                    ? Path.Combine("Resources", "logos", "logo-fetico.png")
+                    : Path.Combine("Resources", "logos", "logo-suins.png");
+
+                var logoPath = Path.Combine(_env.ContentRootPath, relative);
+                if (!File.Exists(logoPath) && !profile.Equals("fetico", StringComparison.OrdinalIgnoreCase))
                 {
-                    _logoCache = File.ReadAllBytes(logoPath);
+                    var legacy = Path.Combine(_env.ContentRootPath, "Resources", "logo.png");
+                    if (File.Exists(legacy))
+                    {
+                        _logger.LogInformation("Korišćen legacy Resources/logo.png (logo-suins.png nije pronađen).");
+                        logoPath = legacy;
+                    }
                 }
+
+                if (File.Exists(logoPath))
+                    LogoCache[profile] = File.ReadAllBytes(logoPath);
+                else
+                    LogoCache[profile] = null;
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Nije moguće učitati logo za PDF generisanje");
-                _logoCache = null;
+                _logger.LogWarning(ex, "Nije moguće učitati logo za PDF ({Profile})", profile);
+                LogoCache[profile] = null;
             }
-        }
 
-        return _logoCache;
+            return LogoCache.TryGetValue(profile, out cached) ? cached : null;
+        }
     }
 
     private static IDocument BuildMtsDocument(Nalog nalog, byte[]? logoBytes)

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 using WebApplication1.Services.AuthenticationServices;
 using WebApplication1.Services.UserServices;
 using WebApplication1.Utils.DTOs.UserDTO;
@@ -115,14 +116,18 @@ public class UserController : ControllerBase
         try
         {
             // Provera da li korisnik pokušava da ažurira sebe ili je admin
-            var currentUserId = int.Parse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? "0");
+            var currentUserId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
             var isAdmin = User.IsInRole("Admin");
 
             if (!isAdmin && currentUserId != id)
                 return Forbid("Možete ažurirati samo svoj profil.");
 
+            // Non-admin users may only edit basic profile fields on themselves.
+            if (!isAdmin && (updateDto.RoleId.HasValue || updateDto.IsActive.HasValue))
+                return Forbid("Nemate dozvolu za izmenu uloge ili statusa korisnika.");
+
             updateDto.UserId = id;
-            await _userService.UpdateUserAsync(updateDto);
+            await _userService.UpdateUserAsync(updateDto, isAdmin);
             return NoContent();
         }
         catch (Exception ex)

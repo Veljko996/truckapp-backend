@@ -4,8 +4,8 @@ namespace WebApplication1.Services.NalogServices;
 
 public interface INalogService
 {
-    Task<IEnumerable<NalogReadDto>> GetAllAsync();
-    Task<IEnumerable<NalogReadDto>> GetInterniAsync();
+    Task<IEnumerable<NalogReadDto>> GetAllAsync(int? vozacUserId = null);
+    Task<IEnumerable<NalogReadDto>> GetInterniAsync(int? vozacUserId = null);
     Task<IEnumerable<NalogReadDto>> GetNaloziSaIstovaromUKasnjenjuAsync();
     Task<NalogReadDto?> GetById(int id);
     Task<NalogReadDto> Create(int turaId, CreateNalogDto dto);

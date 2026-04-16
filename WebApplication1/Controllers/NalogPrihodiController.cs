@@ -7,7 +7,7 @@ namespace WebApplication1.Controllers;
 
 [ApiController]
 [Route("api/nalozi")]
-[Authorize(Roles = "Admin,Korisnik")]
+[Authorize(Roles = "Admin,Korisnik")]  // Vozac nema pristup prihodima/obracunu
 public class NalogPrihodiController : ControllerBase
 {
     private readonly INalogPrihodiService _service;
