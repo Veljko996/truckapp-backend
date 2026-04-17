@@ -34,6 +34,10 @@ using WebApplication1.Repository.DriverAssignmentRepository;
 using WebApplication1.Services.NalogVozacAccessServices;
 using WebApplication1.Services.QueuePublisherServices;
 using WebApplication1.Utils.Tenant;
+using WebApplication1.Services.KrugServices;
+using WebApplication1.Repository.KrugRepository;
+using WebApplication1.Services.KrugTroskoviServices;
+using WebApplication1.Repository.KrugTroskoviRepository;
 
 namespace WebApplication1.Configuration;
 
@@ -121,6 +125,13 @@ public static class ApiConfig
 
         // Queue publisher service
         builder.Services.AddScoped<IQueuePublisher, QueuePublisher>();
+
+        // Krug
+        builder.Services.AddScoped<IKrugRepository, KrugRepository>();
+        builder.Services.AddScoped<IKrugService, KrugService>();
+
+        builder.Services.AddScoped<IKrugTroskoviRepository, KrugTroskoviRepository>();
+        builder.Services.AddScoped<IKrugTroskoviService, KrugTroskoviService>();
 
         return builder;
     }

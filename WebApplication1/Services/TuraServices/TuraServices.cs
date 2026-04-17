@@ -1,6 +1,7 @@
 using ValidationException = WebApplication1.Utils.Exceptions.ValidationException;
 using WebApplication1.Services.NalogServices;
 using WebApplication1.Services.NalogPrihodiServices;
+using WebApplication1.Repository.KrugRepository;
 
 namespace WebApplication1.Services.TuraServices;
 
@@ -9,15 +10,18 @@ public class TuraService : ITuraService
     private readonly ITureRepository _repository;
     private readonly INalogService _nalogService;
     private readonly INalogPrihodiService _nalogPrihodiService;
+    private readonly IKrugRepository _krugRepository;
 
     public TuraService(
         ITureRepository repository,
         INalogService nalogService,
-        INalogPrihodiService nalogPrihodiService)
+        INalogPrihodiService nalogPrihodiService,
+        IKrugRepository krugRepository)
     {
         _repository = repository;
         _nalogService = nalogService;
         _nalogPrihodiService = nalogPrihodiService;
+        _krugRepository = krugRepository;
     }
 
     public async Task<IEnumerable<TuraReadDto>> GetAll()
@@ -118,6 +122,15 @@ public class TuraService : ITuraService
 		if (tura.VoziloId.HasValue && await _repository.IsVoziloZauzetoNaNaloguAsync(tura.VoziloId.Value, id))
 			throw new ValidationException("Vozilo", "Ovo vozilo je već dodeljeno drugom aktivnom nalogu. Jedno vozilo može biti samo na jednom nalogu.");
 
+		// Ako je Tura u Krugu, VoziloId mora ostati usklađen sa vozilom Kruga
+		if (tura.KrugId.HasValue)
+		{
+			var krug = await _krugRepository.GetByIdAsync(tura.KrugId.Value);
+			if (krug != null && tura.VoziloId != krug.VoziloId)
+				throw new ValidationException("Vozilo",
+					"Tura pripada otvorenom krugu i njeno vozilo mora biti isto kao vozilo kruga. Prvo izbacite Turu iz kruga.");
+		}
+
 		var isInternalAssignment = tura.Prevoznik?.Interni == true;
 		Nalog? nalog = null;
 		var nalogCreatedNow = false;
@@ -180,6 +193,34 @@ public class TuraService : ITuraService
 
         return true;
     }
+
+	public async Task AssignKrugAsync(int turaId, int? krugId)
+	{
+		var tura = await _repository.GetByIdAsync(turaId)
+			?? throw new NotFoundException("Tura", $"Tura sa ID {turaId} nije pronađena.");
+
+		if (krugId == null)
+		{
+			tura.KrugId = null;
+			await _repository.SaveChangesAsync();
+			return;
+		}
+
+		var krug = await _krugRepository.GetByIdAsync(krugId.Value)
+			?? throw new NotFoundException("Krug", $"Krug sa ID {krugId.Value} nije pronađen.");
+
+		if (krug.Status != "Otvoren")
+			throw new ValidationException("Krug", "Tura se može dodati samo u otvoren krug.");
+
+		if (!tura.VoziloId.HasValue)
+			throw new ValidationException("Vozilo", "Tura mora imati dodeljeno vozilo da bi bila povezana sa krugom.");
+
+		if (tura.VoziloId.Value != krug.VoziloId)
+			throw new ValidationException("Vozilo", "Vozilo ture mora biti isto kao vozilo kruga.");
+
+		tura.KrugId = krug.KrugId;
+		await _repository.SaveChangesAsync();
+	}
 
 	private async Task SyncAssignmentReferencesAsync(Tura tura)
 	{

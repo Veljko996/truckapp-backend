@@ -3,6 +3,7 @@ using WebApplication1.Utils.DTOs.NalogDokumentiDTO;
 using WebApplication1.Utils.DTOs.NalogPrihodiDTO;
 using WebApplication1.Utils.DTOs.NalogTroskoviDTO;
 using WebApplication1.Utils.DTOs.GorivoDTO;
+using WebApplication1.Utils.DTOs.KrugTroskoviDTO;
 
 namespace WebApplication1.Utils.Mapping;
 
@@ -145,12 +146,16 @@ public static class MappingConfig
             .IgnoreNullValues(true)
             .Map(dest => dest.PrevoznikNaziv,
                  src => src.Prevoznik != null ? src.Prevoznik.Naziv : null)
+            .Map(dest => dest.PrevoznikInterni,
+                 src => src.Prevoznik != null ? (bool?)src.Prevoznik.Interni : null)
             .Map(dest => dest.TuraRedniBroj,
                  src => src.Tura != null ? src.Tura.RedniBroj : null)
             .Map(dest => dest.VoziloId,
                  src => src.Tura != null ? src.Tura.VoziloId : null)
             .Map(dest => dest.VoziloNaziv,
-                 src => src.Tura != null && src.Tura.Vozilo != null ? src.Tura.Vozilo.Naziv : null);
+                 src => src.Tura != null && src.Tura.Vozilo != null ? src.Tura.Vozilo.Naziv : null)
+            .Map(dest => dest.TuraKrugId,
+                 src => src.Tura != null ? src.Tura.KrugId : null);
 
         TypeAdapterConfig<CreateNalogDto, Nalog>
             .NewConfig()
@@ -277,5 +282,18 @@ public static class MappingConfig
             .Ignore(dest => dest.CreatedBy);
 
         #endregion Gorivo
+
+        #region KrugTroskovi
+
+        TypeAdapterConfig<CreateKrugTrosakDto, KrugTrosak>
+            .NewConfig()
+            .Ignore(dest => dest.KrugTrosakId)
+            .Ignore(dest => dest.KrugId)
+            .Ignore(dest => dest.Krug)
+            .Ignore(dest => dest.TipTroska)
+            .Ignore(dest => dest.CreatedAt)
+            .Ignore(dest => dest.CreatedBy);
+
+        #endregion KrugTroskovi
     }
 }

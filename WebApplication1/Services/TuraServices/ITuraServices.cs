@@ -13,4 +13,10 @@ public interface ITuraService
 
 
 	Task<bool> Delete(int id);
+
+	/// <summary>
+	/// Postavi ili ukloni KrugId na postojećoj Turi.
+	/// krugId == null -> ukloni Turu iz Kruga.
+	/// </summary>
+	Task AssignKrugAsync(int turaId, int? krugId);
 }

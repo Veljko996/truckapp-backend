@@ -45,6 +45,10 @@ public class TruckContext : DbContext
     public DbSet<Roles> Roles { get; set; } = null!;
     public DbSet<Log> Logs { get; set; } = null!;
 
+    // === Krug ===
+    public DbSet<Krug> Krugovi { get; set; } = null!;
+    public DbSet<KrugTrosak> KrugTroskovi { get; set; } = null!;
+
     // === Tenant ===
     public DbSet<Tenant> Tenants { get; set; } = null!;
 
@@ -83,6 +87,10 @@ public class TruckContext : DbContext
         modelBuilder.Entity<NasaVoziloVozacAssignment>()
             .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<Log>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Krug>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<KrugTrosak>()
             .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
 
         // ===================== USER / AUTH =====================
@@ -147,6 +155,54 @@ public class TruckContext : DbContext
         modelBuilder.Entity<Tura>()
             .HasIndex(t => new { t.TenantId, t.RedniBroj })
             .IsUnique();
+
+        modelBuilder.Entity<Tura>()
+            .HasOne(t => t.Krug)
+            .WithMany(k => k.Ture)
+            .HasForeignKey(t => t.KrugId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Tura>()
+            .HasIndex(t => t.KrugId)
+            .HasFilter("[KrugId] IS NOT NULL");
+
+        // ===================== KRUG =====================
+
+        modelBuilder.Entity<Krug>()
+            .HasOne(k => k.Vozilo)
+            .WithMany()
+            .HasForeignKey(k => k.VoziloId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Krug>()
+            .HasIndex(k => k.VoziloId);
+
+        modelBuilder.Entity<Krug>()
+            .HasIndex(k => k.Status);
+
+        // Samo jedan otvoren krug po vozilu (per tenant)
+        modelBuilder.Entity<Krug>()
+            .HasIndex(k => new { k.TenantId, k.VoziloId })
+            .IsUnique()
+            .HasFilter("[Status] = 'Otvoren'")
+            .HasDatabaseName("UX_Krugovi_Otvoren_PoVozilu");
+
+        // ===================== KRUG TROSKOVI =====================
+
+        modelBuilder.Entity<KrugTrosak>()
+            .HasOne(t => t.Krug)
+            .WithMany(k => k.Troskovi)
+            .HasForeignKey(t => t.KrugId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<KrugTrosak>()
+            .HasOne(t => t.TipTroska)
+            .WithMany()
+            .HasForeignKey(t => t.TipTroskaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<KrugTrosak>()
+            .HasIndex(t => t.KrugId);
 
         // ===================== NALOG =====================
 
@@ -339,6 +395,8 @@ public class TruckContext : DbContext
         modelBuilder.Entity<GorivoZapis>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
         modelBuilder.Entity<NasaVoziloVozacAssignment>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
         modelBuilder.Entity<Log>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
+        modelBuilder.Entity<Krug>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
+        modelBuilder.Entity<KrugTrosak>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

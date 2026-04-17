@@ -66,6 +66,9 @@ public class Tura : ITenantEntity
     public int? VoziloId { get; set; }
     public NasaVozila? Vozilo { get; set; }
 
+    public int? KrugId { get; set; }
+    public Krug? Krug { get; set; }
+
     [Required]
     public int VrstaNadogradnjeId { get; set; }
     public VrstaNadogradnje VrstaNadogradnje { get; set; } = null!;

@@ -1,0 +1,18 @@
+using System.ComponentModel.DataAnnotations;
+
+namespace WebApplication1.Utils.DTOs.KrugTroskoviDTO;
+
+public class CreateKrugTrosakDto
+{
+    [Required]
+    public int TipTroskaId { get; set; }
+
+    [Required]
+    public decimal Iznos { get; set; }
+
+    [Required, MaxLength(10)]
+    public string Valuta { get; set; } = "RSD";
+
+    [MaxLength(500)]
+    public string? Napomena { get; set; }
+}

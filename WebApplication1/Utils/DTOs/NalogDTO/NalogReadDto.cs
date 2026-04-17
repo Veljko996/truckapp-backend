@@ -34,7 +34,11 @@ public class NalogReadDto
     
     // Lookup names
     public string? PrevoznikNaziv { get; set; }
+    public bool? PrevoznikInterni { get; set; }
     public int? VoziloId { get; set; }
     public string? VoziloNaziv { get; set; }
+
+    // Krug context
+    public int? TuraKrugId { get; set; }
 }
 
