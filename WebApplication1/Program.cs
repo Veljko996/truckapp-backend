@@ -120,6 +120,7 @@ builder.AddApiConfiguration();
 builder.Services.AddSwaggerConfiguration();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddApplicationInsightsTelemetry();
 
 // ================= EXCEPTION HANDLING =================
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
