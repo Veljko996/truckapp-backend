@@ -22,6 +22,7 @@ public class TureRepository : ITureRepository
             .Include(t => t.Vozilo)
             .Include(t => t.Klijent)
             .Include(t => t.VrstaNadogradnje)
+            .Where(t => t.Prevoznik == null || t.Prevoznik.Interni != true)
             .OrderByDescending(t => t.TuraId);
     }
 

@@ -24,26 +24,63 @@ public class NalogService : INalogService
         _vozacAccess = vozacAccess;
     }
 
-    public async Task<IEnumerable<NalogReadDto>> GetAllAsync(int? vozacUserId = null)
+    private const int DefaultPageSize = 50;
+    private const int MaxPageSize = 500;
+
+    private static (int page, int pageSize) NormalizePage(int page, int pageSize)
     {
+        if (page < 1) page = 1;
+        if (pageSize < 1) pageSize = DefaultPageSize;
+        if (pageSize > MaxPageSize) pageSize = MaxPageSize;
+        return (page, pageSize);
+    }
+
+    public async Task<PagedResultDto<NalogReadDto>> GetAllAsync(int? vozacUserId = null, int page = 1, int pageSize = 50)
+    {
+        (page, pageSize) = NormalizePage(page, pageSize);
+
         IQueryable<Nalog> query = _repository.GetAll();
         if (vozacUserId.HasValue)
             query = _vozacAccess.ApplyVozacFilter(query, vozacUserId.Value);
 
-        return await query
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(n => n.Adapt<NalogReadDto>())
             .ToListAsync();
+
+        return new PagedResultDto<NalogReadDto>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
     }
 
-    public async Task<IEnumerable<NalogReadDto>> GetInterniAsync(int? vozacUserId = null)
+    public async Task<PagedResultDto<NalogReadDto>> GetInterniAsync(int? vozacUserId = null, int page = 1, int pageSize = 50)
     {
+        (page, pageSize) = NormalizePage(page, pageSize);
+
         IQueryable<Nalog> query = _repository.GetInterni();
         if (vozacUserId.HasValue)
             query = _vozacAccess.ApplyVozacFilter(query, vozacUserId.Value);
 
-        return await query
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(n => n.Adapt<NalogReadDto>())
             .ToListAsync();
+
+        return new PagedResultDto<NalogReadDto>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
     }
 
     public async Task<IEnumerable<NalogReadDto>> GetNaloziSaIstovaromUKasnjenjuAsync()

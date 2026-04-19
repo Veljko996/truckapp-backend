@@ -1,11 +1,12 @@
-﻿using WebApplication1.Utils.DTOs.NalogDTO;
+﻿using WebApplication1.Utils.DTOs;
+using WebApplication1.Utils.DTOs.NalogDTO;
 
 namespace WebApplication1.Services.NalogServices;
 
 public interface INalogService
 {
-    Task<IEnumerable<NalogReadDto>> GetAllAsync(int? vozacUserId = null);
-    Task<IEnumerable<NalogReadDto>> GetInterniAsync(int? vozacUserId = null);
+    Task<PagedResultDto<NalogReadDto>> GetAllAsync(int? vozacUserId = null, int page = 1, int pageSize = 50);
+    Task<PagedResultDto<NalogReadDto>> GetInterniAsync(int? vozacUserId = null, int page = 1, int pageSize = 50);
     Task<IEnumerable<NalogReadDto>> GetNaloziSaIstovaromUKasnjenjuAsync();
     Task<NalogReadDto?> GetById(int id);
     Task<NalogReadDto> Create(int turaId, CreateNalogDto dto);

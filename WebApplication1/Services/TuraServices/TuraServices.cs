@@ -7,6 +7,9 @@ namespace WebApplication1.Services.TuraServices;
 
 public class TuraService : ITuraService
 {
+    private const int DefaultPageSize = 50;
+    private const int MaxPageSize = 500;
+
     private readonly ITureRepository _repository;
     private readonly INalogService _nalogService;
     private readonly INalogPrihodiService _nalogPrihodiService;
@@ -24,11 +27,30 @@ public class TuraService : ITuraService
         _krugRepository = krugRepository;
     }
 
-    public async Task<IEnumerable<TuraReadDto>> GetAll()
+    public async Task<PagedResultDto<TuraReadDto>> GetPageAsync(int page, int pageSize)
     {
-        return await _repository.GetAll()
+        if (page < 1)
+            page = 1;
+        if (pageSize < 1)
+            pageSize = DefaultPageSize;
+        if (pageSize > MaxPageSize)
+            pageSize = MaxPageSize;
+
+        var query = _repository.GetAll();
+        var totalCount = await query.CountAsync();
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
             .Select(t => t.Adapt<TuraReadDto>())
             .ToListAsync();
+
+        return new PagedResultDto<TuraReadDto>
+        {
+            Items = items,
+            TotalCount = totalCount,
+            Page = page,
+            PageSize = pageSize
+        };
     }
 
     public async Task<TuraReadDto?> GetById(int id)

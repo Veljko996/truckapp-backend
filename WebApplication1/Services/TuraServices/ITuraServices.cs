@@ -2,7 +2,7 @@ namespace WebApplication1.Services.TuraServices;
 
 public interface ITuraService
 {
-    Task<IEnumerable<TuraReadDto>> GetAll();
+    Task<PagedResultDto<TuraReadDto>> GetPageAsync(int page, int pageSize);
     Task<TuraReadDto?> GetById(int id);
     Task<TuraReadDto> Create(CreateTuraDto dto);
 	Task<TuraReadDto> RecreateAsync(int sourceTuraId);

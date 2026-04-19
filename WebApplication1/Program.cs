@@ -1,4 +1,5 @@
 using MapsterMapper;
+using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using QuestPDF.Infrastructure;
 using WebApplication1.Configuration;

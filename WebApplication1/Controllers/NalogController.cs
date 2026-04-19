@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using WebApplication1.Services.NalogServices;
 using WebApplication1.Services.NalogVozacAccessServices;
 using WebApplication1.Services.QuestPdfServices;
+using WebApplication1.Utils.DTOs;
 using WebApplication1.Utils.DTOs.NalogDTO;
 using WebApplication1.Utils.Tenant;
 
@@ -37,18 +38,22 @@ public class NalogController : ControllerBase
     private int CurrentUserId => int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<NalogReadDto>>> GetAll()
+    public async Task<ActionResult<PagedResultDto<NalogReadDto>>> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 50)
     {
         int? vozacUserId = IsVozac ? CurrentUserId : null;
-        var result = await _service.GetAllAsync(vozacUserId);
+        var result = await _service.GetAllAsync(vozacUserId, page, pageSize);
         return Ok(result);
     }
 
     [HttpGet("interni")]
-    public async Task<ActionResult<IEnumerable<NalogReadDto>>> GetInterni()
+    public async Task<ActionResult<PagedResultDto<NalogReadDto>>> GetInterni(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 50)
     {
         int? vozacUserId = IsVozac ? CurrentUserId : null;
-        var result = await _service.GetInterniAsync(vozacUserId);
+        var result = await _service.GetInterniAsync(vozacUserId, page, pageSize);
         return Ok(result);
     }
 

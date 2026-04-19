@@ -15,9 +15,11 @@ public class TuraController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<TuraReadDto>>> GetAll()
+    public async Task<ActionResult<PagedResultDto<TuraReadDto>>> GetAll(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 50)
     {
-        var result = await _service.GetAll();
+        var result = await _service.GetPageAsync(page, pageSize);
         return Ok(result);
     }
     [HttpGet("{id}")]
