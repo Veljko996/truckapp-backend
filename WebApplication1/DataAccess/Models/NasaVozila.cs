@@ -26,6 +26,11 @@ public class NasaVozila : ITenantEntity
     public DateTime? RegistracijaDatumIsteka { get; set; }
     public DateTime? TehnickiPregledDatumIsteka { get; set; }
     public DateTime? PPAparatDatumIsteka { get; set; }
+    public bool ImaZutuPotvrdu { get; set; }
+    public bool ImaBeluPotvrdu { get; set; }
+    public DateTime? ZutaPotvrdaVaziDo { get; set; }
+    public DateTime? BelaPotvrdaVaziDo { get; set; }
+    public int? Kilometraza { get; set; }
 
     [MaxLength(100)]
     public string? Raspolozivost { get; set; } = "Slobodno"; 

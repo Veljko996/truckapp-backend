@@ -71,7 +71,11 @@ public class KrugService : IKrugService
         }
 
         var krugovi = await query.ToListAsync();
-        return krugovi.Select(MapReadDto).ToList();
+        var vozaciByVoziloId = await GetActiveVozaciByVoziloIdsAsync(krugovi.Select(k => k.VoziloId));
+
+        return krugovi
+            .Select(k => MapReadDto(k, vozaciByVoziloId.GetValueOrDefault(k.VoziloId)))
+            .ToList();
     }
 
     public async Task<KrugDetailsDto> GetDetailsAsync(int krugId, int? vozacUserId = null)
@@ -103,6 +107,8 @@ public class KrugService : IKrugService
 
         var nalogPoTuri = nalozi.GroupBy(n => n.TuraId)
             .ToDictionary(g => g.Key, g => g.OrderByDescending(n => n.NalogId).First());
+        var vozaciByVoziloId = await GetActiveVozaciByVoziloIdsAsync(new[] { krug.VoziloId });
+        var activeVozac = vozaciByVoziloId.GetValueOrDefault(krug.VoziloId);
 
         var details = new KrugDetailsDto
         {
@@ -110,8 +116,16 @@ public class KrugService : IKrugService
             Broj = krug.Broj,
             VoziloId = krug.VoziloId,
             VoziloNaziv = krug.Vozilo?.Naziv,
+            VozacId = activeVozac?.VozacId,
+            VozacImePrezime = activeVozac?.ImePrezime ?? "Nema",
+            PrimarniNalogIdZaDokumente = nalozi
+                .OrderByDescending(n => n.NalogId)
+                .FirstOrDefault()
+                ?.NalogId,
             StartAt = krug.StartAt,
             EndAt = krug.EndAt,
+            PocetnaKilometraza = krug.PocetnaKilometraza,
+            ZavrsnaKilometraza = krug.ZavrsnaKilometraza,
             Status = krug.Status,
             Napomena = krug.Napomena,
             CreatedAt = krug.CreatedAt,
@@ -202,13 +216,17 @@ public class KrugService : IKrugService
 
         // Load vozilo + ture za BrojTura
         var full = await _repository.GetByIdWithTureAsync(open.KrugId);
-        return full != null ? MapReadDto(full) : MapReadDto(open);
+        var source = full ?? open;
+        var vozaciByVoziloId = await GetActiveVozaciByVoziloIdsAsync(new[] { source.VoziloId });
+        return MapReadDto(source, vozaciByVoziloId.GetValueOrDefault(source.VoziloId));
     }
 
     public async Task<KrugReadDto> CreateAsync(CreateKrugDto dto)
     {
         var vozilo = await _context.NasaVozila.FindAsync(dto.VoziloId)
             ?? throw new ValidationException("Vozilo", $"Vozilo sa ID {dto.VoziloId} ne postoji.");
+
+        ValidateKilometraza("PocetnaKilometraza", dto.PocetnaKilometraza);
 
         var existingOpen = await _repository.GetOpenByVoziloIdAsync(dto.VoziloId);
         if (existingOpen != null)
@@ -222,6 +240,7 @@ public class KrugService : IKrugService
             Broj = FormatKrugBroj(nextBroj),
             VoziloId = dto.VoziloId,
             StartAt = dto.StartAt ?? DateTime.UtcNow,
+            PocetnaKilometraza = dto.PocetnaKilometraza ?? vozilo.Kilometraza,
             Status = "Otvoren",
             Napomena = dto.Napomena,
             CreatedAt = DateTime.UtcNow,
@@ -232,7 +251,8 @@ public class KrugService : IKrugService
         await _repository.SaveChangesAsync();
 
         var created = await _repository.GetByIdAsync(krug.KrugId);
-        return MapReadDto(created!);
+        var vozaciByVoziloId = await GetActiveVozaciByVoziloIdsAsync(new[] { created!.VoziloId });
+        return MapReadDto(created, vozaciByVoziloId.GetValueOrDefault(created.VoziloId));
     }
 
     public async Task<KrugReadDto> CreateFromNalogAsync(int nalogId)
@@ -246,6 +266,9 @@ public class KrugService : IKrugService
         var voziloId = nalog.Tura.VoziloId;
         if (!voziloId.HasValue)
             throw new ValidationException("Vozilo", "Tura ovog naloga nema dodeljeno vozilo. Krug ne može biti kreiran.");
+
+        var vozilo = await _context.NasaVozila.FindAsync(voziloId.Value)
+            ?? throw new ValidationException("Vozilo", $"Vozilo sa ID {voziloId.Value} ne postoji.");
 
         if (nalog.Tura.KrugId.HasValue)
             throw new ConflictException("Krug", $"Tura ovog naloga je već u krugu (#{nalog.Tura.KrugId.Value}).");
@@ -265,6 +288,7 @@ public class KrugService : IKrugService
                 Broj = FormatKrugBroj(nextBroj),
                 VoziloId = voziloId.Value,
                 StartAt = DateTime.UtcNow,
+                PocetnaKilometraza = vozilo.Kilometraza,
                 Status = "Otvoren",
                 CreatedAt = DateTime.UtcNow,
                 CreatedBy = username
@@ -279,7 +303,8 @@ public class KrugService : IKrugService
             await tx.CommitAsync();
 
             var created = await _repository.GetByIdAsync(krug.KrugId);
-            return MapReadDto(created!);
+            var vozaciByVoziloId = await GetActiveVozaciByVoziloIdsAsync(new[] { created!.VoziloId });
+            return MapReadDto(created, vozaciByVoziloId.GetValueOrDefault(created.VoziloId));
         }
         catch
         {
@@ -362,7 +387,7 @@ public class KrugService : IKrugService
         }
     }
 
-    public async Task CloseAsync(int krugId)
+    public async Task CloseAsync(int krugId, CloseKrugDto? dto = null)
     {
         var krug = await _repository.GetByIdAsync(krugId)
             ?? throw new NotFoundException("Krug", $"Krug sa ID {krugId} nije pronađen.");
@@ -370,12 +395,30 @@ public class KrugService : IKrugService
         if (krug.Status == "Zatvoren")
             return;
 
+        var zavrsnaKilometraza = dto?.ZavrsnaKilometraza;
+        ValidateKilometraza("ZavrsnaKilometraza", zavrsnaKilometraza);
+
+        if (krug.PocetnaKilometraza.HasValue
+            && zavrsnaKilometraza.HasValue
+            && zavrsnaKilometraza.Value < krug.PocetnaKilometraza.Value)
+        {
+            throw new ValidationException("ZavrsnaKilometraza", "Završna kilometraža ne može biti manja od početne.");
+        }
+
         var username = _httpContextAccessor.HttpContext?.User?.Identity?.Name;
 
         krug.Status = "Zatvoren";
         krug.EndAt = DateTime.UtcNow;
         krug.ClosedAt = DateTime.UtcNow;
         krug.ClosedBy = username;
+
+        if (zavrsnaKilometraza.HasValue)
+        {
+            krug.ZavrsnaKilometraza = zavrsnaKilometraza.Value;
+            var vozilo = krug.Vozilo ?? await _context.NasaVozila.FindAsync(krug.VoziloId);
+            if (vozilo != null)
+                vozilo.Kilometraza = zavrsnaKilometraza.Value;
+        }
 
         _repository.Update(krug);
         await _repository.SaveChangesAsync();
@@ -396,7 +439,43 @@ public class KrugService : IKrugService
         await _repository.SaveChangesAsync();
     }
 
-    private static KrugReadDto MapReadDto(Krug krug)
+    private async Task<Dictionary<int, ActiveVozacInfo>> GetActiveVozaciByVoziloIdsAsync(IEnumerable<int> voziloIds)
+    {
+        var ids = voziloIds.Distinct().ToList();
+        if (ids.Count == 0)
+            return new Dictionary<int, ActiveVozacInfo>();
+
+        var assignments = await _context.NasaVoziloVozacAssignments
+            .AsNoTracking()
+            .Where(a => ids.Contains(a.VoziloId) && a.UnassignedAt == null)
+            .Select(a => new
+            {
+                a.VoziloId,
+                VozacId = a.EmployeeId,
+                ImePrezime = a.Employee!.User.FullName,
+                a.SlotNumber,
+                a.AssignedAt
+            })
+            .ToListAsync();
+
+        return assignments
+            .GroupBy(a => a.VoziloId)
+            .ToDictionary(
+                g => g.Key,
+                g =>
+                {
+                    var selected = g
+                        .OrderBy(a => a.SlotNumber)
+                        .ThenByDescending(a => a.AssignedAt)
+                        .First();
+
+                    return new ActiveVozacInfo(
+                        selected.VozacId,
+                        string.IsNullOrWhiteSpace(selected.ImePrezime) ? "Nema" : selected.ImePrezime);
+                });
+    }
+
+    private static KrugReadDto MapReadDto(Krug krug, ActiveVozacInfo? activeVozac = null)
     {
         return new KrugReadDto
         {
@@ -404,8 +483,12 @@ public class KrugService : IKrugService
             Broj = krug.Broj,
             VoziloId = krug.VoziloId,
             VoziloNaziv = krug.Vozilo?.Naziv,
+            VozacId = activeVozac?.VozacId,
+            VozacImePrezime = activeVozac?.ImePrezime ?? "Nema",
             StartAt = krug.StartAt,
             EndAt = krug.EndAt,
+            PocetnaKilometraza = krug.PocetnaKilometraza,
+            ZavrsnaKilometraza = krug.ZavrsnaKilometraza,
             Status = krug.Status,
             Napomena = krug.Napomena,
             CreatedAt = krug.CreatedAt,
@@ -416,6 +499,14 @@ public class KrugService : IKrugService
             BrojNaloga = 0
         };
     }
+
+    private static void ValidateKilometraza(string fieldName, int? kilometraza)
+    {
+        if (kilometraza.HasValue && kilometraza.Value < 0)
+            throw new ValidationException(fieldName, "Kilometraža ne može biti negativna.");
+    }
+
+    private sealed record ActiveVozacInfo(int VozacId, string ImePrezime);
 
     private static KrugTrosakDto MapKrugTrosakDto(KrugTrosak t)
     {

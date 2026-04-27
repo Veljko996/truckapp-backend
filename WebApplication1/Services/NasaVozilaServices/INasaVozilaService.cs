@@ -2,7 +2,7 @@ namespace WebApplication1.Services.NasaVozilaServices;
 
 public interface INasaVozilaService
 {
-    Task<IEnumerable<NasaVozilaReadDto>> GetAll();
+    Task<IEnumerable<NasaVozilaReadDto>> GetAll(bool? imaZutuPotvrdu = null, bool? imaBeluPotvrdu = null);
     Task<IEnumerable<NasaVozilaReadDto>> GetAvailableForTuraAsync(int? currentTuraId = null);
     Task<NasaVozilaReadDto> GetById(int voziloId);
     Task<NasaVozilaReadDto> Create(NasaVozilaCreateDto vozilaCreateDto);

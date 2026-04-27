@@ -22,6 +22,8 @@ public class Krug : ITenantEntity
 
     public DateTime StartAt { get; set; } = DateTime.UtcNow;
     public DateTime? EndAt { get; set; }
+    public int? PocetnaKilometraza { get; set; }
+    public int? ZavrsnaKilometraza { get; set; }
 
     [Required, MaxLength(20)]
     public string Status { get; set; } = "Otvoren"; // Otvoren | Zatvoren

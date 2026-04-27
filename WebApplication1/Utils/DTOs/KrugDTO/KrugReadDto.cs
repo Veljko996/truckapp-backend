@@ -6,8 +6,12 @@ public class KrugReadDto
     public string? Broj { get; set; }
     public int VoziloId { get; set; }
     public string? VoziloNaziv { get; set; }
+    public int? VozacId { get; set; }
+    public string? VozacImePrezime { get; set; }
     public DateTime StartAt { get; set; }
     public DateTime? EndAt { get; set; }
+    public int? PocetnaKilometraza { get; set; }
+    public int? ZavrsnaKilometraza { get; set; }
     public string Status { get; set; } = string.Empty;
     public string? Napomena { get; set; }
     public DateTime CreatedAt { get; set; }

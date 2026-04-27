@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using WebApplication1.Services.KrugServices;
 using WebApplication1.Services.TuraServices;
 using WebApplication1.Utils.DTOs.KrugDTO;
@@ -97,9 +98,11 @@ public class KrugController : ControllerBase
 
     [HttpPost("{id:int}/close")]
     [Authorize(Roles = "Admin,Korisnik")]
-    public async Task<IActionResult> Close(int id)
+    public async Task<IActionResult> Close(
+        int id,
+        [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] CloseKrugDto? dto = null)
     {
-        await _service.CloseAsync(id);
+        await _service.CloseAsync(id, dto);
         return NoContent();
     }
 

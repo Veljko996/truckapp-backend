@@ -9,6 +9,8 @@ public class CreateKrugDto
 
     public DateTime? StartAt { get; set; }
 
+    public int? PocetnaKilometraza { get; set; }
+
     [MaxLength(500)]
     public string? Napomena { get; set; }
 }

@@ -34,6 +34,6 @@ public interface IKrugService
     /// </summary>
     Task<NalogReadDto> CreateNalogForKrugAsync(int krugId, CreateNalogForKrugDto dto);
 
-    Task CloseAsync(int krugId);
+    Task CloseAsync(int krugId, CloseKrugDto? dto = null);
     Task DeleteAsync(int krugId);
 }

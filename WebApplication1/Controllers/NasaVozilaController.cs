@@ -18,9 +18,11 @@ public class NasaVozilaController: ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<NasaVozilaReadDto>>> GetAll()
+    public async Task<ActionResult<IEnumerable<NasaVozilaReadDto>>> GetAll(
+        [FromQuery] bool? imaZutuPotvrdu = null,
+        [FromQuery] bool? imaBeluPotvrdu = null)
     {
-        var vozila = await _service.GetAll();
+        var vozila = await _service.GetAll(imaZutuPotvrdu, imaBeluPotvrdu);
         return Ok(vozila);
     }
 

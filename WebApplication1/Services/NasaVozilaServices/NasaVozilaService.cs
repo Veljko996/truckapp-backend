@@ -26,11 +26,18 @@ public class NasaVozilaService : INasaVozilaService
         return isBusy ? "Na turi" : "Slobodno";
     }
 
-    public async Task<IEnumerable<NasaVozilaReadDto>> GetAll()
+    public async Task<IEnumerable<NasaVozilaReadDto>> GetAll(bool? imaZutuPotvrdu = null, bool? imaBeluPotvrdu = null)
     {
         // Repository already includes Vinjete and uses AsNoTracking
-        var vozila = await _repository.GetAll()
-            .ToListAsync();
+        var query = _repository.GetAll();
+
+        if (imaZutuPotvrdu.HasValue)
+            query = query.Where(v => v.ImaZutuPotvrdu == imaZutuPotvrdu.Value);
+
+        if (imaBeluPotvrdu.HasValue)
+            query = query.Where(v => v.ImaBeluPotvrdu == imaBeluPotvrdu.Value);
+
+        var vozila = await query.ToListAsync();
 
         var busyIds = await _repository.GetBusyVoziloIdsAsync();
         var dtos = vozila.Adapt<List<NasaVozilaReadDto>>();
@@ -84,6 +91,9 @@ public class NasaVozilaService : INasaVozilaService
             throw new ValidationException("PPAparatDatumIsteka", 
                 "Datum isteka PP aparata ne može biti više od jednog dana u prošlosti.");
 
+        if (dto.Kilometraza.HasValue && dto.Kilometraza.Value < 0)
+            throw new ValidationException("Kilometraza", "Kilometraža ne može biti negativna.");
+
         var vozilo = dto.Adapt<NasaVozila>();
         
         // Set default values
@@ -124,6 +134,9 @@ public class NasaVozilaService : INasaVozilaService
         if (dto.PPAparatDatumIsteka.HasValue && dto.PPAparatDatumIsteka.Value < DateTime.UtcNow.AddDays(-1))
             throw new ValidationException("PPAparatDatumIsteka", 
                 "Datum isteka PP aparata ne može biti više od jednog dana u prošlosti.");
+
+        if (dto.Kilometraza.HasValue && dto.Kilometraza.Value < 0)
+            throw new ValidationException("Kilometraza", "Kilometraža ne može biti negativna.");
 
         dto.Adapt(vozilo);
 

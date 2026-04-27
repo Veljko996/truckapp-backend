@@ -11,6 +11,11 @@ public class NasaVozilaCreateDto
     public DateTime? RegistracijaDatumIsteka { get; set; }
     public DateTime? TehnickiPregledDatumIsteka { get; set; }
     public DateTime? PPAparatDatumIsteka { get; set; }
+    public bool ImaZutuPotvrdu { get; set; }
+    public bool ImaBeluPotvrdu { get; set; }
+    public DateTime? ZutaPotvrdaVaziDo { get; set; }
+    public DateTime? BelaPotvrdaVaziDo { get; set; }
+    public int? Kilometraza { get; set; }
     public string? Raspolozivost { get; set; }
     public string? Relacija { get; set; }
     public List<int>? VinjetaIds { get; set; }  // ako frontend salje postojeće vinjete
