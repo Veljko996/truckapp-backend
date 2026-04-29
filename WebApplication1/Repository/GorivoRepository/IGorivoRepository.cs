@@ -6,6 +6,7 @@ public interface IGorivoRepository
 {
     Task<List<GorivoZapis>> GetByVoziloIdAsync(int voziloId);
     Task<List<GorivoZapis>> GetByNalogIdAsync(int nalogId);
+    Task<List<GorivoZapis>> GetByKrugIdAsync(int krugId);
     Task<GorivoZapis?> GetByIdAsync(int gorivoZapisId);
     void Add(GorivoZapis entity);
     void Delete(GorivoZapis entity);

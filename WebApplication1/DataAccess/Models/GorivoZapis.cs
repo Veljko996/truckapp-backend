@@ -19,6 +19,9 @@ public class GorivoZapis : ITenantEntity
     public int? NalogId { get; set; }
     public Nalog? Nalog { get; set; }
 
+    public int? KrugId { get; set; }
+    public Krug? Krug { get; set; }
+
     [Column(TypeName = "decimal(18,2)")]
     public decimal Iznos { get; set; }
 

@@ -43,4 +43,5 @@ public class Krug : ITenantEntity
 
     public ICollection<Tura> Ture { get; set; } = new List<Tura>();
     public ICollection<KrugTrosak> Troskovi { get; set; } = new List<KrugTrosak>();
+    public ICollection<GorivoZapis> GorivoZapisi { get; set; } = new List<GorivoZapis>();
 }

@@ -7,6 +7,8 @@ public class GorivoZapisDto
     public string? VoziloNaziv { get; set; }
     public int? NalogId { get; set; }
     public string? NalogBroj { get; set; }
+    public int? KrugId { get; set; }
+    public string? KrugBroj { get; set; }
     public decimal Iznos { get; set; }
     public string Valuta { get; set; } = string.Empty;
     public decimal KolicineLitara { get; set; }

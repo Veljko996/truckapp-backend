@@ -5,6 +5,7 @@ namespace WebApplication1.Utils.DTOs.GorivoDTO;
 public class CreateGorivoZapisDto
 {
     public int? NalogId { get; set; }
+    public int? KrugId { get; set; }
 
     [Range(0, 9_999_999.99, ErrorMessage = "Iznos mora biti između 0 i 9,999,999.99.")]
     public decimal Iznos { get; set; }

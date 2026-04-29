@@ -156,7 +156,7 @@ public class KrugService : IKrugService
         };
 
         // Finansijski rezime preko zajedničkog helpera
-        var gorivoZapisi = await GetGorivoByKrugAsync(krug);
+        var gorivoZapisi = await GetGorivoByKrugAsync(krug, nalozi.Select(n => n.NalogId));
         var (troskoviKruga, gorivo, troskoviNaloga, prihodi, profit) = BuildFinancialSummary(krug, nalozi, gorivoZapisi);
         details.UkupniTroskoviKrugaPoValuti = troskoviKruga;
         details.UkupnoGorivoPoValuti = gorivo;
@@ -189,7 +189,7 @@ public class KrugService : IKrugService
                 && n.StatusNaloga != "Ponisten")
             .ToListAsync();
 
-        var gorivoZapisi = await GetGorivoByKrugAsync(krug);
+        var gorivoZapisi = await GetGorivoByKrugAsync(krug, nalozi.Select(n => n.NalogId));
         var (troskoviKruga, gorivo, troskoviNaloga, prihodi, profit) = BuildFinancialSummary(krug, nalozi, gorivoZapisi);
 
         return new KrugFinancialSummaryDto
@@ -564,19 +564,22 @@ public class KrugService : IKrugService
         return (troskoviKruga, gorivo, troskoviNaloga, prihodi, profit);
     }
 
-    private async Task<List<GorivoZapis>> GetGorivoByKrugAsync(Krug krug)
+    /// <summary>
+    /// Determinističko pravilo za gorivo u rezimeu kruga:
+    ///   1) GorivoZapis.KrugId == krug.KrugId
+    ///   2) ili GorivoZapis.NalogId pripada nalozima tog kruga.
+    /// Bez datum/vozilo heuristike.
+    /// </summary>
+    private async Task<List<GorivoZapis>> GetGorivoByKrugAsync(Krug krug, IEnumerable<int> nalogIds)
     {
-        var query = _context.GorivoZapisi
+        var nalogIdList = nalogIds.ToList();
+
+        return await _context.GorivoZapisi
             .AsNoTracking()
-            .Where(g => g.VoziloId == krug.VoziloId && g.DatumTocenja >= krug.StartAt);
-
-        if (krug.EndAt.HasValue)
-        {
-            var endAt = krug.EndAt.Value;
-            query = query.Where(g => g.DatumTocenja <= endAt);
-        }
-
-        return await query.ToListAsync();
+            .Where(g =>
+                g.KrugId == krug.KrugId
+                || (g.NalogId.HasValue && nalogIdList.Contains(g.NalogId.Value)))
+            .ToListAsync();
     }
 
     private static List<AmountByCurrencyDto> BuildTotals(IEnumerable<(string Currency, decimal Amount)> values)

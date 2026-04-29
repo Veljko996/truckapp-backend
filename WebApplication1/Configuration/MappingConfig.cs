@@ -270,7 +270,9 @@ public static class MappingConfig
             .Map(dest => dest.VoziloNaziv,
                  src => src.Vozilo != null ? src.Vozilo.Naziv : null)
             .Map(dest => dest.NalogBroj,
-                 src => src.Nalog != null ? src.Nalog.NalogBroj : null);
+                 src => src.Nalog != null ? src.Nalog.NalogBroj : null)
+            .Map(dest => dest.KrugBroj,
+                 src => src.Krug != null ? src.Krug.Broj : null);
 
         TypeAdapterConfig<CreateGorivoZapisDto, GorivoZapis>
             .NewConfig()
@@ -278,6 +280,7 @@ public static class MappingConfig
             .Ignore(dest => dest.VoziloId)
             .Ignore(dest => dest.Vozilo)
             .Ignore(dest => dest.Nalog)
+            .Ignore(dest => dest.Krug)
             .Ignore(dest => dest.CreatedAt)
             .Ignore(dest => dest.CreatedBy);
 

@@ -18,6 +18,7 @@ public class GorivoRepository : IGorivoRepository
         return await _context.GorivoZapisi
             .Include(g => g.Vozilo)
             .Include(g => g.Nalog)
+            .Include(g => g.Krug)
             .Where(g => g.VoziloId == voziloId)
             .AsNoTracking()
             .OrderByDescending(g => g.DatumTocenja)
@@ -30,7 +31,21 @@ public class GorivoRepository : IGorivoRepository
         return await _context.GorivoZapisi
             .Include(g => g.Vozilo)
             .Include(g => g.Nalog)
+            .Include(g => g.Krug)
             .Where(g => g.NalogId == nalogId)
+            .AsNoTracking()
+            .OrderByDescending(g => g.DatumTocenja)
+            .ThenByDescending(g => g.CreatedAt)
+            .ToListAsync();
+    }
+
+    public async Task<List<GorivoZapis>> GetByKrugIdAsync(int krugId)
+    {
+        return await _context.GorivoZapisi
+            .Include(g => g.Vozilo)
+            .Include(g => g.Nalog)
+            .Include(g => g.Krug)
+            .Where(g => g.KrugId == krugId)
             .AsNoTracking()
             .OrderByDescending(g => g.DatumTocenja)
             .ThenByDescending(g => g.CreatedAt)

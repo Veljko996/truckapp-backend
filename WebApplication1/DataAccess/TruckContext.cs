@@ -277,11 +277,21 @@ public class TruckContext : DbContext
             .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<GorivoZapis>()
+            .HasOne(g => g.Krug)
+            .WithMany(k => k.GorivoZapisi)
+            .HasForeignKey(g => g.KrugId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<GorivoZapis>()
             .HasIndex(g => g.VoziloId);
 
         modelBuilder.Entity<GorivoZapis>()
             .HasIndex(g => g.NalogId)
             .HasFilter("[NalogId] IS NOT NULL");
+
+        modelBuilder.Entity<GorivoZapis>()
+            .HasIndex(g => g.KrugId)
+            .HasFilter("[KrugId] IS NOT NULL");
 
         // ===================== DODELE VOZACA =====================
 
