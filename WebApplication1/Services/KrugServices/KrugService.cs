@@ -156,8 +156,10 @@ public class KrugService : IKrugService
         };
 
         // Finansijski rezime preko zajedničkog helpera
-        var (troskoviKruga, troskoviNaloga, prihodi, profit) = BuildFinancialSummary(krug, nalozi);
+        var gorivoZapisi = await GetGorivoByKrugAsync(krug);
+        var (troskoviKruga, gorivo, troskoviNaloga, prihodi, profit) = BuildFinancialSummary(krug, nalozi, gorivoZapisi);
         details.UkupniTroskoviKrugaPoValuti = troskoviKruga;
+        details.UkupnoGorivoPoValuti = gorivo;
         details.UkupniTroskoviNalogaPoValuti = troskoviNaloga;
         details.UkupniPrihodiPoValuti = prihodi;
         details.ProfitPoValuti = profit;
@@ -187,7 +189,8 @@ public class KrugService : IKrugService
                 && n.StatusNaloga != "Ponisten")
             .ToListAsync();
 
-        var (troskoviKruga, troskoviNaloga, prihodi, profit) = BuildFinancialSummary(krug, nalozi);
+        var gorivoZapisi = await GetGorivoByKrugAsync(krug);
+        var (troskoviKruga, gorivo, troskoviNaloga, prihodi, profit) = BuildFinancialSummary(krug, nalozi, gorivoZapisi);
 
         return new KrugFinancialSummaryDto
         {
@@ -197,6 +200,7 @@ public class KrugService : IKrugService
             BrojTura = krug.Ture.Count,
             BrojNaloga = nalozi.Count,
             UkupniTroskoviKrugaPoValuti = troskoviKruga,
+            UkupnoGorivoPoValuti = gorivo,
             UkupniTroskoviNalogaPoValuti = troskoviNaloga,
             UkupniPrihodiPoValuti = prihodi,
             ProfitPoValuti = profit
@@ -526,18 +530,22 @@ public class KrugService : IKrugService
 
     private static (
         List<AmountByCurrencyDto> TroskoviKruga,
+        List<AmountByCurrencyDto> Gorivo,
         List<AmountByCurrencyDto> TroskoviNaloga,
         List<AmountByCurrencyDto> Prihodi,
         List<AmountByCurrencyDto> Profit)
-        BuildFinancialSummary(Krug krug, IEnumerable<Nalog> nalozi)
+        BuildFinancialSummary(Krug krug, IEnumerable<Nalog> nalozi, IEnumerable<GorivoZapis> gorivoZapisi)
     {
         var nalozList = nalozi as IList<Nalog> ?? nalozi.ToList();
+        var gorivoList = gorivoZapisi as IList<GorivoZapis> ?? gorivoZapisi.ToList();
 
         var troskoviKruga = BuildTotals(krug.Troskovi.Select(t => (t.Valuta, t.Iznos)));
+        var gorivo = BuildTotals(gorivoList.Select(g => (g.Valuta, g.Iznos)));
         var troskoviNaloga = BuildTotals(nalozList.SelectMany(n => n.Troskovi).Select(t => (t.Valuta, t.Iznos)));
         var prihodi = BuildTotals(nalozList.SelectMany(n => n.Prihodi).Select(p => (p.Valuta, p.Iznos)));
 
         var allTroskovi = krug.Troskovi.Select(t => (t.Valuta, t.Iznos))
+            .Concat(gorivoList.Select(g => (g.Valuta, g.Iznos)))
             .Concat(nalozList.SelectMany(n => n.Troskovi).Select(t => (t.Valuta, t.Iznos)));
         var totalTroskovi = BuildTotals(allTroskovi);
 
@@ -553,7 +561,22 @@ public class KrugService : IKrugService
                    - (totalTroskovi.FirstOrDefault(x => x.Currency == v)?.Amount ?? 0m)
         }).ToList();
 
-        return (troskoviKruga, troskoviNaloga, prihodi, profit);
+        return (troskoviKruga, gorivo, troskoviNaloga, prihodi, profit);
+    }
+
+    private async Task<List<GorivoZapis>> GetGorivoByKrugAsync(Krug krug)
+    {
+        var query = _context.GorivoZapisi
+            .AsNoTracking()
+            .Where(g => g.VoziloId == krug.VoziloId && g.DatumTocenja >= krug.StartAt);
+
+        if (krug.EndAt.HasValue)
+        {
+            var endAt = krug.EndAt.Value;
+            query = query.Where(g => g.DatumTocenja <= endAt);
+        }
+
+        return await query.ToListAsync();
     }
 
     private static List<AmountByCurrencyDto> BuildTotals(IEnumerable<(string Currency, decimal Amount)> values)

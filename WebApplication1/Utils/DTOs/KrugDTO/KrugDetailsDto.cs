@@ -28,6 +28,7 @@ public class KrugDetailsDto
     public List<KrugTrosakDto> Troskovi { get; set; } = new();
 
     public List<AmountByCurrencyDto> UkupniTroskoviKrugaPoValuti { get; set; } = new();
+    public List<AmountByCurrencyDto> UkupnoGorivoPoValuti { get; set; } = new();
     public List<AmountByCurrencyDto> UkupniTroskoviNalogaPoValuti { get; set; } = new();
     public List<AmountByCurrencyDto> UkupniPrihodiPoValuti { get; set; } = new();
     public List<AmountByCurrencyDto> ProfitPoValuti { get; set; } = new();

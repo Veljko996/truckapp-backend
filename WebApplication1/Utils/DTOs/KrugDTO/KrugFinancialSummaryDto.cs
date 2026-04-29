@@ -12,6 +12,7 @@ public class KrugFinancialSummaryDto
     public int BrojNaloga { get; set; }
 
     public List<AmountByCurrencyDto> UkupniTroskoviKrugaPoValuti { get; set; } = new();
+    public List<AmountByCurrencyDto> UkupnoGorivoPoValuti { get; set; } = new();
     public List<AmountByCurrencyDto> UkupniTroskoviNalogaPoValuti { get; set; } = new();
     public List<AmountByCurrencyDto> UkupniPrihodiPoValuti { get; set; } = new();
     public List<AmountByCurrencyDto> ProfitPoValuti { get; set; } = new();
