@@ -48,6 +48,8 @@ public class TruckContext : DbContext
     // === Krug ===
     public DbSet<Krug> Krugovi { get; set; } = null!;
     public DbSet<KrugTrosak> KrugTroskovi { get; set; } = null!;
+    public DbSet<Drzava> Drzave { get; set; } = null!;
+    public DbSet<PrevoznikDrzava> PrevoznikDrzave { get; set; } = null!;
 
     // === Tenant ===
     public DbSet<Tenant> Tenants { get; set; } = null!;
@@ -92,6 +94,8 @@ public class TruckContext : DbContext
             .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
         modelBuilder.Entity<KrugTrosak>()
             .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<PrevoznikDrzava>()
+            .HasOne(e => e.Tenant).WithMany().HasForeignKey(e => e.TenantId).OnDelete(DeleteBehavior.Restrict);
 
         // ===================== USER / AUTH =====================
 
@@ -120,6 +124,39 @@ public class TruckContext : DbContext
             .WithMany()
             .HasForeignKey(t => t.PrevoznikId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<Tura>()
+            .HasOne(t => t.Drzava)
+            .WithMany()
+            .HasForeignKey(t => t.DrzavaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<PrevoznikDrzava>()
+            .HasOne(pd => pd.Prevoznik)
+            .WithMany(p => p.DrzaveRada)
+            .HasForeignKey(pd => pd.PrevoznikId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<PrevoznikDrzava>()
+            .HasOne(pd => pd.Drzava)
+            .WithMany(d => d.PrevoznikDrzave)
+            .HasForeignKey(pd => pd.DrzavaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<PrevoznikDrzava>()
+            .HasIndex(pd => new { pd.TenantId, pd.PrevoznikId, pd.DrzavaId })
+            .IsUnique();
+
+        modelBuilder.Entity<PrevoznikDrzava>()
+            .HasIndex(pd => new { pd.TenantId, pd.DrzavaId });
+
+        modelBuilder.Entity<Tura>()
+            .HasIndex(t => t.DrzavaId)
+            .HasFilter("[DrzavaId] IS NOT NULL");
+
+        modelBuilder.Entity<Drzava>()
+            .HasIndex(d => d.Kod)
+            .IsUnique();
 
         modelBuilder.Entity<Tura>()
             .HasOne(t => t.Vozilo)
@@ -407,6 +444,7 @@ public class TruckContext : DbContext
         modelBuilder.Entity<Log>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
         modelBuilder.Entity<Krug>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
         modelBuilder.Entity<KrugTrosak>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
+        modelBuilder.Entity<PrevoznikDrzava>().HasQueryFilter(e => _tenantProvider == null || e.TenantId == _tenantProvider.CurrentTenantId);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)

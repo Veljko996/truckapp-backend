@@ -77,6 +77,8 @@ public class TuraService : ITuraService
         if (tura.VoziloId == 0)
             tura.VoziloId = null;
 
+        await ValidateDrzavaAsync(tura.DrzavaId);
+
         // 5) Jedno vozilo samo na jednom aktivnom nalogu
         if (tura.VoziloId.HasValue && await _repository.IsVoziloZauzetoNaNaloguAsync(tura.VoziloId.Value, null))
             throw new ValidationException("Vozilo", "Ovo vozilo je već dodeljeno aktivnom nalogu. Jedno vozilo može biti samo na jednom nalogu.");
@@ -99,6 +101,7 @@ public class TuraService : ITuraService
 		var newTura = new Tura
 		{
 			KlijentId = source.KlijentId,
+            DrzavaId = source.DrzavaId,
 			PrevoznikId = source.PrevoznikId,
 			VrstaNadogradnjeId = source.VrstaNadogradnjeId,
 			VoziloId = null,
@@ -128,6 +131,7 @@ public class TuraService : ITuraService
 			?? throw new NotFoundException("Tura", $"Tura sa ID {id} nije pronađena.");
 
 		dto.Adapt(tura);
+        await ValidateDrzavaAsync(tura.DrzavaId);
 		await _repository.SaveChangesAsync();
 	}
 
@@ -138,6 +142,7 @@ public class TuraService : ITuraService
 			?? throw new NotFoundException("Tura", $"Tura sa ID {id} nije pronađena.");
 
 		dto.Adapt(tura);
+		await ValidateDrzavaAsync(tura.DrzavaId);
 		await SyncAssignmentReferencesAsync(tura);
 
 		// Jedno vozilo samo na jednom aktivnom nalogu; pri izmeni ove ture njeno vozilo ne smatra se zauzetim
@@ -274,6 +279,15 @@ public class TuraService : ITuraService
 		if (string.IsNullOrWhiteSpace(tura.Valuta))
 			throw new ValidationException("Valuta", "Valuta je obavezna za interni nalog.");
 	}
+
+    private async Task ValidateDrzavaAsync(int? drzavaId)
+    {
+        if (!drzavaId.HasValue)
+            return;
+
+        if (!await _repository.DrzavaExistsAsync(drzavaId.Value))
+            throw new ValidationException("Drzava", $"Država sa ID {drzavaId.Value} ne postoji.");
+    }
 
 
 }

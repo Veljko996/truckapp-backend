@@ -4,6 +4,9 @@ public class TuraReadDto
     public string? RedniBroj { get; set; }
     public string MestoUtovara { get; set; } = string.Empty;
     public string MestoIstovara { get; set; } = string.Empty;
+    public int? DrzavaId { get; set; }
+    public string? DrzavaNaziv { get; set; }
+    public string? DrzavaKod { get; set; }
 
     public DateTime? DatumUtovara { get; set; }
 

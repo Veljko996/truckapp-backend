@@ -18,6 +18,7 @@ public class CreateTuraDto
     public int KlijentId { get; set; }
     [Required]
     public int PrevoznikId { get; set; }
+    public int? DrzavaId { get; set; }
     public int? VoziloId { get; set; }
 
 }

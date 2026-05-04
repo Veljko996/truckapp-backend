@@ -38,6 +38,8 @@ using WebApplication1.Services.KrugServices;
 using WebApplication1.Repository.KrugRepository;
 using WebApplication1.Services.KrugTroskoviServices;
 using WebApplication1.Repository.KrugTroskoviRepository;
+using WebApplication1.Repository.DrzavaRepository;
+using WebApplication1.Services.DrzavaServices;
 
 namespace WebApplication1.Configuration;
 
@@ -110,6 +112,10 @@ public static class ApiConfig
         // Prevoznici services
         builder.Services.AddScoped<IPrevozniciRepository, PrevozniciRepository>();
         builder.Services.AddScoped<IPrevozniciService, PrevozniciService>();
+
+        // Drzave sifarnik
+        builder.Services.AddScoped<IDrzavaRepository, DrzavaRepository>();
+        builder.Services.AddScoped<IDrzavaService, DrzavaService>();
         
         // VrstaNadogradnje services
         builder.Services.AddScoped<IVrstaNadogradnjeRepository, VrstaNadogradnjeRepository>();

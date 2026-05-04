@@ -15,6 +15,7 @@ public interface ITureRepository
     Task<bool> VoziloExistsAsync(int voziloId);
     Task<bool> PrevoznikExistsAsync(int prevoznikId);
     Task<bool> KlijentExistsAsync(int klijentId);
+    Task<bool> DrzavaExistsAsync(int drzavaId);
 
     Task<Prevoznik?> GetPrevoznikByIdAsync(int id);
     Task<NasaVozila?> GetVoziloByIdAsync(int id);

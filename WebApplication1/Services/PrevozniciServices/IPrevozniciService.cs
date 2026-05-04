@@ -4,7 +4,7 @@ namespace WebApplication1.Services.PrevozniciServices;
 
 public interface IPrevozniciService
 {
-    Task<IEnumerable<PrevoznikDto>> GetAll();
+    Task<IEnumerable<PrevoznikDto>> GetAll(int? drzavaId = null);
     Task<PrevoznikDto> GetById(int prevoznikId);
     Task<PrevoznikDto> Create(CreatePrevoznikDto createDto);
     Task Update(int prevoznikId, UpdatePrevoznikDto updateDto);

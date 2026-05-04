@@ -24,7 +24,11 @@ public static class MappingConfig
              .Map(dest => dest.KlijentNaziv,
                   src => src.Klijent != null ? src.Klijent.NazivFirme : null)
              .Map(dest => dest.VrstaNadogradnjeNaziv,
-                  src => src.VrstaNadogradnje != null ? src.VrstaNadogradnje.Naziv : null);
+                  src => src.VrstaNadogradnje != null ? src.VrstaNadogradnje.Naziv : null)
+             .Map(dest => dest.DrzavaNaziv,
+                  src => src.Drzava != null ? src.Drzava.Naziv : null)
+             .Map(dest => dest.DrzavaKod,
+                  src => src.Drzava != null ? src.Drzava.Kod : null);
 
         TypeAdapterConfig<CreateTuraDto, Tura>
           .NewConfig()
@@ -33,6 +37,7 @@ public static class MappingConfig
           .Ignore(dest => dest.Prevoznik)
           .Ignore(dest => dest.Vozilo)
           .Ignore(dest => dest.Klijent)
+          .Ignore(dest => dest.Drzava)
           .Ignore(dest => dest.VrstaNadogradnje)
           .Ignore(dest => dest.KreiranPutniNalog);
 

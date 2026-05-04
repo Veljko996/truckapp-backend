@@ -1,4 +1,6 @@
-﻿namespace WebApplication1.Utils.DTOs.PrevoznikDTO;
+﻿using WebApplication1.Utils.DTOs.DrzavaDTO;
+
+namespace WebApplication1.Utils.DTOs.PrevoznikDTO;
 
 public class PrevoznikDto
 {
@@ -7,4 +9,5 @@ public class PrevoznikDto
     public string? Kontakt { get; set; }
     public string? Telefon { get; set; }
     public string? PIB { get; set; }
+    public List<PrevoznikDrzavaDto> DrzaveRada { get; set; } = new();
 }

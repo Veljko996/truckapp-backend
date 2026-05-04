@@ -21,6 +21,7 @@ public class TureRepository : ITureRepository
             .Include(t => t.Prevoznik)
             .Include(t => t.Vozilo)
             .Include(t => t.Klijent)
+            .Include(t => t.Drzava)
             .Include(t => t.VrstaNadogradnje)
             .Where(t => t.Prevoznik == null || t.Prevoznik.Interni != true)
             .OrderByDescending(t => t.TuraId);
@@ -32,6 +33,7 @@ public class TureRepository : ITureRepository
             .Include(t => t.Prevoznik)
             .Include(t => t.Vozilo)
             .Include(t => t.Klijent)
+            .Include(t => t.Drzava)
             .Include(t => t.VrstaNadogradnje)
             .FirstOrDefaultAsync(t => t.TuraId == id);
     }
@@ -93,6 +95,11 @@ public class TureRepository : ITureRepository
     public async Task<bool> KlijentExistsAsync(int klijentId)
     {
         return await _context.Klijenti.AnyAsync(c => c.KlijentId == klijentId);
+    }
+
+    public async Task<bool> DrzavaExistsAsync(int drzavaId)
+    {
+        return await _context.Drzave.AnyAsync(d => d.DrzavaId == drzavaId && d.Aktivna);
     }
 
     public async Task<Prevoznik?> GetPrevoznikByIdAsync(int id)

@@ -19,9 +19,9 @@ public class PrevozniciController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<PrevoznikDto>>> GetAll()
+    public async Task<ActionResult<IEnumerable<PrevoznikDto>>> GetAll([FromQuery] int? drzavaId = null)
     {
-        var prevoznici = await _service.GetAll();
+        var prevoznici = await _service.GetAll(drzavaId);
         return Ok(prevoznici);
     }
 

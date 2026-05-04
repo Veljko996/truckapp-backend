@@ -17,13 +17,32 @@ public class PrevozniciRepository : IPrevozniciRepository
     {
         return _context
             .Prevoznici!
-            .AsNoTracking();
+            .AsNoTracking()
+            .Include(p => p.DrzaveRada)
+                .ThenInclude(pd => pd.Drzava);
+    }
+
+    public IQueryable<Prevoznik> GetAllByDrzava(int drzavaId)
+    {
+        return _context
+            .Prevoznici!
+            .AsNoTracking()
+            .Include(p => p.DrzaveRada)
+                .ThenInclude(pd => pd.Drzava)
+            .Where(p => p.DrzaveRada.Any(pd => pd.DrzavaId == drzavaId));
     }
 
     public async Task<Prevoznik?> GetById(int prevoznikId)
     {
         return await _context.Prevoznici!
+            .Include(p => p.DrzaveRada)
+                .ThenInclude(pd => pd.Drzava)
             .FirstOrDefaultAsync(x => x.PrevoznikId == prevoznikId);
+    }
+
+    public async Task<bool> DrzavaExistsAsync(int drzavaId)
+    {
+        return await _context.Drzave.AnyAsync(d => d.DrzavaId == drzavaId && d.Aktivna);
     }
 
     public void Create(Prevoznik prevoznik)

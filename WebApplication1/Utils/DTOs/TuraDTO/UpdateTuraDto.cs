@@ -2,6 +2,7 @@
 
 public class UpdateTuraDto
 {
+    public int? DrzavaId { get; set; }
     public string? MestoUtovara { get; set; }
     public string? MestoIstovara { get; set; }
     public DateTime? DatumUtovara { get; set; }

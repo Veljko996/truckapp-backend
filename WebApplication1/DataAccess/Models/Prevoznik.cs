@@ -26,4 +26,6 @@ public class Prevoznik : ITenantEntity
     public string? PIB { get; set; }
 
     public bool Interni { get; set; }
+
+    public ICollection<PrevoznikDrzava> DrzaveRada { get; set; } = new List<PrevoznikDrzava>();
 }

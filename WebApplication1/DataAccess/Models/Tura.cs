@@ -60,6 +60,9 @@ public class Tura : ITenantEntity
     public int? KlijentId { get; set; }
     public Klijent? Klijent { get; set; }
 
+    public int? DrzavaId { get; set; }
+    public Drzava? Drzava { get; set; }
+
     public int? PrevoznikId { get; set; }
     public Prevoznik? Prevoznik { get; set; }
 
