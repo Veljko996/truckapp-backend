@@ -105,10 +105,14 @@ public class NalogService : INalogService
         if (tura == null)
             throw new NotFoundException("Tura", $"Tura sa ID {turaId} nije pronađena.");
 
+        await using var tx = await _repository.BeginTransactionAsync();
+
         var nalog = await CreateNalogEntityFromTuraAsync(tura, dto.Adapt<Nalog>(), autoCreatedFromTuraAssignment: false);
         tura.StatusTure = "Kreiran Nalog";
         _repository.Add(nalog);
         await _repository.SaveChangesAsync();
+        await tx.CommitAsync();
+
         var created = await _repository.GetByIdAsync(nalog.NalogId);
         return created!.Adapt<NalogReadDto>();
     }
@@ -144,6 +148,16 @@ public class NalogService : INalogService
         return true;
     }
 
+    public async Task<bool> SyncExternalAssignmentForTuraAsync(Tura tura)
+    {
+        var existing = await _repository.GetActiveByTuraIdAsync(tura.TuraId);
+        if (existing == null || existing.Prevoznik?.Interni == true)
+            return false;
+
+        SyncAssignmentFieldsFromTura(existing, tura);
+        _repository.Update(existing);
+        return true;
+    }
 
     public async Task AssignPrevoznik(int id, AssignPrevoznikDto dto)
     {

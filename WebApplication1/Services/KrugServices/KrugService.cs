@@ -237,6 +237,9 @@ public class KrugService : IKrugService
             throw new ConflictException("Krug", $"Vozilo '{vozilo.Naziv}' već ima otvoren krug (#{existingOpen.KrugId}).");
 
         var username = _httpContextAccessor.HttpContext?.User?.Identity?.Name;
+
+        await using var tx = await _context.Database.BeginTransactionAsync();
+
         var nextBroj = await _repository.GetNextKrugBrojAsync();
 
         var krug = new Krug
@@ -253,6 +256,7 @@ public class KrugService : IKrugService
 
         _repository.Add(krug);
         await _repository.SaveChangesAsync();
+        await tx.CommitAsync();
 
         var created = await _repository.GetByIdAsync(krug.KrugId);
         var vozaciByVoziloId = await GetActiveVozaciByVoziloIdsAsync(new[] { created!.VoziloId });
@@ -282,39 +286,33 @@ public class KrugService : IKrugService
             throw new ConflictException("Krug", $"Vozilo već ima otvoren krug (#{existingOpen.KrugId}).");
 
         var username = _httpContextAccessor.HttpContext?.User?.Identity?.Name;
-        var nextBroj = await _repository.GetNextKrugBrojAsync();
 
         await using var tx = await _context.Database.BeginTransactionAsync();
-        try
+
+        var nextBroj = await _repository.GetNextKrugBrojAsync();
+
+        var krug = new Krug
         {
-            var krug = new Krug
-            {
-                Broj = FormatKrugBroj(nextBroj),
-                VoziloId = voziloId.Value,
-                StartAt = DateTime.UtcNow,
-                PocetnaKilometraza = vozilo.Kilometraza,
-                Status = "Otvoren",
-                CreatedAt = DateTime.UtcNow,
-                CreatedBy = username
-            };
+            Broj = FormatKrugBroj(nextBroj),
+            VoziloId = voziloId.Value,
+            StartAt = DateTime.UtcNow,
+            PocetnaKilometraza = vozilo.Kilometraza,
+            Status = "Otvoren",
+            CreatedAt = DateTime.UtcNow,
+            CreatedBy = username
+        };
 
-            _repository.Add(krug);
-            await _repository.SaveChangesAsync();
+        _repository.Add(krug);
+        await _repository.SaveChangesAsync();
 
-            // Poveži postojeću Turu sa novim Krugom
-            await _turaService.AssignKrugAsync(nalog.TuraId, krug.KrugId);
+        // Poveži postojeću Turu sa novim Krugom
+        await _turaService.AssignKrugAsync(nalog.TuraId, krug.KrugId);
 
-            await tx.CommitAsync();
+        await tx.CommitAsync();
 
-            var created = await _repository.GetByIdAsync(krug.KrugId);
-            var vozaciByVoziloId = await GetActiveVozaciByVoziloIdsAsync(new[] { created!.VoziloId });
-            return MapReadDto(created, vozaciByVoziloId.GetValueOrDefault(created.VoziloId));
-        }
-        catch
-        {
-            await tx.RollbackAsync();
-            throw;
-        }
+        var created = await _repository.GetByIdAsync(krug.KrugId);
+        var vozaciByVoziloId = await GetActiveVozaciByVoziloIdsAsync(new[] { created!.VoziloId });
+        return MapReadDto(created, vozaciByVoziloId.GetValueOrDefault(created.VoziloId));
     }
 
     public async Task<NalogReadDto> CreateNalogForKrugAsync(int krugId, CreateNalogForKrugDto dto)
@@ -339,56 +337,49 @@ public class KrugService : IKrugService
             throw new ValidationException("Valuta", "Valuta je obavezna za interni nalog.");
 
         await using var tx = await _context.Database.BeginTransactionAsync();
-        try
+
+        // 1) Kreiraj Turu (vozilo iz Kruga)
+        var turaBroj = await _turaRepository.GetNextTuraBrojAsync();
+        var tura = new Tura
         {
-            // 1) Kreiraj Turu (vozilo iz Kruga)
-            var turaBroj = await _turaRepository.GetNextTuraBrojAsync();
-            var tura = new Tura
-            {
-                RedniBroj = turaBroj,
-                MestoUtovara = dto.MestoUtovara,
-                MestoIstovara = dto.MestoIstovara,
-                DatumUtovara = dto.DatumUtovara,
-                DatumIstovara = dto.DatumIstovara,
-                KolicinaRobe = dto.KolicinaRobe,
-                Tezina = dto.Tezina,
-                VrstaNadogradnjeId = dto.VrstaNadogradnjeId,
-                KlijentId = dto.KlijentId,
-                PrevoznikId = dto.PrevoznikId,
-                VoziloId = krug.VoziloId,
-                KrugId = krug.KrugId,
-                IzlaznaCena = dto.IzlaznaCena,
-                UlaznaCena = dto.UlaznaCena,
-                Valuta = dto.Valuta,
-                IzvoznoCarinjenje = dto.IzvoznoCarinjenje,
-                UvoznoCarinjenje = dto.UvoznoCarinjenje,
-                Napomena = dto.Napomena,
-                NapomenaKlijenta = dto.NapomenaKlijenta,
-                StatusTure = "Kreiran Nalog"
-            };
+            RedniBroj = turaBroj,
+            MestoUtovara = dto.MestoUtovara,
+            MestoIstovara = dto.MestoIstovara,
+            DatumUtovara = dto.DatumUtovara,
+            DatumIstovara = dto.DatumIstovara,
+            KolicinaRobe = dto.KolicinaRobe,
+            Tezina = dto.Tezina,
+            VrstaNadogradnjeId = dto.VrstaNadogradnjeId,
+            KlijentId = dto.KlijentId,
+            PrevoznikId = dto.PrevoznikId,
+            VoziloId = krug.VoziloId,
+            KrugId = krug.KrugId,
+            IzlaznaCena = dto.IzlaznaCena,
+            UlaznaCena = dto.UlaznaCena,
+            Valuta = dto.Valuta,
+            IzvoznoCarinjenje = dto.IzvoznoCarinjenje,
+            UvoznoCarinjenje = dto.UvoznoCarinjenje,
+            Napomena = dto.Napomena,
+            NapomenaKlijenta = dto.NapomenaKlijenta,
+            StatusTure = "Kreiran Nalog"
+        };
 
-            _turaRepository.Add(tura);
-            await _turaRepository.SaveChangesAsync();
+        _turaRepository.Add(tura);
+        await _turaRepository.SaveChangesAsync();
 
-            // 2) Učitaj turu sa navigationima (potrebno za EnsureInternalForTuraAsync)
-            var turaFull = await _turaRepository.GetByIdAsync(tura.TuraId)
-                ?? throw new NotFoundException("Tura", "Tura nije pronađena nakon kreiranja.");
+        // 2) Učitaj turu sa navigationima (potrebno za EnsureInternalForTuraAsync)
+        var turaFull = await _turaRepository.GetByIdAsync(tura.TuraId)
+            ?? throw new NotFoundException("Tura", "Tura nije pronađena nakon kreiranja.");
 
-            // 3) Ensure-uj interni Nalog kroz postojeću logiku NalogService-a
-            var (nalog, _) = await _nalogService.EnsureInternalForTuraAsync(turaFull);
-            await _nalogPrihodiService.EnsureSeededInitialPrihodAsync(nalog, turaFull);
-            await _context.SaveChangesAsync();
+        // 3) Ensure-uj interni Nalog kroz postojeću logiku NalogService-a
+        var (nalog, _) = await _nalogService.EnsureInternalForTuraAsync(turaFull);
+        await _nalogPrihodiService.EnsureSeededInitialPrihodAsync(nalog, turaFull);
+        await _context.SaveChangesAsync();
 
-            await tx.CommitAsync();
+        await tx.CommitAsync();
 
-            var created = await _nalogRepository.GetByIdAsync(nalog.NalogId);
-            return created!.Adapt<NalogReadDto>();
-        }
-        catch
-        {
-            await tx.RollbackAsync();
-            throw;
-        }
+        var created = await _nalogRepository.GetByIdAsync(nalog.NalogId);
+        return created!.Adapt<NalogReadDto>();
     }
 
     public async Task CloseAsync(int krugId, CloseKrugDto? dto = null)

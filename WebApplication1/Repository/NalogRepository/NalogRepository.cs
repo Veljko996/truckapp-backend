@@ -1,6 +1,7 @@
 using System.Data;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using WebApplication1.Utils.Tenant;
 
 namespace WebApplication1.Repository.NalogRepository;
@@ -110,6 +111,8 @@ public class NalogRepository : INalogRepository
         return (string)output.Value!;
     }
 
+    public Task<IDbContextTransaction> BeginTransactionAsync()
+        => _context.Database.BeginTransactionAsync();
 
     public async Task<bool> SaveChangesAsync()
     {

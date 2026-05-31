@@ -10,6 +10,7 @@ public interface ITureRepository
     Task<bool> SaveChangesAsync();
     Task<string> GetNextTuraBrojAsync();
     Task<string> GetNextDocumentNumberAsync(string documentType);
+    Task<IDbContextTransaction> BeginTransactionAsync();
 
     // tehničke provere FK vrednosti
     Task<bool> VoziloExistsAsync(int voziloId);

@@ -77,6 +77,9 @@ public class TureRepository : ITureRepository
         return (string)output.Value!;
     }
 
+    public Task<IDbContextTransaction> BeginTransactionAsync()
+        => _context.Database.BeginTransactionAsync();
+
     public async Task<bool> SaveChangesAsync()
     {
         return await _context.SaveChangesAsync() > 0;

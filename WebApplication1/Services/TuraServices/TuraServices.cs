@@ -64,28 +64,24 @@ public class TuraService : ITuraService
 
     public async Task<TuraReadDto> Create(CreateTuraDto dto)
     {
-        // 1) Uzmi sledeći broj iz baze (DB broji)
-        var turaBroj = await _repository.GetNextTuraBrojAsync();
-
-        // 2) Mapiraj DTO → Entity (samo int/int? za FK – ne string)
         var tura = dto.Adapt<Tura>();
-
-        // 3) Sistemska polja
-        tura.RedniBroj = turaBroj;
-        tura.StatusTure = "Kreirana";
 
         if (tura.VoziloId == 0)
             tura.VoziloId = null;
 
         await ValidateDrzavaAsync(tura.DrzavaId);
 
-        // 5) Jedno vozilo samo na jednom aktivnom nalogu
         if (tura.VoziloId.HasValue && await _repository.IsVoziloZauzetoNaNaloguAsync(tura.VoziloId.Value, null))
             throw new ValidationException("Vozilo", "Ovo vozilo je već dodeljeno aktivnom nalogu. Jedno vozilo može biti samo na jednom nalogu.");
 
-        // 6) Jedan insert, jedan SaveChanges
+        await using var tx = await _repository.BeginTransactionAsync();
+
+        tura.RedniBroj = await _repository.GetNextTuraBrojAsync();
+        tura.StatusTure = "Kreirana";
+
         _repository.Add(tura);
         await _repository.SaveChangesAsync();
+        await tx.CommitAsync();
 
         var created = await _repository.GetByIdAsync(tura.TuraId);
         return created!.Adapt<TuraReadDto>();
@@ -95,6 +91,8 @@ public class TuraService : ITuraService
 		var source = await _repository.GetByIdAsync(sourceTuraId);
 		if (source is null)
 			throw new NotFoundException("Tura", $"Tura sa ID {sourceTuraId} nije pronađena.");
+
+		await using var tx = await _repository.BeginTransactionAsync();
 
 		var newRedniBroj = await _repository.GetNextTuraBrojAsync();
 
@@ -121,6 +119,7 @@ public class TuraService : ITuraService
 
 		_repository.Add(newTura);
 		await _repository.SaveChangesAsync();
+		await tx.CommitAsync();
 
 		return newTura.Adapt<TuraReadDto>();
 	}
@@ -163,6 +162,8 @@ public class TuraService : ITuraService
 		var nalogCreatedNow = false;
 		var seededPrihodCreatedNow = false;
 
+		await using var tx = await _repository.BeginTransactionAsync();
+
 		if (isInternalAssignment)
 		{
 			ValidateInternalAssignmentSeedData(tura);
@@ -174,10 +175,12 @@ public class TuraService : ITuraService
 		else
 		{
 			await _nalogService.CancelActiveInternalForTuraAsync(tura.TuraId);
-			tura.StatusTure = "Dodeljena";
+			var hasActiveExternalNalog = await _nalogService.SyncExternalAssignmentForTuraAsync(tura);
+			tura.StatusTure = hasActiveExternalNalog ? "Kreiran Nalog" : "Dodeljena";
 		}
 
 		await _repository.SaveChangesAsync();
+		await tx.CommitAsync();
 
 		return new UpdateTuraBusinessResultDto
 		{

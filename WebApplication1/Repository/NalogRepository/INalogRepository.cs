@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore.Storage;
+
 namespace WebApplication1.Repository.NalogRepository;
 
 public interface INalogRepository
@@ -8,6 +10,7 @@ public interface INalogRepository
     Task<Nalog?> GetByIdAsync(int id);
     Task<Nalog?> GetActiveByTuraIdAsync(int turaId);
     Task<string> GetNextDocumentNumberAsync(string documentType);
+    Task<IDbContextTransaction> BeginTransactionAsync();
 
     void Add(Nalog nalog);
     void Update(Nalog nalog);
