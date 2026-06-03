@@ -8,7 +8,7 @@ namespace WebApplication1.Services.TuraServices;
 public class TuraService : ITuraService
 {
     private const int DefaultPageSize = 50;
-    private const int MaxPageSize = 500;
+    private const int MaxPageSize = 1000;
 
     private readonly ITureRepository _repository;
     private readonly INalogService _nalogService;

@@ -25,7 +25,7 @@ public class NalogService : INalogService
     }
 
     private const int DefaultPageSize = 50;
-    private const int MaxPageSize = 500;
+    private const int MaxPageSize = 1000;
 
     private static (int page, int pageSize) NormalizePage(int page, int pageSize)
     {
