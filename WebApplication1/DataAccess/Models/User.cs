@@ -43,6 +43,11 @@ public class User : ITenantEntity
     // Authentication fields
     public string? RefreshToken { get; set; }
     public DateTime? RefreshTokenExpiryTime { get; set; }
+
+    // Prethodni refresh token (heš) — ostaje validan kratak "grace" period posle rotacije,
+    // da dva istovremena refresh-a (npr. dva taba / dva uređaja) ne izloguju jedan drugog.
+    public string? PreviousRefreshToken { get; set; }
+    public DateTime? PreviousRefreshTokenExpiryTime { get; set; }
     
     // Navigation property for Employee (optional 1:1 relationship)
     public Employee? Employee { get; set; }

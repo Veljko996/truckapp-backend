@@ -32,28 +32,20 @@ public class AuthenticationRepository : IAuthenticationRepository
             .FirstOrDefaultAsync(u => u.UserId == userId);
     }
 
-    public async Task<bool> UsernameExistsAsync(string username)
-    {
-        return await _context.Users.AnyAsync(u => u.Username == username);
-    }
-
-    public async Task AddAsync(User user)
-    {
-        await _context.Users.AddAsync(user);
-    }
-
     public async Task UpdateAsync(User user)
     {
        _context.Users.Update(user);
     }
     public async Task<User?> GetUserByRefreshTokenAsync(string refreshToken)
     {
+        var now = DateTime.UtcNow;
+        // Matchuj tekući token (ako nije istekao) ILI prethodni u grace prozoru.
         return await _context.Users
             .IgnoreQueryFilters()
             .Include(u => u.Roles)
             .FirstOrDefaultAsync(u =>
-                u.RefreshToken == refreshToken &&
-                u.RefreshTokenExpiryTime > DateTime.UtcNow);
+                (u.RefreshToken == refreshToken && u.RefreshTokenExpiryTime > now) ||
+                (u.PreviousRefreshToken == refreshToken && u.PreviousRefreshTokenExpiryTime > now));
     }
 
 

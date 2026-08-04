@@ -2,12 +2,12 @@ using WebApplication1.Services.AuthenticationServices;
 using WebApplication1.Utils;
 using WebApplication1.Utils.DTOs.UserDTO;
 using System.Security.Claims;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace WebApplication1.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[AllowAnonymous]
 public class AuthController : ControllerBase
 {
 	private readonly IAuthService _service;
@@ -24,25 +24,9 @@ public class AuthController : ControllerBase
 		_env = env;
 	}
 
-	[HttpPost("register")]
-	public async Task<ActionResult<User>> Register(RegisterUserDto request)
-	{
-		try
-		{
-			var user = await _service.RegisterAsync(request);
-			if (user is null)
-				return BadRequest("Username already exists.");
-
-			return Ok(user);
-		}
-		catch (Exception ex)
-		{
-			_logger.LogError(ex, "Greška u registraciji korisnika: {Username}", request.Username);
-			throw;
-		}
-	}
-
 	[HttpPost("login")]
+	[AllowAnonymous]
+	[EnableRateLimiting("auth")]
 	public async Task<IActionResult> Login(LoginUserDto request)
 	{
 		var result = await _service.LoginAsync(request);
@@ -61,6 +45,7 @@ public class AuthController : ControllerBase
 	}
 
 	[HttpPost("refresh-token")]
+	[AllowAnonymous]
 	public async Task<IActionResult> RefreshToken()
 	{
 		try

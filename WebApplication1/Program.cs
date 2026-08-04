@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using MapsterMapper;
 using Microsoft.ApplicationInsights.AspNetCore.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -127,23 +128,73 @@ builder.Services.AddApplicationInsightsTelemetry();
 builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+// ================= RATE LIMITING =================
+// Štiti login od brute-force napada na lozinke. Primenjuje se SAMO na login
+// (refresh token je 256-bitni random pa je brute-force nemoguć; rate limit tamo
+// samo nosi rizik lažnog zaključavanja iza deljenog kancelarijskog NAT IP-a).
+//
+// Klijentski IP: Azure App Service front-end DODAJE stvarni klijentski IP kao POSLEDNJI unos
+// u X-Forwarded-For (napadač može da "prepend"-uje lažne IP-jeve levo, ali ne posle Azure unosa).
+// Zato uzimamo POSLEDNJI unos (ne prvi) i skidamo :port (ephemeral, menja se po konekciji) da
+// dobijemo stabilan ključ koji se ne može trivijalno lažirati. Fallback na RemoteIpAddress lokalno.
+// Namerno NE koristimo ForwardedHeaders middleware: sa očišćenim KnownProxies header se ne bi
+// obrađivao i svi bi pali u jednu particiju (globalno zaključavanje).
+static string ResolveClientIp(HttpContext ctx)
+{
+    var xff = ctx.Request.Headers["X-Forwarded-For"].ToString();
+    if (!string.IsNullOrWhiteSpace(xff))
+    {
+        var last = xff.Split(',')[^1].Trim();
+        // Skini :port kod IPv4 "a.b.c.d:port" (ephemeral port bi napravio novu particiju po zahtevu).
+        var colon = last.LastIndexOf(':');
+        if (colon > 0 && last.IndexOf('.') > 0)
+            last = last[..colon];
+        if (!string.IsNullOrWhiteSpace(last))
+            return last;
+    }
+    return ctx.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+}
+
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+
+    options.AddPolicy("auth", httpContext =>
+    {
+        var clientIp = ResolveClientIp(httpContext);
+
+        return RateLimitPartition.GetFixedWindowLimiter(clientIp, _ => new FixedWindowRateLimiterOptions
+        {
+            PermitLimit = 10,
+            Window = TimeSpan.FromMinutes(1),
+            QueueLimit = 0
+        });
+    });
+
+    // Kad limiter odbije zahtev, ASP.NET podrazumevano vraća PRAZAN body -> frontend prikaže prazan
+    // toast. Ovde vraćamo lokalizovani JSON (isti oblik kao GlobalExceptionHandler: camelCase "message")
+    // + Retry-After header da klijent zna koliko da čeka.
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        context.HttpContext.Response.StatusCode = StatusCodes.Status429TooManyRequests;
+        context.HttpContext.Response.Headers.RetryAfter = "60";
+        context.HttpContext.Response.ContentType = "application/json";
+        await context.HttpContext.Response.WriteAsync(
+            "{\"status\":429,\"type\":\"RateLimited\",\"message\":\"Previše pokušaja prijave. Sačekajte minut i pokušajte ponovo.\"}",
+            cancellationToken);
+    };
+});
+
 
 var app = builder.Build();
 
 // ================= SWAGGER =================
+// Swagger je izložen SAMO u Development/Staging. U Production je isključen da API šema
+// (svi endpointi, modeli) ne bude javno dostupna.
 if (app.Environment.IsDevelopment() || app.Environment.IsStaging())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
-}
-else
-{
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Truck API v1");
-        c.DocumentTitle = "Truck API Docs";
-    });
 }
 
 // ================= PIPELINE =================
@@ -156,8 +207,10 @@ app.UseCors("AllowFrontend");
 // Modern exception handling (replaces ErrorHandlerMiddleware)
 app.UseExceptionHandler();
 
-app.UseAuthentication();   
+app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseRateLimiter();
 
 app.UseMiddleware<RequestLoggingMiddleware>();
 

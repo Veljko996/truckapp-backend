@@ -6,8 +6,6 @@ namespace WebApplication1.Repository.AuthenticationRepository;
         Task<User?> GetByUsernameAndTenantAsync(string username, int tenantId);
         Task<Tenant?> GetTenantBySlugAsync(string slug);
         Task<User?> GetByIdAsync(int userId);
-        Task<bool> UsernameExistsAsync(string username);
-        Task AddAsync(User user);
         Task UpdateAsync(User user);
         Task<User?> GetUserByRefreshTokenAsync(string refreshToken);
         Task<bool> SaveChangesAsync();

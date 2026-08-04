@@ -194,6 +194,14 @@ public class UserService : IUserService
         user.IsActive = false;
         user.UpdatedAt = DateTime.UtcNow;
 
+        // Poništi refresh token da deaktivirani korisnik ne može da produži sesiju
+        // (konzistentno sa ChangePassword/AdminResetPassword). Njegov sledeći refresh
+        // odmah otpada -> sesija pada najkasnije kad istekne access token.
+        user.RefreshToken = null;
+        user.RefreshTokenExpiryTime = null;
+        user.PreviousRefreshToken = null;
+        user.PreviousRefreshTokenExpiryTime = null;
+
         await _userRepository.UpdateAsync(user);
         return await _userRepository.SaveChangesAsync();
     }
