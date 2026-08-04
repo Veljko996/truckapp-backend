@@ -36,6 +36,8 @@ using WebApplication1.Services.QueuePublisherServices;
 using WebApplication1.Utils.Tenant;
 using WebApplication1.Services.KrugServices;
 using WebApplication1.Repository.KrugRepository;
+using WebApplication1.Services.ReportServices;
+using WebApplication1.Repository.ReportRepository;
 using WebApplication1.Services.KrugTroskoviServices;
 using WebApplication1.Repository.KrugTroskoviRepository;
 using WebApplication1.Repository.DrzavaRepository;
@@ -138,6 +140,9 @@ public static class ApiConfig
 
         builder.Services.AddScoped<IKrugTroskoviRepository, KrugTroskoviRepository>();
         builder.Services.AddScoped<IKrugTroskoviService, KrugTroskoviService>();
+
+        builder.Services.AddScoped<IReportRepository, ReportRepository>();
+        builder.Services.AddScoped<IReportService, ReportService>();
 
         return builder;
     }
