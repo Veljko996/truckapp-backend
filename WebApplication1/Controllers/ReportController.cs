@@ -7,7 +7,7 @@ namespace WebApplication1.Controllers;
 
 [ApiController]
 [Route("api/reports")]
-[Authorize(Roles = "Admin,Korisnik")]
+[Authorize(Roles = "Admin")]
 public class ReportController : ControllerBase
 {
     private readonly IReportService _service;
